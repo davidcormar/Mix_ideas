@@ -42,3 +42,7 @@ Horas en hora de Madrid (CET).
 ## 08 · barcos-oscuros — 00:42 → 00:44
 - Dossier (física SAR, acceso gratuito a Sentinel-1, xView3, arquitecturas, AIS, ética) + pipeline `sarpipe` (tiles, CA-CFAR, eslora, cruce húngaro con AIS) sobre escena sintética. Recall 100 %, precisión 96 %. 5 tests OK.
 - **Problemas:** sin escenas SAR reales descargables sin cuenta → demo sintética. Los barcos largos se partían (guarda CFAR de 4 px) → guarda de 14 px + cierre morfológico.
+
+## 09 · frances-delf — 00:44 → 00:48
+- Estructura DELF A2/B1/B2, 12 fichas de gramática (96 ejercicios) con soluciones aparte, 8 mazos CSV para Anki (200 tarjetas), 30 temas graduados, guiones orales, recursos. 3 tests de formato OK.
+- Sin problemas. Nota: aviso de que FEI ha renovado formatos; confirmar al inscribirse.
