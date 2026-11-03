@@ -63,3 +63,6 @@ Horas en hora de Madrid (CET).
 - Checklist con línea temporal, visado, vacunas (información general + fuentes oficiales), seguro, vuelos, dinero/UPI, SIM, equipaje (sábanas y toallas), guía de Hyderabad y presupuesto.
 - **Hallazgo importante:** posible conflicto entre entregar el pasaporte para el visado indio y el viaje a Londres (19-22 nov), y la ETA británica obligatoria. Llevado a PARA-DAVID.
 - Limitación: no pude verificar en vivo las webs oficiales (red restringida); todo lleva enlace para comprobar.
+
+## 14 · portfolio-linkedin — 00:58 → 00:58
+- README de perfil, portfolio de un fichero, borradores de LinkedIn ES/EN, plantilla de 10 referentes (sin inventar personas).

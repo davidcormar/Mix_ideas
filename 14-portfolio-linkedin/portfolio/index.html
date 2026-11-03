@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>David · ML Engineer en formación</title>
+<meta name="description" content="Portfolio de David: machine learning aplicado a aerodinámica, deporte y datos reales.">
+<style>
+  :root { --bg:#fbfbfa; --ink:#111827; --mute:#6b7280; --line:#e5e7eb; --acc:#1d4ed8; --card:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b0d12; --ink:#e5e7eb; --mute:#9ca3af; --line:#1f2937; --acc:#93c5fd; --card:#111827; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .wrap { max-width:860px; margin:0 auto; padding:0 20px; }
+  header { padding:72px 0 32px; }
+  h1 { font-size:clamp(30px,6vw,46px); line-height:1.1; margin:0 0 12px; }
+  .lead { font-size:20px; color:var(--mute); max-width:640px; }
+  nav a, .links a { color:var(--acc); text-decoration:none; margin-right:16px; font-weight:600; }
+  section { padding:28px 0; border-top:1px solid var(--line); }
+  h2 { font-size:14px; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); margin:0 0 16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .card h3 { margin:0 0 6px; font-size:18px; }
+  .card p { margin:0 0 10px; color:var(--mute); font-size:15px; }
+  .tags span { display:inline-block; font-size:12px; border:1px solid var(--line); border-radius:99px; padding:2px 8px; margin:2px 4px 0 0; }
+  .metric { font-weight:700; color:var(--ink); }
+  ul.time { list-style:none; padding:0; margin:0; }
+  ul.time li { padding:8px 0; border-bottom:1px dashed var(--line); }
+  ul.time b { display:inline-block; min-width:110px; }
+  footer { padding:32px 0 60px; color:var(--mute); font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav><a href="#proyectos">Proyectos</a><a href="#sobre-mi">Sobre mí</a><a href="#contacto">Contacto</a></nav>
+    <h1 style="margin-top:28px">Convierto ideas difíciles<br>en sistemas que funcionan.</h1>
+    <p class="lead">Soy David, estudiante de Ingeniería en Sistemas Inteligentes en la UIE (A Coruña) y futuro ML Engineer. Deep learning aplicado a aerodinámica, deporte y datos reales.</p>
+    <div class="links"><a href="https://github.com/davidcormar">GitHub</a><a href="https://www.linkedin.com/in/[tu-url]">LinkedIn</a></div>
+  </header>
+
+  <section id="proyectos">
+    <h2>Proyectos</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>🏎️ [Proyecto F1]</h3>
+        <p>[Pregunta que responde y conclusión principal con un número.]</p>
+        <div class="tags"><span>FastF1</span><span>pandas</span><span>matplotlib</span></div>
+        <p style="margin-top:10px"><a href="#">Código →</a></p>
+      </article>
+      <article class="card">
+        <h3>🛩️ Túnel de viento neuronal</h3>
+        <p>Solver de paneles propio y red neuronal que predice Cl y Cm <span class="metric">~1.600× más rápido</span> con error medio 0,002.</p>
+        <div class="tags"><span>NumPy</span><span>scikit-learn</span><span>aerodinámica</span></div>
+        <p style="margin-top:10px"><a href="#">Código →</a></p>
+      </article>
+      <article class="card">
+        <h3>✏️ Generador de perfiles alares</h3>
+        <p>VAE condicional escrito en NumPy sobre 2.090 perfiles UIUC: genera perfiles <span class="metric">100 % válidos</span> con el Cl pedido.</p>
+        <div class="tags"><span>VAE</span><span>CST</span><span>NumPy</span></div>
+        <p style="margin-top:10px"><a href="#">Código →</a></p>
+      </article>
+      <article class="card">
+        <h3>🛰️ Barcos oscuros</h3>
+        <p>Pipeline de detección de barcos en radar SAR (Sentinel-1) y cruce con AIS para encontrar barcos sin transpondedor.</p>
+        <div class="tags"><span>SAR</span><span>CFAR</span><span>geoespacial</span></div>
+        <p style="margin-top:10px"><a href="#">Código →</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section id="sobre-mi">
+    <h2>Sobre mí</h2>
+    <ul class="time">
+      <li><b>2024 – 2028</b> Ingeniería en Sistemas Inteligentes · UIE, A Coruña</li>
+      <li><b>Ene – may 2027</b> Intercambio · Woxsen University, Hyderabad (India)</li>
+      <li><b>2026 – 27</b> Machine Learning Specialization (Andrew Ng, Coursera)</li>
+      <li><b>Idiomas</b> Español (nativo) · Inglés · Francés (camino al DELF B2)</li>
+      <li><b>Fuera de clase</b> Running (5K → sub-25 en 2027), gimnasio, aviación y F1</li>
+    </ul>
+  </section>
+
+  <section id="contacto">
+    <h2>Contacto</h2>
+    <p>¿Trabajas en ML aplicado a ingeniería, aeroespacial o deporte? Escríbeme por <a href="https://www.linkedin.com/in/[tu-url]">LinkedIn</a>.</p>
+  </section>
+  <footer>© 2026 David · Hecho a mano, sin frameworks.</footer>
+</div>
+</body>
+</html>

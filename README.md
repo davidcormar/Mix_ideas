@@ -20,7 +20,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 11 | [`11-finanzas/`](11-finanzas/) | App (HTML) de gastos, CSV del banco, resumen con gráficas y metas Londres/Woxsen | ✅ |
 | 12 | [`12-mapa-viajes/`](12-mapa-viajes/) | Leaflet + OSM: lugares visitados/por visitar, viajes con rutas, km y fotos | ✅ |
 | 13 | [`13-india-woxsen/`](13-india-woxsen/) | Checklist hasta el 6-ene, visado, vacunas, dinero, SIM, guía de Hyderabad y presupuesto | 💡 |
-| 14 | `14-portfolio-linkedin/` | Marca personal | ⏳ |
+| 14 | [`14-portfolio-linkedin/`](14-portfolio-linkedin/) | README de perfil GitHub, portfolio HTML, LinkedIn ES/EN, plantilla de referentes | 💡 |
 | 15 | `15-habitos/` | Tracker de hábitos | ⏳ |
 | 16 | `16-nutricion/` | Nutrición sin contar calorías | ⏳ |
 | 17 | `17-sistema-claude/` | Diseño del "agentic OS" | ⏳ |
