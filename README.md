@@ -19,7 +19,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 10 | [`10-gym-tracker/`](10-gym-tracker/) | App móvil (HTML) con 5 rutinas, gráficas, récords y sobrecarga progresiva | ✅ |
 | 11 | [`11-finanzas/`](11-finanzas/) | App (HTML) de gastos, CSV del banco, resumen con gráficas y metas Londres/Woxsen | ✅ |
 | 12 | [`12-mapa-viajes/`](12-mapa-viajes/) | Leaflet + OSM: lugares visitados/por visitar, viajes con rutas, km y fotos | ✅ |
-| 13 | `13-india-woxsen/` | Preparar el intercambio | ⏳ |
+| 13 | [`13-india-woxsen/`](13-india-woxsen/) | Checklist hasta el 6-ene, visado, vacunas, dinero, SIM, guía de Hyderabad y presupuesto | 💡 |
 | 14 | `14-portfolio-linkedin/` | Marca personal | ⏳ |
 | 15 | `15-habitos/` | Tracker de hábitos | ⏳ |
 | 16 | `16-nutricion/` | Nutrición sin contar calorías | ⏳ |

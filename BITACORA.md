@@ -58,3 +58,8 @@ Horas en hora de Madrid (CET).
 ## 12 · mapa-viajes — 00:53 → 00:55
 - App Leaflet con lugares, viajes, rutas con km, fotos por enlace, export/import JSON. 5 tests + smoke test.
 - **Problema:** unpkg bloqueado desde el contenedor → Leaflet incluido en `vendor/` (descargado del registro npm); así además funciona con doble clic sin CDN. Coordenadas de Woxsen aproximadas (marcadas para revisar).
+
+## 13 · india-woxsen — 00:55 → 00:57
+- Checklist con línea temporal, visado, vacunas (información general + fuentes oficiales), seguro, vuelos, dinero/UPI, SIM, equipaje (sábanas y toallas), guía de Hyderabad y presupuesto.
+- **Hallazgo importante:** posible conflicto entre entregar el pasaporte para el visado indio y el viaje a Londres (19-22 nov), y la ETA británica obligatoria. Llevado a PARA-DAVID.
+- Limitación: no pude verificar en vivo las webs oficiales (red restringida); todo lleva enlace para comprobar.
