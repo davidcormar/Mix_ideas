@@ -12,7 +12,11 @@ Horas en hora de Madrid (CET).
 - Validador/empaquetador `tools/validar_skills.py` + 5 tests (pasan).
 - **Problema:** las descripciones con `: ` rompían el YAML del frontmatter → se entrecomillaron y el validador ahora lo detecta.
 
-## 02 · running-tools — 00:22 → 00:40
+## 02 · running-tools — 00:22 → 00:26
 - Paquete `runtools` con CLI: `gpx`, `ritmos`, `plan`. GPX sintético 6×400 m. 13 tests OK.
 - Validación: los ritmos VDOT para 27:58 (T 5:52-6:05, I 5:24) coinciden con sus ritmos reales.
 - **Problema:** el suavizado recortaba las series (1:54 en vez de 2:06) → refinado de bordes con ventana corta (ahora 2:02, ±3 %).
+
+## 03 · ml-andrew-ng — 00:26 → 00:45
+- Apuntes semanas 1-3, 4 notebooks generados y ejecutados por script, 11 ejercicios de código con corrector, 22 a mano, soluciones aparte, glosario. 3 tests OK.
+- **Problemas:** escapes LaTeX (`\;`) daban SyntaxWarning en Python → eliminados; el ejercicio "mejor α" fallaba por igualdad en coma flotante tras converger → criterio "no aumenta" con tolerancia.
