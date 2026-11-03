@@ -17,6 +17,10 @@ Horas en hora de Madrid (CET).
 - Validación: los ritmos VDOT para 27:58 (T 5:52-6:05, I 5:24) coinciden con sus ritmos reales.
 - **Problema:** el suavizado recortaba las series (1:54 en vez de 2:06) → refinado de bordes con ventana corta (ahora 2:02, ±3 %).
 
-## 03 · ml-andrew-ng — 00:26 → 00:45
+## 03 · ml-andrew-ng — 00:26 → 00:29
 - Apuntes semanas 1-3, 4 notebooks generados y ejecutados por script, 11 ejercicios de código con corrector, 22 a mano, soluciones aparte, glosario. 3 tests OK.
 - **Problemas:** escapes LaTeX (`\;`) daban SyntaxWarning en Python → eliminados; el ejercicio "mejor α" fallaba por igualdad en coma flotante tras converger → criterio "no aumenta" con tolerancia.
+
+## 04 · f1-guia — 00:29 → 00:31
+- Chuleta, 10 preguntas por dificultad, plan de 12 días, plantilla de README y checklist. Sin código del proyecto (regla).
+- **Problema:** la API de cronometraje de F1 no es accesible desde el contenedor → nombres de la API verificados con `fastf1==3.9.2` instalado, no con datos reales.
