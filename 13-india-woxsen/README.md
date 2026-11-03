@@ -31,5 +31,6 @@ Todo lo necesario para llegar bien al **6 de enero de 2027** (inicio el 7): chec
 - Ministerio de Sanidad – La salud también viaja: https://www.sanidad.gob.es/areas/sanidadExterior/laSaludTambienViaja/home.htm
 - CDC – India: https://wwwnc.cdc.gov/travel/destinations/traveler/none/india
 - Exteriores – Recomendaciones de viaje y Registro de Viajeros: https://www.exteriores.gob.es/ · https://registroviajeros.exteriores.gob.es/
+- Study in India (SII) / e-Student visa: https://studyinindia.gov.in · noticia (2025): https://www.businesstoday.in/nri/visa/story/study-in-india-govt-introduces-two-new-visa-categories-to-attract-international-students-460356-2025-01-10
 - UK ETA (gov.uk): https://www.gov.uk/guidance/apply-for-an-electronic-travel-authorisation-eta
 - Bureau of Immigration India (e-FRRO): https://indianfrro.gov.in/

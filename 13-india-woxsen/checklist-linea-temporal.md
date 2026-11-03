@@ -10,7 +10,8 @@
 | **Esta semana (4-8 nov)** | Pedir cita en Vacunación Internacional (A Coruña: Sanidad Exterior, Subdelegación del Gobierno) | ☐ |
 | Esta semana | Comprobar pasaporte: validez ≥ 6 meses desde la llegada (≥ jul 2027) y ≥ 2 páginas en blanco | ☐ |
 | Esta semana | Solicitar a Woxsen/UIE la **carta de admisión** y la de la universidad de origen para el visado | ☐ |
-| Esta semana | Solicitar la **ETA de Reino Unido** (app oficial "UK ETA" o gov.uk) para el viaje del 19 | ☐ |
+| Esta semana | Solicitar la **ETA de Reino Unido** (solo en la app oficial "UK ETA" o gov.uk; ~16-20 £ según la fecha de la subida de 2026, válida 2 años; ojo con webs intermediarias que cobran de más) | ☐ |
+| Esta semana | Preguntar a Woxsen si debes registrarte en el portal **Study in India (SII)**: desde 2025 genera un *SII-ID* que se indica en la solicitud de visado (e-Student) | ☐ |
 | 9-15 nov | Rellenar el formulario del visado en el portal oficial y reunir documentos (ver abajo) | ☐ |
 | 9-15 nov | Decidir **seguro médico** internacional (ver abajo) y contratarlo con fechas 6 ene - fin de estancia | ☐ |
 | 9-15 nov | Comparar y **comprar vuelos** (cuanto antes, más baratos) | ☐ |
@@ -30,7 +31,7 @@
 | Llegada | Si el visado lo indica o la estancia > 180 días: registro **e-FRRO** en 14 días (la universidad suele ayudar) | ☐ |
 
 ## 1. Visado de estudiante (información general — verifica siempre en fuentes oficiales)
-- **Dónde:** formulario en el portal oficial del Gobierno de India **https://indianvisaonline.gov.in/** y entrega en el centro de solicitudes externalizado que indique la **Embajada de India en Madrid** (https://www.eoimadrid.gov.in/). Comprueba también si te corresponde la modalidad **e-Student** (introducida en 2025 para admitidos vía el portal *Study in India*).
+- **Dónde:** formulario en el portal oficial del Gobierno de India **https://indianvisaonline.gov.in/** y entrega en el centro de solicitudes externalizado que indique la **Embajada de India en Madrid** (https://www.eoimadrid.gov.in/). Desde 2025 existe el **e-Student visa**: registro en https://studyinindia.gov.in (genera un *SII-ID*), oferta de una institución participante y solicitud online. Pregunta a Woxsen si tu intercambio entra por esta vía o por el visado de estudiante clásico en el centro de solicitudes.
 - **Documentos habituales:**
   - Pasaporte (≥ 6 meses de validez, ≥ 2 páginas en blanco) + fotocopia.
   - Formulario impreso y firmado.
