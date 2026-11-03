@@ -33,3 +33,8 @@ Horas en hora de Madrid (CET).
 - Método de paneles de vórtices lineales (validado: NACA 0012 a 5° → Cl 0,599), dataset de 12.000 casos en 7,5 s, MLP con MAE Cl 0,0021 en perfiles no vistos, ×1.600 más rápido. 8 tests OK.
 - **Hallazgo:** en flujo no viscoso una regresión lineal ya da R² 0,9993 (teoría del perfil delgado); la red mejora ×6 el error. Documentado honestamente.
 - **Problemas:** el primer MLP (ReLU, early stopping agresivo) no superaba a Ridge → tanh + más paciencia. El pickle referenciaba `__main__.Surrogate` → clase movida a `aero/surrogate.py`.
+
+## 07 · generador-alas — 00:38 → 00:42
+- 2.090 perfiles UIUC → CST (16 coef.) → CVAE en NumPy (retropropagación manual comprobada con diferencias finitas). Generación condicionada: 100 % válidos, error Cl 0,011-0,026. 6 tests OK.
+- **Problemas:** (1) web de UIUC bloqueada (403) → copia de la base en la wheel de `aerosandbox` (PyPI). (2) PyTorch no instalable (índice CPU bloqueado) → VAE en NumPy. (3) perfiles supercríticos daban Cl absurdos (cruces de superficie entre estaciones) → validación densa + chequeo de condicionamiento del solver.
+- **Hallazgo:** el surrogate de 06 es ×10 peor fuera de NACA (MAE 0,024 en UIUC).

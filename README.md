@@ -13,7 +13,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 04 | [`04-f1-guia/`](04-f1-guia/) | Chuleta FastF1, 10 preguntas, plan hasta el 15-N, plantilla README | 💡 |
 | 05 | [`05-presentacion-companero/`](05-presentacion-companero/) | 2 one-pagers, comparativa y presentación Marp de 12 diapositivas | 💡 |
 | 06 | [`06-tunel-viento-neuronal/`](06-tunel-viento-neuronal/) | Método de paneles propio + red que predice Cl/Cm ×1.600 más rápido | ✅ |
-| 07 | `07-generador-alas/` | VAE de perfiles alares | ⏳ |
+| 07 | [`07-generador-alas/`](07-generador-alas/) | CVAE (NumPy) sobre 2.090 perfiles UIUC con CST: genera perfiles con el Cl pedido | ✅ |
 | 08 | `08-barcos-oscuros/` | Dossier SAR + AIS | ⏳ |
 | 09 | `09-frances-delf/` | Banco de material DELF | ⏳ |
 | 10 | `10-gym-tracker/` | App de gimnasio | ⏳ |
