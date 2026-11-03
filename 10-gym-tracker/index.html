@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gym Tracker</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --mute:#6b7280; --line:#e5e7eb; --acc:#2563eb; --ok:#16a34a; --warn:#d97706; --bad:#dc2626; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --ink:#e8eaed; --mute:#9aa0a6; --line:#2a2f37; --acc:#60a5fa; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line); z-index:5; }
+  header h1 { margin:0; padding:10px 16px 4px; font-size:18px; }
+  nav { display:flex; gap:4px; padding:0 8px 8px; overflow-x:auto; }
+  nav button { flex:1; min-width:80px; }
+  main { max-width:720px; margin:0 auto; padding:12px 16px 80px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; }
+  button, select, input { font:inherit; color:inherit; }
+  button { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; }
+  button.primary { background:var(--acc); color:#fff; border-color:var(--acc); }
+  button.on { border-color:var(--acc); color:var(--acc); font-weight:600; }
+  select, input { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  .row { display:grid; grid-template-columns: 34px 1fr 1fr 44px; gap:6px; align-items:center; margin:6px 0; }
+  .row input { text-align:center; padding:10px 4px; }
+  .row .n { color:var(--mute); text-align:center; }
+  .row button { padding:10px 0; }
+  .row.done input { border-color:var(--ok); }
+  .hint { font-size:13px; color:var(--mute); margin:4px 0; }
+  .hint.up { color:var(--ok); } .hint.down { color:var(--bad); }
+  h2 { font-size:16px; margin:0 0 6px; }
+  .muted { color:var(--mute); font-size:14px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td, th { padding:6px 4px; border-bottom:1px solid var(--line); text-align:left; }
+  canvas { width:100%; height:220px; display:block; }
+  .flex { display:flex; gap:8px; flex-wrap:wrap; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:99px; background:var(--bg); border:1px solid var(--line); font-size:12px; }
+  .hidden { display:none; }
+  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:10px; opacity:0; transition:opacity .3s; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏋️ Gym Tracker</h1>
+  <nav>
+    <button data-tab="entrenar" class="on">Entrenar</button>
+    <button data-tab="historial">Historial</button>
+    <button data-tab="progreso">Progreso</button>
+    <button data-tab="datos">Datos</button>
+  </nav>
+</header>
+<main>
+  <section id="entrenar">
+    <div class="card">
+      <label class="muted" for="routine">Rutina</label>
+      <select id="routine"></select>
+      <div class="flex" style="margin-top:8px">
+        <input id="date" type="date" style="flex:1">
+        <button class="primary" id="start">Empezar</button>
+      </div>
+    </div>
+    <div id="workout"></div>
+  </section>
+
+  <section id="historial" class="hidden"><div id="history"></div></section>
+
+  <section id="progreso" class="hidden">
+    <div class="card">
+      <select id="exSel"></select>
+      <div class="flex" style="margin:8px 0">
+        <button data-metric="e1rm" class="on">1RM estimado</button>
+        <button data-metric="top">Peso máximo</button>
+        <button data-metric="volume">Volumen</button>
+      </div>
+      <canvas id="chart" width="680" height="220"></canvas>
+      <p class="hint" id="sugg"></p>
+    </div>
+    <div class="card"><h2>🏆 Récords personales</h2><div id="prs"></div></div>
+  </section>
+
+  <section id="datos" class="hidden">
+    <div class="card">
+      <h2>Copia de seguridad</h2>
+      <p class="muted">Los datos se guardan solo en este navegador (localStorage). Exporta de vez en cuando.</p>
+      <div class="flex">
+        <button id="export" class="primary">Exportar JSON</button>
+        <label class="flex" style="align-items:center"><button id="importBtn">Importar JSON</button><input id="import" type="file" accept="application/json" class="hidden"></label>
+        <button id="demo">Cargar datos de ejemplo</button>
+        <button id="wipe">Borrar todo</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Cómo funciona la sugerencia</h2>
+      <p class="muted"><b>Doble progresión</b> (todas las series al fallo). Rango: compuestos 6-10 reps, aislamiento 10-15. Si en la última sesión llegaste al tope del rango en todas las series con el peso máximo → sube el incremento mínimo. Si no → mismo peso, +1 rep. Si la 1.ª serie quedó por debajo del rango → baja ~5 %.</p>
+      <p class="muted">1RM estimado con la fórmula de Epley: peso × (1 + reps/30).</p>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

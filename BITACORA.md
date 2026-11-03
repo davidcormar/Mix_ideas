@@ -46,3 +46,7 @@ Horas en hora de Madrid (CET).
 ## 09 · frances-delf — 00:44 → 00:48
 - Estructura DELF A2/B1/B2, 12 fichas de gramática (96 ejercicios) con soluciones aparte, 8 mazos CSV para Anki (200 tarjetas), 30 temas graduados, guiones orales, recursos. 3 tests de formato OK.
 - Sin problemas. Nota: aviso de que FEI ha renovado formatos; confirmar al inscribirse.
+
+## 10 · gym-tracker — 00:48 → 00:51
+- App estática (`index.html` + `logic.js` + `app.js`), 5 rutinas, registro, historial, gráfica canvas, récords, doble progresión, export/import JSON. 6 tests de lógica (Node) + smoke test en Chromium headless con captura.
+- **Problema:** el smoke test no veía el botón de datos de ejemplo (pestaña oculta) → navega primero a la pestaña.
