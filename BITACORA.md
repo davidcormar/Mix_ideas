@@ -7,7 +7,12 @@ Horas en hora de Madrid (CET).
 - Entorno: Python 3.13, numpy, pandas, matplotlib, scikit-learn, pytest. Sin PyTorch al inicio.
 - Creados `README.md` (índice) y esta bitácora.
 
-## 01 · claude-skills — 00:20 → 00:50
+## 01 · claude-skills — 00:18 → 00:22
 - 12 skills con `SKILL.md` (7 pedidas + 5 extra: preparar-viaje, revisar-gastos, video-a-notas, revision-habitos-semanal, cuestionario-dominio).
 - Validador/empaquetador `tools/validar_skills.py` + 5 tests (pasan).
 - **Problema:** las descripciones con `: ` rompían el YAML del frontmatter → se entrecomillaron y el validador ahora lo detecta.
+
+## 02 · running-tools — 00:22 → 00:40
+- Paquete `runtools` con CLI: `gpx`, `ritmos`, `plan`. GPX sintético 6×400 m. 13 tests OK.
+- Validación: los ritmos VDOT para 27:58 (T 5:52-6:05, I 5:24) coinciden con sus ritmos reales.
+- **Problema:** el suavizado recortaba las series (1:54 en vez de 2:06) → refinado de bordes con ventana corta (ahora 2:02, ±3 %).

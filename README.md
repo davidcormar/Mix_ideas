@@ -8,7 +8,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | # | Carpeta | Idea | Estado |
 |---|---------|------|--------|
 | 01 | [`01-claude-skills/`](01-claude-skills/) | 12 skills de Claude (7 pedidas + 5 extra) + validador | ✅ |
-| 02 | `02-running-tools/` | Analizador GPX, calculadora VDOT, generador de plan | ⏳ |
+| 02 | [`02-running-tools/`](02-running-tools/) | Analizador GPX (zonas, deriva, series), VDOT y plan 5K → .ics | ✅ |
 | 03 | `03-ml-andrew-ng/` | Compañero del curso 1 de Andrew Ng | ⏳ |
 | 04 | `04-f1-guia/` | Guía del miniproyecto de F1 (sin hacerlo) | ⏳ |
 | 05 | `05-presentacion-companero/` | One-pagers + presentación Marp | ⏳ |

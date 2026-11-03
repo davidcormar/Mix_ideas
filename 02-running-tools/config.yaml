@@ -1,0 +1,15 @@
+# Heart-rate zones (bpm) — Apple Watch zones of David. Upper bound inclusive.
+zonas_fc:
+  Z1: [0, 138]
+  Z2: [139, 152]
+  Z3: [153, 165]
+  Z4: [166, 179]
+  Z5: [180, 250]
+fc_max: 197
+# Interval detection
+series:
+  ventana_suavizado_s: 20      # rolling window for smoothed speed
+  factor_umbral: 1.15          # rep = smoothed speed > factor * median speed
+  duracion_minima_s: 40        # ignore surges shorter than this
+# Elevation: ignore changes smaller than this (GPS noise)
+umbral_desnivel_m: 2.0
