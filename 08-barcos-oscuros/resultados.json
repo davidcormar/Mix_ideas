@@ -1,0 +1,13 @@
+{
+  "tp": 25,
+  "fp": 1,
+  "fn": 0,
+  "precision": 0.9615384615384616,
+  "recall": 1.0,
+  "f1": 0.9803921568627451,
+  "length_rel_err_median": 0.12371324171845129,
+  "ships": 25,
+  "ais_reports": 19,
+  "dark_true": 6,
+  "dark_flagged": 7
+}

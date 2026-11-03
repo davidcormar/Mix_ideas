@@ -14,7 +14,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 05 | [`05-presentacion-companero/`](05-presentacion-companero/) | 2 one-pagers, comparativa y presentación Marp de 12 diapositivas | 💡 |
 | 06 | [`06-tunel-viento-neuronal/`](06-tunel-viento-neuronal/) | Método de paneles propio + red que predice Cl/Cm ×1.600 más rápido | ✅ |
 | 07 | [`07-generador-alas/`](07-generador-alas/) | CVAE (NumPy) sobre 2.090 perfiles UIUC con CST: genera perfiles con el Cl pedido | ✅ |
-| 08 | `08-barcos-oscuros/` | Dossier SAR + AIS | ⏳ |
+| 08 | [`08-barcos-oscuros/`](08-barcos-oscuros/) | Dossier SAR/xView3/AIS + pipeline CFAR→AIS funcionando sobre escena sintética | ✅ |
 | 09 | `09-frances-delf/` | Banco de material DELF | ⏳ |
 | 10 | `10-gym-tracker/` | App de gimnasio | ⏳ |
 | 11 | `11-finanzas/` | App de finanzas | ⏳ |

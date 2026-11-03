@@ -38,3 +38,7 @@ Horas en hora de Madrid (CET).
 - 2.090 perfiles UIUC → CST (16 coef.) → CVAE en NumPy (retropropagación manual comprobada con diferencias finitas). Generación condicionada: 100 % válidos, error Cl 0,011-0,026. 6 tests OK.
 - **Problemas:** (1) web de UIUC bloqueada (403) → copia de la base en la wheel de `aerosandbox` (PyPI). (2) PyTorch no instalable (índice CPU bloqueado) → VAE en NumPy. (3) perfiles supercríticos daban Cl absurdos (cruces de superficie entre estaciones) → validación densa + chequeo de condicionamiento del solver.
 - **Hallazgo:** el surrogate de 06 es ×10 peor fuera de NACA (MAE 0,024 en UIUC).
+
+## 08 · barcos-oscuros — 00:42 → 00:44
+- Dossier (física SAR, acceso gratuito a Sentinel-1, xView3, arquitecturas, AIS, ética) + pipeline `sarpipe` (tiles, CA-CFAR, eslora, cruce húngaro con AIS) sobre escena sintética. Recall 100 %, precisión 96 %. 5 tests OK.
+- **Problemas:** sin escenas SAR reales descargables sin cuenta → demo sintética. Los barcos largos se partían (guarda CFAR de 4 px) → guarda de 14 px + cierre morfológico.
