@@ -12,7 +12,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 03 | [`03-ml-andrew-ng/`](03-ml-andrew-ng/) | Apuntes, 4 notebooks NumPy, ejercicios con corrector, glosario | ✅ |
 | 04 | [`04-f1-guia/`](04-f1-guia/) | Chuleta FastF1, 10 preguntas, plan hasta el 15-N, plantilla README | 💡 |
 | 05 | [`05-presentacion-companero/`](05-presentacion-companero/) | 2 one-pagers, comparativa y presentación Marp de 12 diapositivas | 💡 |
-| 06 | `06-tunel-viento-neuronal/` | Prototipo surrogate de CFD | ⏳ |
+| 06 | [`06-tunel-viento-neuronal/`](06-tunel-viento-neuronal/) | Método de paneles propio + red que predice Cl/Cm ×1.600 más rápido | ✅ |
 | 07 | `07-generador-alas/` | VAE de perfiles alares | ⏳ |
 | 08 | `08-barcos-oscuros/` | Dossier SAR + AIS | ⏳ |
 | 09 | `09-frances-delf/` | Banco de material DELF | ⏳ |

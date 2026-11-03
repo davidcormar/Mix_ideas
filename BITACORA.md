@@ -28,3 +28,8 @@ Horas en hora de Madrid (CET).
 ## 05 · presentacion-companero — 00:31 → 00:33
 - One-pagers de Suite aero y Barcos oscuros, comparativa puntuada (38 vs 36) y presentación Marp de 12 diapositivas.
 - Sin problemas. Pendiente: meter imágenes de 06/07 cuando existan.
+
+## 06 · tunel-viento-neuronal — 00:33 → 00:38
+- Método de paneles de vórtices lineales (validado: NACA 0012 a 5° → Cl 0,599), dataset de 12.000 casos en 7,5 s, MLP con MAE Cl 0,0021 en perfiles no vistos, ×1.600 más rápido. 8 tests OK.
+- **Hallazgo:** en flujo no viscoso una regresión lineal ya da R² 0,9993 (teoría del perfil delgado); la red mejora ×6 el error. Documentado honestamente.
+- **Problemas:** el primer MLP (ReLU, early stopping agresivo) no superaba a Ridge → tanh + más paciencia. El pickle referenciaba `__main__.Surrogate` → clase movida a `aero/surrogate.py`.
