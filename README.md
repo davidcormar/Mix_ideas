@@ -18,7 +18,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 09 | [`09-frances-delf/`](09-frances-delf/) | Estructura DELF, 12 fichas de gramática, 200 tarjetas Anki, 30 temas, guiones orales | 💡 |
 | 10 | [`10-gym-tracker/`](10-gym-tracker/) | App móvil (HTML) con 5 rutinas, gráficas, récords y sobrecarga progresiva | ✅ |
 | 11 | [`11-finanzas/`](11-finanzas/) | App (HTML) de gastos, CSV del banco, resumen con gráficas y metas Londres/Woxsen | ✅ |
-| 12 | `12-mapa-viajes/` | Mapa de viajes | ⏳ |
+| 12 | [`12-mapa-viajes/`](12-mapa-viajes/) | Leaflet + OSM: lugares visitados/por visitar, viajes con rutas, km y fotos | ✅ |
 | 13 | `13-india-woxsen/` | Preparar el intercambio | ⏳ |
 | 14 | `14-portfolio-linkedin/` | Marca personal | ⏳ |
 | 15 | `15-habitos/` | Tracker de hábitos | ⏳ |

@@ -54,3 +54,7 @@ Horas en hora de Madrid (CET).
 ## 11 · finanzas — 00:51 → 00:53
 - App estática con importación CSV configurable (comillas, BOM, Latin-1, deduplicado), categorías automáticas, resumen mensual con gráficas canvas, metas con ahorro mensual necesario, export/import JSON. 7 tests de lógica + smoke test en Chromium.
 - **Problemas:** cálculo de meses con `ceil` daba un ahorro mensual poco realista → meses fraccionarios. Pestañas cortadas en móvil → nav más compacto.
+
+## 12 · mapa-viajes — 00:53 → 00:55
+- App Leaflet con lugares, viajes, rutas con km, fotos por enlace, export/import JSON. 5 tests + smoke test.
+- **Problema:** unpkg bloqueado desde el contenedor → Leaflet incluido en `vendor/` (descargado del registro npm); así además funciona con doble clic sin CDN. Coordenadas de Woxsen aproximadas (marcadas para revisar).
