@@ -24,3 +24,7 @@ Horas en hora de Madrid (CET).
 ## 04 · f1-guia — 00:29 → 00:31
 - Chuleta, 10 preguntas por dificultad, plan de 12 días, plantilla de README y checklist. Sin código del proyecto (regla).
 - **Problema:** la API de cronometraje de F1 no es accesible desde el contenedor → nombres de la API verificados con `fastf1==3.9.2` instalado, no con datos reales.
+
+## 05 · presentacion-companero — 00:31 → 00:33
+- One-pagers de Suite aero y Barcos oscuros, comparativa puntuada (38 vs 36) y presentación Marp de 12 diapositivas.
+- Sin problemas. Pendiente: meter imágenes de 06/07 cuando existan.

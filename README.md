@@ -11,7 +11,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 02 | [`02-running-tools/`](02-running-tools/) | Analizador GPX (zonas, deriva, series), VDOT y plan 5K → .ics | ✅ |
 | 03 | [`03-ml-andrew-ng/`](03-ml-andrew-ng/) | Apuntes, 4 notebooks NumPy, ejercicios con corrector, glosario | ✅ |
 | 04 | [`04-f1-guia/`](04-f1-guia/) | Chuleta FastF1, 10 preguntas, plan hasta el 15-N, plantilla README | 💡 |
-| 05 | `05-presentacion-companero/` | One-pagers + presentación Marp | ⏳ |
+| 05 | [`05-presentacion-companero/`](05-presentacion-companero/) | 2 one-pagers, comparativa y presentación Marp de 12 diapositivas | 💡 |
 | 06 | `06-tunel-viento-neuronal/` | Prototipo surrogate de CFD | ⏳ |
 | 07 | `07-generador-alas/` | VAE de perfiles alares | ⏳ |
 | 08 | `08-barcos-oscuros/` | Dossier SAR + AIS | ⏳ |
