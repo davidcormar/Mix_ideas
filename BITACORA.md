@@ -50,3 +50,7 @@ Horas en hora de Madrid (CET).
 ## 10 · gym-tracker — 00:48 → 00:51
 - App estática (`index.html` + `logic.js` + `app.js`), 5 rutinas, registro, historial, gráfica canvas, récords, doble progresión, export/import JSON. 6 tests de lógica (Node) + smoke test en Chromium headless con captura.
 - **Problema:** el smoke test no veía el botón de datos de ejemplo (pestaña oculta) → navega primero a la pestaña.
+
+## 11 · finanzas — 00:51 → 00:53
+- App estática con importación CSV configurable (comillas, BOM, Latin-1, deduplicado), categorías automáticas, resumen mensual con gráficas canvas, metas con ahorro mensual necesario, export/import JSON. 7 tests de lógica + smoke test en Chromium.
+- **Problemas:** cálculo de meses con `ceil` daba un ahorro mensual poco realista → meses fraccionarios. Pestañas cortadas en móvil → nav más compacto.

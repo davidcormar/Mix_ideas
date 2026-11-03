@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finanzas</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --mute:#6b7280; --line:#e5e7eb; --acc:#0f766e; --in:#16a34a; --out:#dc2626; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --ink:#e8eaed; --mute:#9aa0a6; --line:#2a2f37; --acc:#2dd4bf; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line); z-index:5; }
+  header h1 { margin:0; padding:10px 16px 4px; font-size:18px; }
+  nav { display:flex; gap:4px; padding:0 8px 8px; overflow-x:auto; }
+  nav button { flex:1 1 auto; min-width:0; padding:8px 6px; font-size:14px; white-space:nowrap; }
+  main { max-width:760px; margin:0 auto; padding:12px 16px 80px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; }
+  button, select, input { font:inherit; color:inherit; }
+  button { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 12px; cursor:pointer; }
+  button.primary { background:var(--acc); color:#fff; border-color:var(--acc); }
+  button.on { border-color:var(--acc); color:var(--acc); font-weight:600; }
+  select, input, textarea { width:100%; padding:9px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:inherit; font:inherit; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; }
+  .muted { color:var(--mute); font-size:14px; }
+  h2 { font-size:16px; margin:0 0 8px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td, th { padding:6px 4px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  td.n { text-align:right; white-space:nowrap; }
+  .in { color:var(--in); } .out { color:var(--out); }
+  .bar { height:14px; background:var(--bg); border:1px solid var(--line); border-radius:99px; overflow:hidden; }
+  .bar > div { height:100%; background:var(--acc); }
+  .kpi { font-size:22px; font-weight:700; }
+  canvas { width:100%; display:block; }
+  .hidden { display:none; }
+  .flex { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>💶 Finanzas</h1>
+  <nav>
+    <button data-tab="movs" class="on">Movimientos</button>
+    <button data-tab="resumen">Resumen</button>
+    <button data-tab="metas">Metas</button>
+    <button data-tab="importar">CSV</button>
+    <button data-tab="datos">Datos</button>
+  </nav>
+</header>
+<main>
+  <section id="movs">
+    <div class="card">
+      <h2>Nuevo movimiento</h2>
+      <div class="grid">
+        <input id="fDate" type="date">
+        <input id="fConcept" placeholder="Concepto">
+        <input id="fAmount" inputmode="decimal" placeholder="Importe (−12,50 = gasto)">
+        <select id="fCat"></select>
+      </div>
+      <div class="flex" style="margin-top:8px"><button class="primary" id="add">Añadir</button><span class="muted">Negativo = gasto · positivo = ingreso</span></div>
+    </div>
+    <div class="card">
+      <div class="flex"><select id="mFilter" style="max-width:200px"></select><span class="muted" id="mCount"></span></div>
+      <table id="txTable"></table>
+    </div>
+  </section>
+
+  <section id="resumen" class="hidden">
+    <div class="card"><select id="rMonth"></select></div>
+    <div class="grid">
+      <div class="card"><div class="muted">Ingresos</div><div class="kpi in" id="kIn"></div></div>
+      <div class="card"><div class="muted">Gastos</div><div class="kpi out" id="kOut"></div></div>
+      <div class="card"><div class="muted">Balance</div><div class="kpi" id="kBal"></div></div>
+      <div class="card"><div class="muted">Tasa de ahorro</div><div class="kpi" id="kRate"></div></div>
+    </div>
+    <div class="card"><h2>Gastos por categoría</h2><canvas id="catChart" height="260"></canvas></div>
+    <div class="card"><h2>Evolución mensual</h2><canvas id="monthChart" height="220"></canvas></div>
+  </section>
+
+  <section id="metas" class="hidden">
+    <div id="goals"></div>
+    <div class="card">
+      <h2>Nueva meta</h2>
+      <div class="grid"><input id="gName" placeholder="Nombre"><input id="gTarget" inputmode="decimal" placeholder="Objetivo €"><input id="gDeadline" type="date"></div>
+      <button id="gAdd" style="margin-top:8px">Crear meta</button>
+    </div>
+  </section>
+
+  <section id="importar" class="hidden">
+    <div class="card">
+      <h2>Formato del CSV de tu banco</h2>
+      <div class="grid">
+        <label class="muted">Separador<select id="cSep"><option value=";">; (punto y coma)</option><option value=",">, (coma)</option><option value="\t">tabulador</option></select></label>
+        <label class="muted">Decimal<select id="cDec"><option value=",">coma (12,50)</option><option value=".">punto (12.50)</option></select></label>
+        <label class="muted">Fecha<select id="cDate"><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option><option>MM/DD/YYYY</option></select></label>
+        <label class="muted">Filas a saltar<input id="cSkip" type="number" value="1" min="0"></label>
+        <label class="muted">Col. fecha<input id="cColDate" type="number" value="1" min="1"></label>
+        <label class="muted">Col. concepto<input id="cColConcept" type="number" value="2" min="1"></label>
+        <label class="muted">Col. importe<input id="cColAmount" type="number" value="3" min="1"></label>
+      </div>
+      <p class="muted">Columnas empezando en 1. La configuración se recuerda. Los duplicados (misma fecha, importe y concepto) se ignoran al reimportar.</p>
+      <input id="csvFile" type="file" accept=".csv,text/csv,text/plain">
+      <div id="preview" style="margin-top:8px"></div>
+    </div>
+  </section>
+
+  <section id="datos" class="hidden">
+    <div class="card">
+      <h2>Copia de seguridad</h2>
+      <p class="muted">Todo se guarda solo en este navegador (localStorage).</p>
+      <div class="flex">
+        <button class="primary" id="export">Exportar JSON</button>
+        <button id="importBtn">Importar JSON</button><input id="importJson" type="file" accept="application/json" class="hidden">
+        <button id="wipe">Borrar todo</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
