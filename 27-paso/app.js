@@ -88,16 +88,23 @@
   function go(h) { if (location.hash === h) render(); else location.hash = h; }
 
   // ───────────────────────── render orchestration
+  /** Selectors to give focus back after a re-render (first one that still exists wins). */
   function focusKey(el) {
     if (!el || el === document.body) return null;
-    if (el.id) return "#" + CSS.escape(el.id);
+    if (el.id) return ["#" + CSS.escape(el.id)];
+    if (el.dataset.daytype === "auto") return ['[data-daytype][aria-pressed="true"]'];
     for (const a of ["data-water", "data-add-steps", "data-daytype", "data-filter", "data-range", "data-src"]) {
-      if (el.hasAttribute(a)) return `[${a}="${CSS.escape(el.getAttribute(a))}"]`;
+      if (el.hasAttribute(a)) return [`[${a}="${CSS.escape(el.getAttribute(a))}"]`];
+    }
+    // a meal row / recipe button that opened the dialog: back to it, or to "Añadir" if the meal was deleted
+    for (const a of ["data-meal-id", "data-edit-meal", "data-use-recipe"]) {
+      if (el.hasAttribute(a)) return [`[${a}="${CSS.escape(el.getAttribute(a))}"]`, "#addMeal", "[data-add-meal]"];
     }
     return null;
   }
   function render() {
     pendingRender = false;
+    today = L.todayISO(); // also when a click comes before the 20 s tick after midnight or a wake-up
     route = parseRoute();
     const fk = focusKey(document.activeElement);
     charts = [];
@@ -108,7 +115,7 @@
     ROUTES[route.name].render();
     document.title = `Paso · ${ROUTES[route.name].title}`;
     drawCharts();
-    if (fk) { const el = $(fk); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); }
+    if (fk) { const el = fk.map((s) => $(s)).find(Boolean); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); }
   }
   function requestRender() { if ($("#mealDialog").open) pendingRender = true; else render(); }
   function drawCharts() { for (const c of charts) { try { c(); } catch (e) { /* a chart never breaks the page */ } } }
@@ -290,7 +297,9 @@
 
     // steps
     const srcChip = day.steps > 0 && day.stepsSource ? `<span class="chip">${esc(L.STEP_SOURCE_LABEL[day.stepsSource])}</span>` : "";
-    const left = day.steps > 0
+    const future = d > today, off = future ? " disabled" : ""; // steps and water only for days that have come
+    const left = future ? "<div id=\"stepsLeft\">Día por llegar: los pasos y el agua se apuntan cuando llegue.</div>"
+      : day.steps > 0
       ? `<div id="stepsLeft"${sp.met ? " class=\"met\"" : ""}>${esc(L.stepsLabel(sp))}</div>`
       : "<div id=\"stepsLeft\">Sin pasos registrados · añádelos o <a href=\"#/actividad\">impórtalos</a></div>";
     const stepsCard = `
@@ -306,9 +315,9 @@
         </div>
         <form class="steps-form" id="stepsForm" autocomplete="off">
           <label class="sr" for="stepsInput">Pasos totales del día</label>
-          <input type="number" id="stepsInput" inputmode="numeric" min="0" max="200000" step="1" placeholder="${day.steps ? "Corregir total" : "Pasos de hoy"}">
-          <button class="btn primary" id="stepsSave" type="submit">Guardar</button>
-          <div class="quick"><span>Suma rápida</span><button class="btn" type="button" data-add-steps="500" aria-label="Sumar 500 pasos">+500</button><button class="btn" type="button" data-add-steps="1000" aria-label="Sumar 1.000 pasos">+1.000</button></div>
+          <input type="number" id="stepsInput" inputmode="numeric" min="0" max="200000" step="1" placeholder="${day.steps ? "Corregir total" : isToday ? "Pasos de hoy" : "Pasos del día"}"${off}>
+          <button class="btn primary" id="stepsSave" type="submit"${off}>Guardar</button>
+          <div class="quick"><span>Suma rápida</span><button class="btn" type="button" data-add-steps="500" aria-label="Sumar 500 pasos"${off}>+500</button><button class="btn" type="button" data-add-steps="1000" aria-label="Sumar 1.000 pasos"${off}>+1.000</button></div>
         </form>
       </section>`;
 
@@ -370,9 +379,9 @@
             <div class="water-head"><span class="por-name" id="waterTitle">💧 Agua</span><span class="water-kpi">${L.fmtNum(day.waterMl / 1000, 2)} <span class="den">/ ${L.fmtNum(s.waterGoalMl / 1000, 2)} L</span></span></div>
             <div class="glasses" role="img" aria-label="${filled} de ${nGlass} vasos">${glasses}</div>
             <div class="water-btns">
-              <button type="button" class="btn sm" data-water="${s.glassMl}" aria-label="Añadir un vaso (${s.glassMl} ml)">+ vaso</button>
-              <button type="button" class="btn sm" data-water="${s.bottleMl}" aria-label="Añadir una botella (${s.bottleMl} ml)">+ botella</button>
-              <button type="button" class="btn sm minus" data-water="-${s.glassMl}" aria-label="Quitar un vaso (${s.glassMl} ml)">−</button>
+              <button type="button" class="btn sm" data-water="${s.glassMl}" aria-label="Añadir un vaso (${s.glassMl} ml)"${off}>+ vaso</button>
+              <button type="button" class="btn sm" data-water="${s.bottleMl}" aria-label="Añadir una botella (${s.bottleMl} ml)"${off}>+ botella</button>
+              <button type="button" class="btn sm minus" data-water="-${s.glassMl}" aria-label="Quitar un vaso (${s.glassMl} ml)"${off}>−</button>
             </div>
             <p class="hint">${day.waterMl >= s.waterGoalMl ? "✓ Agua cumplida." : `Te faltan ${L.fmtNum((s.waterGoalMl - day.waterMl) / 1000, 2)} L · 1 vaso = ${s.glassMl} ml.`}</p>
             ${habitLine}
@@ -997,6 +1006,7 @@
       return;
     }
     if (t.classList.contains("heat-cell") && ds.date && !t.disabled) { go(dateHref("hoy", ds.date)); return; }
+    if ((ds.addSteps || ds.water) && (t.disabled || selDate() > today)) return;
     if (ds.addSteps) { const d = selDate(); L.setSteps(state, d, dayOf(d).steps + Number(ds.addSteps), "manual"); save(); render(); return; }
     if (ds.water) { L.addWater(state, selDate(), Number(ds.water)); save(); render(); return; }
     if (ds.daytype) { L.setDayType(state, selDate(), ds.daytype === "auto" ? null : ds.daytype); save(); render(); return; }
@@ -1059,6 +1069,7 @@
     e.preventDefault();
     if (f.id === "mealForm") { saveMealFromDialog(); return; }
     if (f.id === "stepsForm") {
+      if (selDate() > today) return;
       const n = parseStepsInput($("#stepsInput").value);
       if (n === null) { toast({ title: "Escribe un número de pasos válido", body: "Entre 0 y 200.000" }); return; }
       saveSteps(selDate(), n);

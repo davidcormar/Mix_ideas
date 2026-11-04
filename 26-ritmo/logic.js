@@ -438,6 +438,9 @@
     if (isPlainObject(any.reviews)) {
       for (const [d, v] of Object.entries(any.reviews)) if (isISO(d) && isPlainObject(v)) s.reviews[d] = v;
     }
+    // ticks the demo added to habitos.v1 (so they can be taken out later); absent for real data
+    const demo = normDemoRecord(any.demoHabits);
+    if (demo) s.demoHabits = demo;
     return s;
   }
 
@@ -959,6 +962,18 @@
   const VTIMEZONE = ["BEGIN:VTIMEZONE", "TZID:Europe/Madrid", "BEGIN:DAYLIGHT", "TZOFFSETFROM:+0100", "TZOFFSETTO:+0200", "TZNAME:CEST",
     "DTSTART:19700329T020000", "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU", "END:DAYLIGHT", "BEGIN:STANDARD", "TZOFFSETFROM:+0200",
     "TZOFFSETTO:+0100", "TZNAME:CET", "DTSTART:19701025T030000", "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU", "END:STANDARD", "END:VTIMEZONE"];
+  /** Zones with an embedded VTIMEZONE. Madrid (home) and Kolkata (Woxsen, Jan–Jun 2027; no DST). */
+  const VTIMEZONES = {
+    "Europe/Madrid": VTIMEZONE,
+    "Asia/Kolkata": ["BEGIN:VTIMEZONE", "TZID:Asia/Kolkata", "BEGIN:STANDARD", "TZOFFSETFROM:+0530", "TZOFFSETTO:+0530", "TZNAME:IST",
+      "DTSTART:19700101T000000", "END:STANDARD", "END:VTIMEZONE"],
+  };
+  const TZ_ALIASES = { "Asia/Calcutta": "Asia/Kolkata" };
+  /** The ICS zone for the browser's zone: a known TZID, or null → floating local times (the calendar's own zone). */
+  function icsZone(tz) {
+    const z = TZ_ALIASES[tz] || tz;
+    return VTIMEZONES[z] ? z : null;
+  }
   const ymd = (iso) => iso.replace(/-/g, "");
   const hms = (min) => pad2(Math.floor(min / 60)) + pad2(min % 60) + "00";
   function utcStamp(x) {
@@ -967,16 +982,20 @@
     if (isNaN(d)) return "19700101T000000Z";
     return `${d.getUTCFullYear()}${pad2(d.getUTCMonth() + 1)}${pad2(d.getUTCDate())}T${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}${pad2(d.getUTCSeconds())}Z`;
   }
-  function toICS(events, { calName = "Ritmo", dtstamp } = {}) {
+  /** tzid: the wall-clock zone of the times (default Europe/Madrid, as in the spec). Pass the browser's zone so that
+      "20:00" in India stays 20:00 in India; an unknown zone gives floating times (no TZID). */
+  function toICS(events, { calName = "Ritmo", dtstamp, tzid = "Europe/Madrid" } = {}) {
     const stamp = utcStamp(dtstamp);
+    const tz = icsZone(tzid);
+    const at = tz ? `;TZID=${tz}:` : ":";
     const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mix_ideas//Ritmo//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-      "X-WR-CALNAME:" + icsEscape(calName), "X-WR-TIMEZONE:Europe/Madrid", ...VTIMEZONE];
+      "X-WR-CALNAME:" + icsEscape(calName), ...(tz ? ["X-WR-TIMEZONE:" + tz, ...VTIMEZONES[tz]] : [])];
     for (const e of events) {
       const endMin = e.start + e.durationMin;
       const endDate = addDays(e.date, Math.floor(endMin / 1440));
       L.push("BEGIN:VEVENT", `UID:${e.uid}`, `DTSTAMP:${stamp}`,
-        `DTSTART;TZID=Europe/Madrid:${ymd(e.date)}T${hms(e.start)}`,
-        `DTEND;TZID=Europe/Madrid:${ymd(endDate)}T${hms(endMin % 1440)}`,
+        `DTSTART${at}${ymd(e.date)}T${hms(e.start)}`,
+        `DTEND${at}${ymd(endDate)}T${hms(endMin % 1440)}`,
         `SUMMARY:${icsEscape(e.summary)}`, `DESCRIPTION:${icsEscape(e.description)}`, `CATEGORIES:${icsEscape(e.category)}`, "END:VEVENT");
     }
     L.push("END:VCALENDAR");
@@ -1031,8 +1050,10 @@
   }
 
   // ───────────────────────────────────────────── demo (deterministic, relative to today)
-  function demoState(today) {
-    const s = emptyState(today);
+  /** True while the state still holds the demo tasks (ids t_demoNN), to label it as example data. */
+  const isDemoState = (s) => !!s && Array.isArray(s.tasks) && s.tasks.some((t) => /^t_demo\d+$/.test(t.id));
+  function demoState(today, habits = HABITS_DEFAULT) {
+    const s = emptyState(today, habits); // habit links follow the real habit list
     const rng = mulberry32(42);
     s.settings.fixedWeekly = [{ id: "fw_clases", title: "Clases UIE", days: [1, 2, 3, 4, 5], start: "09:00", end: "14:30" }];
     s.settings.frenchCountFrom = addDays(today, -13);
@@ -1093,6 +1114,70 @@
     ] };
     return data;
   }
+  /** Writes the demo ticks/objectives into habitos.v1 data (allowed mutators only) and returns exactly what it added,
+      so that it can be taken out again later: {ticks:{ym:{h:[day]}}, objectives:{ym:[{text,done}×3]}|null}. */
+  function applyDemoHabits(data, demo, today) {
+    const rec = { ticks: {}, objectives: null };
+    for (const [ym, month] of Object.entries((demo && demo.months) || {})) {
+      if (!isYM(ym) || !isPlainObject(month)) continue;
+      for (const [hs, days] of Object.entries(month)) {
+        const h = Number(hs);
+        if (!Number.isInteger(h) || h >= data.habits.length || !Array.isArray(days)) continue;
+        for (const day of days) {
+          const iso = `${ym}-${pad2(day)}`;
+          if (!isISO(iso) || isTicked(data, iso, h) || !setTick(data, iso, h, true, today)) continue;
+          ((rec.ticks[ym] ||= {})[h] ||= []).push(Number(day));
+        }
+      }
+    }
+    const ym = ymOf(today);
+    const objs = demo && isPlainObject(demo.objectives) ? demo.objectives[ym] : null;
+    if (Array.isArray(objs) && !objectivesOf(data, ym).some((o) => o.text)) {
+      objs.forEach((o, i) => setObjective(data, ym, i, o));
+      rec.objectives = { [ym]: objectivesOf(data, ym) };
+    }
+    return rec;
+  }
+  /** Number of demo ticks recorded by applyDemoHabits. */
+  const demoTickCount = (rec) => Object.values((rec && rec.ticks) || {}).reduce((a, m) => a + Object.values(m).reduce((b, d) => b + d.length, 0), 0);
+  /** Takes out of habitos.v1 data exactly the demo ticks that are still there, and the demo objectives if unchanged. */
+  function removeDemoHabits(data, rec, today) {
+    let removed = 0;
+    for (const [ym, month] of Object.entries((rec && rec.ticks) || {})) {
+      for (const [hs, days] of Object.entries(month)) {
+        const h = Number(hs);
+        for (const day of days) {
+          const iso = `${ym}-${pad2(day)}`;
+          if (isTicked(data, iso, h) && setTick(data, iso, h, false, today)) removed++;
+        }
+      }
+    }
+    for (const [ym, list] of Object.entries((rec && rec.objectives) || {})) {
+      if (JSON.stringify(objectivesOf(data, ym)) === JSON.stringify(normObjectives(list))) {
+        for (const i of [0, 1, 2]) setObjective(data, ym, i, { text: "", done: false });
+      }
+    }
+    return removed;
+  }
+  /** Validates the demo record kept in ritmo.v1 (or null). */
+  function normDemoRecord(x) {
+    if (!isPlainObject(x) || !isPlainObject(x.ticks)) return null;
+    const ticks = {};
+    for (const [ym, month] of Object.entries(x.ticks)) {
+      if (!isYM(ym) || !isPlainObject(month)) continue;
+      for (const [hs, days] of Object.entries(month)) {
+        const h = Number(hs);
+        if (!Number.isInteger(h) || h < 0 || h > 99 || !Array.isArray(days)) continue;
+        const ds = [...new Set(days.map(Number).filter((d) => Number.isInteger(d) && d >= 1 && d <= daysInMonth(ym)))].sort((a, b) => a - b);
+        if (ds.length) (ticks[ym] ||= {})[h] = ds;
+      }
+    }
+    let objectives = null;
+    if (isPlainObject(x.objectives)) {
+      for (const [ym, list] of Object.entries(x.objectives)) if (isYM(ym) && Array.isArray(list)) (objectives ||= {})[ym] = normObjectives(list);
+    }
+    return Object.keys(ticks).length || objectives ? { ticks, objectives } : null;
+  }
 
   // ───────────────────────────────────────────── export
   const api = {
@@ -1117,7 +1202,8 @@
     // review & plan
     reviewDates, reviewQueue, applyReviewAction, proposeDay, acceptProposal,
     // reminders, ics, io, demo
-    dueReminders, icsEscape, foldLine, utf8Len, toICS, blocksToEvents, exportBundle, parseImport, demoState, demoHabits,
+    dueReminders, icsEscape, foldLine, utf8Len, icsZone, toICS, blocksToEvents, exportBundle, parseImport, demoState, demoHabits,
+    applyDemoHabits, removeDemoHabits, demoTickCount, normDemoRecord, isDemoState,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.RitmoLogic = api;

@@ -76,3 +76,5 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # Chromium headless: recorrido 
 - **Formato español a mano** (`8.420`, `1,1 km`): `toLocaleString("es-ES")` no agrupa los números de 4 cifras.
 - **Sin frameworks, sin CDN, sin módulos ES:** 4 ficheros planos que abren con doble clic desde `file://`; `logic.js` es puro (sin DOM ni reloj escondido) y se prueba en Node.
 - Los días vacíos no se guardan, el registro de importaciones guarda las 50 últimas y los datos de ejemplo llevan la fuente «Ejemplo», así una importación real los sustituye.
+- **Días futuros:** se pueden abrir (p. ej. con → desde Hoy) y apuntar comidas o el tipo de día para planificar, pero los pasos y el agua solo se apuntan cuando el día llega.
+- **Contraste AA:** `--ink-3`, `--ok` y `--warn` están algo más oscuros (más claro `--ink-3` en modo oscuro) que en la especificación, porque los valores originales daban 2,7–4,2:1 en los textos pequeños. Ritmo usa los mismos valores, así las dos apps siguen siendo de la misma familia.

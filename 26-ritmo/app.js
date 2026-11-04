@@ -29,8 +29,10 @@
 
   // ───────────────────────────────────────────── storage wrapper (never throws; in-memory fallback)
   const mem = Object.create(null);
+  // Read-only probe: Ritmo never writes any key but ritmo.v1 (and habitos.v1 through applyHabitMutation).
+  // A failed write (quota, private mode) flips storageOK in saveFailed().
   let storageOK = true;
-  try { const k = "ritmo.v1.probe"; window.localStorage.setItem(k, "1"); window.localStorage.removeItem(k); } catch (e) { storageOK = false; }
+  try { void window.localStorage.getItem(KEY); } catch (e) { storageOK = false; }
   const store = {
     get(k) { if (k in mem) return mem[k]; try { return window.localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { window.localStorage.setItem(k, v); delete mem[k]; return true; } catch (e) { mem[k] = v; return false; } },
@@ -38,6 +40,7 @@
   };
   let saveWarned = false;
   function saveFailed() {
+    storageOK = false; // the "no deja guardar" banner shows from the next render on
     if (saveWarned) return;
     saveWarned = true;
     toast({ title: "No se pudo guardar en este navegador: exporta tus datos", body: "Ritmo sigue funcionando en memoria hasta que cierres la pestaña." });
@@ -45,7 +48,7 @@
 
   // ───────────────────────────────────────────── state
   let today = L.todayISO();
-  let ownCorrupt = false;
+  let ownCorrupt = false, ownCorruptRaw = null;
   let S = loadState();
   function loadState() {
     const raw = store.get(KEY);
@@ -56,10 +59,10 @@
       return s;
     }
     let obj = null;
-    try { obj = JSON.parse(raw); } catch (e) { ownCorrupt = true; }
+    try { obj = JSON.parse(raw); } catch (e) { ownCorrupt = true; ownCorruptRaw = raw; }
     return L.migrate(obj, today, habits);
   }
-  function save() { const ok = store.set(KEY, JSON.stringify(S)); if (!ok) saveFailed(); ownCorrupt = false; return ok; }
+  function save() { const ok = store.set(KEY, JSON.stringify(S)); if (!ok) saveFailed(); ownCorrupt = false; ownCorruptRaw = null; return ok; }
   const taskById = (id) => S.tasks.find((t) => t.id === id);
   const routineById = (id) => S.routines.find((r) => r.id === id);
 
@@ -181,6 +184,7 @@
     document.title = "Ritmo · " + v.title();
     if (v.after) v.after();
     drawCharts();
+    updateReviewButton();
     if (fk) { const el = $(fk); if (el) el.focus({ preventScroll: true }); }
   }
   function renderShell() {
@@ -201,7 +205,7 @@
     const banners = [];
     if (!storageOK) banners.push(`<div class="banner bad" role="alert"><span>⚠</span><span><b>Este navegador no deja guardar datos.</b> Ritmo funciona en memoria: exporta el JSON antes de cerrar la pestaña.</span></div>`);
     if (R.inv) banners.push(`<div class="banner bad" role="alert"><span>⚠</span><span>Los datos de hábitos (habitos.v1) no son válidos. Ábrelos en 15-hábitos o importa una copia.</span></div>`);
-    if (ownCorrupt) banners.push(`<div class="banner"><span>ℹ</span><span>Los datos guardados de Ritmo estaban dañados y se ha empezado de cero. No se sobrescriben hasta que cambies algo; importa una copia si la tienes.</span></div>`);
+    if (ownCorrupt) banners.push(`<div class="banner"><span>ℹ</span><span>Los datos guardados de Ritmo estaban dañados y se ha empezado de cero. No se sobrescriben hasta que cambies algo; importa una copia si la tienes. <button type="button" class="btn btn-secondary btn-sm" data-action="dl-corrupt">Descargar el texto dañado</button></span></div>`);
     $("#banners").innerHTML = banners.join("");
   }
   function updateReviewButton() {
@@ -210,6 +214,8 @@
     const evening = h >= 20 || h < 4;
     b.classList.toggle("btn-primary", evening);
     b.classList.toggle("btn-secondary", !evening);
+    const cta = $("#reviewCta");
+    if (cta) cta.hidden = !(evening && !S.reviews[L.reviewDates(new Date()).reviewDay]);
   }
 
   // ───────────────────────────────────────────── shared pieces
@@ -226,7 +232,8 @@
         <button type="button" role="menuitem" data-action="review">🌙 Revisión nocturna</button>
       </div></div></div>` : "";
     const right = range ? `<div class="vh-right">${seg}${actions}</div>` : "";
-    return `<header class="vh"><div class="vh-titles"><p class="caption">${esc(caption)}</p><div class="title-row"><h1 class="title">${titleHTML}</h1>${back}</div></div>${right}</header>`;
+    const demo = L.isDemoState(S) ? ` <a class="chip chip-demo" href="#/ajustes" title="Borra los datos de Ritmo en Ajustes para empezar con los tuyos">Datos de ejemplo</a>` : "";
+    return `<header class="vh"><div class="vh-titles"><p class="caption">${esc(caption)}${demo}</p><div class="title-row"><h1 class="title">${titleHTML}</h1>${back}</div></div>${right}</header>`;
   }
   const dayTitle = (iso) => { const tp = L.titleParts(iso); return `<b>${tp.weekday},</b> ${tp.rest}`; };
   const checkBtn = (t, cls = "") => {
@@ -242,9 +249,12 @@
   function viewHoy() {
     const sel = route.sel;
     return header({ titleHTML: dayTitle(sel), range: "dia", sel })
-      + `<div class="hoy">${weekStrip(sel)}<div class="hoy-grid"><div class="col-main">${timelineSection(sel)}${pendingCards(sel)}${minimumsCard(sel)}</div>`
+      + `<div class="hoy">${weekStrip(sel)}${sel === today ? reviewCta() : ""}<div class="hoy-grid"><div class="col-main">${timelineSection(sel)}${pendingCards(sel)}${minimumsCard(sel)}</div>`
       + `<div class="col-side">${heroCard(sel)}${habitListCard(sel)}${objectivesCard(sel.slice(0, 7))}</div></div></div>`;
   }
+  /** Phone-only evening card (the sidebar with #btnReview is hidden below 900 px); updateReviewButton shows it. */
+  const reviewCta = () => `<section class="card rv-cta" id="reviewCta" aria-labelledby="rvCtaTitle" hidden><div><p class="review-kicker" id="rvCtaTitle">Cada noche · 5 min</p>`
+    + `<p class="review-text">Repasa el día tarea a tarea y deja mañana planificado.</p></div><button type="button" class="btn btn-primary" data-action="review">🌙 Revisión nocturna</button></section>`;
   function weekStrip(sel) {
     const days = L.weekDays(sel);
     const cells = days.map((d, i) => {
@@ -701,7 +711,9 @@
       + `<div class="btn-row" style="margin-top:12px"><button type="button" id="icsDay" class="btn btn-secondary btn-sm">Calendario de hoy (.ics)</button><button type="button" id="icsWeek" class="btn btn-secondary btn-sm">Calendario de la semana (.ics)</button></div>`
       + `<label class="cb-row"><input type="checkbox" class="cbx" id="icsRoutines"${icsOpts.includeRoutines ? " checked" : ""}><span>Incluir rutinas en el .ics</span></label>`
       + `<label class="cb-row"><input type="checkbox" class="cbx" id="icsFixed"${icsOpts.includeFixed ? " checked" : ""}><span>Incluir horario fijo en el .ics</span></label>`
-      + `<div class="danger-zone btn-row"><button type="button" id="demoBtn" class="btn btn-secondary btn-sm">Cargar datos de ejemplo</button><button type="button" id="wipeBtn" class="btn btn-ghost btn-danger btn-sm">Borrar datos de Ritmo</button></div></section>`
+      + `<div class="danger-zone btn-row"><button type="button" id="demoBtn" class="btn btn-secondary btn-sm">Cargar datos de ejemplo</button>`
+      + (S.demoHabits ? `<button type="button" id="demoTicksBtn" class="btn btn-secondary btn-sm">Quitar ticks de ejemplo de Hábitos (${L.fmtInt(L.demoTickCount(S.demoHabits))})</button>` : "")
+      + `<button type="button" id="wipeBtn" class="btn btn-ghost btn-danger btn-sm">Borrar datos de Ritmo</button></div></section>`
       + `</div><p class="kbd-help">Atajos: <kbd>n</kbd> nueva tarea · <kbd>r</kbd> revisión nocturna · <kbd>t</kbd> hoy · <kbd>←</kbd>/<kbd>→</kbd> día anterior/siguiente · <kbd>Esc</kbd> cierra avisos y diálogos</p>`;
   }
   function notifState() {
@@ -1069,10 +1081,13 @@
     a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
+  /** Times are wall-clock times where David is (Madrid, or India from January): export them in the browser's zone. */
+  const browserTZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Madrid"; } catch (e) { return "Europe/Madrid"; } })();
   function exportICS(dates, name) {
     const ev = L.blocksToEvents(S, dates, icsOpts);
-    download(name, L.toICS(ev, { calName: "Ritmo", dtstamp: stampNow() }), "text/calendar;charset=utf-8");
-    toast({ title: `Calendario exportado (${ev.length} ${L.plural(ev.length, "evento", "eventos")})`, body: name });
+    const zone = L.icsZone(browserTZ);
+    download(name, L.toICS(ev, { calName: "Ritmo", dtstamp: stampNow(), tzid: browserTZ }), "text/calendar;charset=utf-8");
+    toast({ title: `Calendario exportado (${ev.length} ${L.plural(ev.length, "evento", "eventos")})`, body: `${name} · ${zone ? "zona " + zone : "hora local"}` });
   }
   const icsDay = (iso) => exportICS([iso], `ritmo-${iso}.ics`);
   const icsWeek = (iso) => { const days = L.weekDays(iso); exportICS(days, `ritmo-semana-${days[0]}.ics`); };
@@ -1095,26 +1110,39 @@
     toast({ title: "Datos importados", body: r.warnings.join(" · ") || `${r.ritmo.tasks.length} tareas` });
   }
   function loadDemo() {
-    if (!confirm("¿Cargar datos de ejemplo? Sustituye los datos de Ritmo (tus otras apps no se tocan).")) return;
-    S = L.demoState(today); save();
-    const raw = store.get(HK), hr = L.readHabits(raw);
-    if (hr.status === "missing" || (hr.status === "ok" && !L.hasAnyTicks(hr.data))) {
-      const demo = L.demoHabits(today);
-      habitWrite((d) => {
-        for (const [ym, month] of Object.entries(demo.months)) for (const [h, days] of Object.entries(month)) for (const day of days) {
-          const iso = `${ym}-${String(day).padStart(2, "0")}`;
-          if (Number(h) < d.habits.length) L.setTick(d, iso, Number(h), true, today);
-        }
-        const ym = today.slice(0, 7);
-        if (!L.objectivesOf(d, ym).some((o) => o.text)) demo.objectives[ym].forEach((o, i) => L.setObjective(d, ym, i, o));
-        return true;
-      });
-    } else toast({ title: hr.status === "invalid" ? "Los hábitos no son válidos: no se tocan" : "Hay hábitos reales: no se tocan" });
+    const hr = L.readHabits(store.get(HK));
+    const fillHabits = hr.status === "missing" || (hr.status === "ok" && !L.hasAnyTicks(hr.data));
+    const msg = fillHabits
+      ? "¿Cargar datos de ejemplo? Sustituye los datos de Ritmo y, como aún no tienes hábitos marcados, rellena también Hábitos (15-hábitos) con ticks de ejemplo. Podrás quitarlos en Ajustes → «Quitar ticks de ejemplo». Las demás apps no se tocan."
+      : "¿Cargar datos de ejemplo? Sustituye los datos de Ritmo (tus hábitos y las demás apps no se tocan).";
+    if (!confirm(msg)) return;
+    const prevRecord = S.demoHabits || null;
+    S = L.demoState(today, hr.status === "invalid" ? L.HABITS_DEFAULT : hr.habits);
+    let rec = null;
+    if (fillHabits) habitWrite((d) => { rec = L.applyDemoHabits(d, L.demoHabits(today), today); return true; });
+    else toast({ title: hr.status === "invalid" ? "Los hábitos no son válidos: no se tocan" : "Hay hábitos reales: no se tocan" });
+    const record = L.normDemoRecord(rec) || prevRecord; // remember exactly what the demo added to habitos.v1
+    if (record) S.demoHabits = record;
+    save();
     go("#/hoy");
     toast({ title: "Datos de ejemplo cargados", body: "Un día completo para probar Ritmo." });
   }
+  /** Takes out of habitos.v1 exactly the ticks (and untouched objectives) the demo added; real ticks stay. */
+  function removeDemoTicks() {
+    const rec = S.demoHabits;
+    if (!rec) return;
+    const n = L.demoTickCount(rec);
+    if (!confirm(`¿Quitar de Hábitos los ${L.fmtInt(n)} ticks de ejemplo que puso Ritmo? Solo se quitan esos; lo que hayas marcado tú no se toca.`)) return;
+    let removed = 0;
+    if (!habitWrite((d) => { removed = L.removeDemoHabits(d, rec, today); return true; })) return;
+    delete S.demoHabits;
+    save();
+    render();
+    toast({ title: "Ticks de ejemplo quitados de Hábitos", body: `${L.fmtInt(removed)} ${L.plural(removed, "tick", "ticks")}` });
+  }
   function wipe() {
-    if (!confirm("¿Borrar todos los datos de Ritmo? Tus hábitos y las demás apps no se tocan.")) return;
+    const extra = S.demoHabits ? "\n\nOjo: los ticks de ejemplo que Ritmo puso en Hábitos se quedan. Si quieres quitarlos, cancela y usa antes «Quitar ticks de ejemplo de Hábitos»." : "";
+    if (!confirm("¿Borrar todos los datos de Ritmo? Tus hábitos y las demás apps no se tocan." + extra)) return;
     store.remove(KEY);
     S = L.emptyState(today, R.habits);
     render();
@@ -1146,6 +1174,7 @@
     if (el.id === "icsWeek") return icsWeek(today);
     if (el.id === "demoBtn") return loadDemo();
     if (el.id === "wipeBtn") return wipe();
+    if (el.id === "demoTicksBtn") return removeDemoTicks();
     if (el.id === "notifBtn") return askNotifications();
     const d = el.dataset;
     if (d.habit !== undefined) return toggleHabit(Number(d.habit));
@@ -1163,6 +1192,7 @@
       case "review": return openReview();
       case "this-week": return go("#/semana");
       case "goto-demo": e.preventDefault(); return go("#/ajustes");
+      case "dl-corrupt": if (ownCorruptRaw !== null) download(`ritmo-danado-${today}.txt`, ownCorruptRaw, "text/plain"); return;
       case "set-time": return openTask(d.id, { focusTime: true });
       case "to-today": { const task = taskById(d.id); if (task) { task.date = today; task.time = null; task.updatedAt = stampNow(); save(); render(); } return; }
       case "archive": { const task = taskById(d.id); if (task) { task.status = "archived"; task.updatedAt = stampNow(); save(); render(); toast({ title: "Tarea archivada", body: task.title, action: { label: "Deshacer", fn: () => { task.status = "open"; save(); render(); } } }); } return; }
@@ -1280,17 +1310,19 @@
 
   // ───────────────────────────────────────────── 20 s tick: live labels, reminders, day change (no full re-render)
   let lastTick = Date.now();
-  const sent = new Set();
+  const sent = new Set(); // block keys already announced on sentDay (routine:/fixed: keys repeat every day)
   let sentDay = today;
+  const MAX_LATE_MS = 15 * 60000; // after sleep or a throttled tab, skip reminders that are long past
   function tick() {
     const now = Date.now();
     const t = L.todayISO();
-    if (t !== today) { sent.clear(); sentDay = t; render(); lastTick = now; return; }
-    if (route.name === "hoy" && route.sel === today) positionNow();
+    if (t !== sentDay) { sent.clear(); sentDay = t; lastTick = Math.max(lastTick, L.toEpoch(t, "00:00") - 1); }
+    if (t !== today) render(); // new day: full re-render (render() updates `today`)
+    else if (route.name === "hoy" && route.sel === today) positionNow();
     updateReviewButton();
     if (S.settings.reminders.enabled) {
       const blocks = L.dayBlocks(S, today).timed;
-      const due = L.dueReminders(blocks, today, lastTick, now, S.settings.reminders.leadMin, sent);
+      const due = L.dueReminders(blocks, today, Math.max(lastTick, now - MAX_LATE_MS), now, S.settings.reminders.leadMin, sent);
       for (const b of due) {
         sent.add(b.key);
         let body;
@@ -1302,7 +1334,6 @@
         }
       }
     }
-    void sentDay;
     lastTick = now;
   }
   setInterval(tick, 20000);

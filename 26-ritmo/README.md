@@ -28,9 +28,11 @@
   **«Cargar datos de ejemplo»** para ver un día completo.
 - **Atajos:** `n` nueva tarea · `r` revisión nocturna · `t` hoy · `←`/`→` día anterior/siguiente · `Esc` cierra avisos.
 - **Exporta el JSON de vez en cuando** (*Ajustes → Exportar JSON*): los datos viven solo en este navegador.
-- **Calendario:** *Exportar día/semana (.ics)* se importa en Google Calendar (zona Europe/Madrid, con horario de verano).
+- **Calendario:** *Exportar día/semana (.ics)* se importa en Google Calendar. Las horas van en la zona de tu navegador:
+  Europe/Madrid (con horario de verano) en España y Asia/Kolkata en la India, así un bloque de las 20:00 sigue a las 20:00.
 
-**Revisión nocturna en 4 pasos** (botón 🌙, se resalta desde las 20:00):
+**Revisión nocturna en 4 pasos** (botón 🌙, se resalta desde las 20:00; en el móvil, donde no hay barra lateral, Hoy
+muestra la tarjeta «Cada noche» de 20:00 a 04:00 hasta que la guardas, y también está en el menú ⋯):
 
 1. **Tarea por tarea:** para cada tarea abierta hasta mañana: *Hecha* (H), *Mañana* (M), *Nueva fecha* (F),
    *Archivar* (A) o *Mantener* (S); «← Atrás» deshace. Con más de 15 tareas, tabla con desplegables.
@@ -66,7 +68,7 @@ archivos locales; Firefox aísla cada archivo, así que ahí Ritmo no verá Háb
 - ✅ Recordatorios en avisos (y Notificaciones del sistema si las permites), `.ics` del día y de la semana.
 - ✅ Exportar/importar JSON (con validación previa), datos de ejemplo deterministas, «Borrar datos de Ritmo» (solo `ritmo.v1`).
 - ✅ Modo oscuro, móvil desde 360 px sin scroll horizontal, barra inferior, foco visible y navegación por teclado.
-- ✅ 55 tests de lógica (`node --test`) + smoke de Playwright (flujo completo, compatibilidad con 15-hábitos, 360 px, modo oscuro).
+- ✅ 58 tests de lógica (`node --test`) + smoke de Playwright (flujo completo, compatibilidad con 15-hábitos, 360 px, modo oscuro).
 
 ## 4. Qué falta / siguientes pasos
 
@@ -124,7 +126,22 @@ archivos locales; Firefox aísla cada archivo, así que ahí Ritmo no verá Háb
 - *Fuentes del deporte:* «Fuentes: …» lista las apps con datos disponibles en este navegador.
 - *Deshacer* restaura `ritmo.v1`; los hábitos marcados automáticamente se quedan (Ritmo nunca desmarca).
 - *Datos de ejemplo en Hábitos:* solo si `habitos.v1` falta o no tiene ningún tick, y siempre con `setTick`/`setObjective`
-  (si ya tenías tu propia lista de hábitos sin ticks, se respeta).
+  (si ya tenías tu propia lista de hábitos sin ticks, se respeta; los vínculos Deporte/Francés/Noche se buscan en tu lista).
+  El aviso de confirmación lo dice, y Ritmo apunta en `ritmo.v1` exactamente qué ticks añadió: *Ajustes → «Quitar ticks de
+  ejemplo de Hábitos»* quita solo esos (lo que marques tú se queda). «Borrar datos de Ritmo» sigue sin tocar `habitos.v1`.
+  Mientras haya datos de ejemplo, la cabecera muestra la etiqueta «Datos de ejemplo».
+- *Calendario en la zona del navegador:* la especificación fijaba Europe/Madrid, pero de enero a junio de 2027 estarás en
+  la India y un bloque de las 20:00 se importaría a las 00:30 del día siguiente. El `.ics` usa la zona del navegador:
+  Europe/Madrid (el VTIMEZONE exacto de la especificación) o Asia/Kolkata; en cualquier otra zona, horas «flotantes»
+  que Google Calendar coloca en la zona de tu calendario.
+- *Avisos abajo a la derecha en escritorio* (la especificación decía abajo a la izquierda): ahí tapaban la tarjeta
+  «Cada noche» y el botón de la revisión nocturna. En el móvil siguen centrados sobre la barra inferior.
+- *Recordatorios tras suspender el portátil:* al cambiar de día se reinicia la lista de avisos ya enviados, y si la pestaña
+  estuvo dormida no se lanzan de golpe los bloques que empezaron hace más de 15 minutos.
+- *Contraste AA:* `--ink-3`, `--ok` y `--warn` están algo más oscuros (más claro `--ink-3` en modo oscuro) que en la
+  especificación, porque los valores originales daban 2,7–4,2:1 en textos pequeños. Paso usa los mismos valores.
+- *Datos propios dañados:* si `ritmo.v1` no se puede leer, el aviso ofrece «Descargar el texto dañado» antes de que el
+  siguiente cambio lo sobrescriba. Ritmo no escribe ninguna otra clave (ni siquiera una de prueba).
 - *Gráficos* dibujados al ancho real de su tarjeta (se redibujan al cambiar el tamaño de la ventana) para que el texto
   no se deforme.
 - *Firmas concretas:* `sportByDay` recibe el objeto `habitos.v1` en `habits` y `ritmoDone` como lista de fechas;

@@ -73,7 +73,9 @@ Construidas a partir de tus capturas, pero **adaptadas a tus visiones** (no son 
 | 26 | **Ritmo** | Tu día en bloques con tus franjas (entrenar por la mañana o ≥ 19:00, foco 20-23, evitar 15-17), tareas por prioridad, **revisión nocturna** tarea a tarea (Hecha / Sigue mañana / Nueva fecha / Archivar) con propuesta de bloques para mañana, **mínimos** (deporte suelo 3 / estándar 5, francés 30' acumulables), rutinas Mañana/Noche, recordatorios y `.ics`. Marca tus 10 hábitos **en el mismo almacenamiento que la app 15**, así no apuntas nada dos veces. |
 | 27 | **Paso** | Pasos con anillo y «te faltan N · X km», comidas **sin calorías** (palmas, puños, manos, pulgares de tu guía 16), la **verdura marcada como punto débil** con recetas de verdura escondida, agua en vasos, **importación de Apple Health** (sin contar dos veces iPhone + Watch) y CSV, historial del mes. |
 
-**Cómo se hizo:** un agente organizador escribió la especificación (`docs/spec-ritmo-paso.md`), dos agentes ejecutores construyeron las apps en paralelo y un revisor QA las comprobó. Hay 90 tests de lógica y 2 recorridos completos en navegador con capturas.
+**Cómo se hizo:** un agente organizador escribió la especificación (`docs/spec-ritmo-paso.md`), dos agentes ejecutores construyeron las apps en paralelo y un revisor QA las comprobó y corrigió 12 fallos (el más importante: el `.ics` de Ritmo ya respeta la hora de India). Hay 93 tests de lógica y 2 recorridos completos en navegador con capturas.
+
+**Primer uso:** en *Ajustes* de cada app, «Cargar datos de ejemplo» para verla llena. En Ritmo esos ejemplos también marcan ticks en tu hoja de Hábitos (15); cuando acabes de probar, pulsa «Quitar ticks de ejemplo de Hábitos» y luego «Borrar».
 
 **Para que se hablen entre ellas** (Ritmo lee tu gimnasio, idiomas, finanzas y Paso), ábrelas desde GitHub Pages o con Chrome/Edge en local; Firefox aísla cada fichero local. Exporta el JSON de vez en cuando: los datos viven en el navegador.
 

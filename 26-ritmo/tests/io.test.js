@@ -105,3 +105,39 @@ test("esc renders hostile titles as text", () => {
   assert.strictEqual(L.esc("Tom & 'Jerry'"), "Tom &amp; &#39;Jerry&#39;");
   assert.strictEqual(L.esc(null), "");
 });
+
+test("demo habits: only missing ticks are added and recorded; removing them leaves real ticks and edited objectives", () => {
+  const data = { habits: L.HABITS_DEFAULT.slice(), months: { "2026-11": { 0: [1] } }, extra: 1 };
+  const demo = L.demoHabits(TODAY);
+  const rec = L.applyDemoHabits(data, demo, TODAY);
+  assert.ok(!(rec.ticks["2026-11"] && (rec.ticks["2026-11"][0] || []).includes(1)), "a real tick is not recorded as demo");
+  assert.ok(L.demoTickCount(rec) > 100);
+  assert.strictEqual(L.objectivesOf(data, "2026-11")[0].text, "Media de hábitos ≥ 7,5 todo el mes");
+  // the record survives migrate (kept in ritmo.v1) and is validated
+  const st = L.migrate({ tasks: [], settings: {}, demoHabits: JSON.parse(JSON.stringify(rec)) }, TODAY);
+  assert.strictEqual(L.demoTickCount(st.demoHabits), L.demoTickCount(rec));
+  assert.strictEqual(L.migrate({ tasks: [], settings: {}, demoHabits: { ticks: "x" } }, TODAY).demoHabits, undefined);
+  assert.strictEqual(L.normDemoRecord({ ticks: { "2026-11": { 0: [0, 40, "x"] } } }), null);
+  // David ticks something real after the demo; then the demo ticks are removed
+  L.setTick(data, "2026-11-04", 9, true, TODAY);
+  const before = L.dayScore(data, "2026-11-04");
+  const removed = L.removeDemoHabits(data, st.demoHabits, TODAY);
+  assert.strictEqual(removed, L.demoTickCount(rec));
+  assert.ok(L.isTicked(data, "2026-11-01", 0) && L.isTicked(data, "2026-11-04", 9));
+  assert.strictEqual(L.dayScore(data, "2026-11-04"), before - 4); // demo ticked 0, 3, 7 and 8 today
+  assert.deepStrictEqual(L.objectivesOf(data, "2026-11").map((o) => o.text), ["", "", ""]);
+  assert.strictEqual(data.extra, 1);
+  // edited objectives are kept
+  const d2 = { habits: L.HABITS_DEFAULT.slice(), months: {} };
+  const r2 = L.applyDemoHabits(d2, demo, TODAY);
+  L.setObjective(d2, "2026-11", 2, { text: "Mi objetivo real" });
+  L.removeDemoHabits(d2, r2, TODAY);
+  assert.strictEqual(L.objectivesOf(d2, "2026-11")[2].text, "Mi objetivo real");
+});
+
+test("demoState links habits by name in the real habit list", () => {
+  const s = L.demoState(TODAY, ["🏃 Deporte", "Leer", "🇫🇷 Francés", "🌙 Noche"]);
+  assert.deepStrictEqual(s.settings.habitLinks, { sport: 0, french: 2 });
+  assert.strictEqual(s.routines.find((r) => r.id === "noche").habitIndex, 3);
+  assert.ok(L.isDemoState(s) && !L.isDemoState(L.emptyState(TODAY)));
+});

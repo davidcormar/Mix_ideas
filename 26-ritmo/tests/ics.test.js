@@ -84,3 +84,16 @@ test("foldLine: ≤ 75 octets per physical line, unfolds to the original, never 
   }
   assert.strictEqual(L.foldLine("SUMMARY:corta"), "SUMMARY:corta");
 });
+
+test("toICS: wall-clock zone follows the browser (Madrid default, Kolkata in India, floating otherwise)", () => {
+  const ev = [{ uid: "ritmo-task-x-20270115@mix-ideas", date: "2027-01-15", start: L.parseHM("20:00"), durationMin: 90, summary: "Clase", description: "", category: "resto" }];
+  const madrid = L.toICS(ev, { dtstamp: "20270101T000000Z" });
+  assert.ok(madrid.includes("X-WR-TIMEZONE:Europe/Madrid\r\n") && madrid.includes("DTSTART;TZID=Europe/Madrid:20270115T200000\r\n"));
+  const india = L.toICS(ev, { dtstamp: "20270101T000000Z", tzid: "Asia/Kolkata" });
+  assert.ok(india.includes("X-WR-TIMEZONE:Asia/Kolkata\r\n") && india.includes("TZID:Asia/Kolkata\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0530\r\nTZOFFSETTO:+0530"));
+  assert.ok(india.includes("DTSTART;TZID=Asia/Kolkata:20270115T200000\r\n") && india.includes("DTEND;TZID=Asia/Kolkata:20270115T213000\r\n"));
+  assert.ok(!india.includes("Europe/Madrid"));
+  assert.strictEqual(L.icsZone("Asia/Calcutta"), "Asia/Kolkata");
+  const other = L.toICS(ev, { dtstamp: "20270101T000000Z", tzid: "Europe/London" });
+  assert.ok(other.includes("DTSTART:20270115T200000\r\n") && !other.includes("TZID") && !other.includes("X-WR-TIMEZONE"));
+});

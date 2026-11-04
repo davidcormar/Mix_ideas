@@ -142,5 +142,10 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 - **Incidencia menor:** los dos ejecutores ejecutaron una vez `git status` (solo lectura), que el encargo prohibía; no cambió nada.
 - Hice un commit intermedio de 26-ritmo mientras el ejecutor seguía puliendo, para no perder trabajo si el contenedor se reciclaba.
 
-## Revisión QA — 12:44 → …
-- Un agente revisor comprueba ambas apps contra la especificación (seguridad de datos entre apps, fechas con el cambio de hora y en hora de India, accesibilidad, primer arranque sin datos, modo oscuro) y corrige.
+## Revisión QA — 12:44 → 13:22
+- Un agente revisor comprobó ambas apps contra la especificación y corrigió **12 fallos** (1 alto, 4 medios, 7 bajos). Verificado sin cambios: ida y vuelta de `habitos.v1` con la app 15 en navegador real (nada se pierde), 154 ejecuciones con datos corruptos en todas las claves sin errores, la regla de deporte idéntica en Ritmo y Paso (0 discrepancias en 8.000 semanas), cambios de hora (25-oct, 28-mar), hora de India, semanas desde el lunes y 31-dic → 1-ene.
+- **Alto:** el `.ics` de Ritmo siempre usaba hora de Madrid → en India un bloque de las 20:00 se importaría a las 00:30 del día siguiente. Ahora usa la zona del navegador (`Asia/Kolkata` incluida).
+- **Medios:** los datos de ejemplo de Ritmo dejaban ticks falsos en la hoja de 15-hábitos sin forma de quitarlos → ahora se registran y hay un botón «Quitar ticks de ejemplo de Hábitos»; contraste por debajo de AA en textos grises de ambas apps → tokens corregidos; el aviso tapaba el botón de revisión nocturna → abajo a la derecha; en el móvil la revisión nocturna solo era accesible desde «⋯» → tarjeta «Cada noche» de 20:00 a 04:00.
+- **Bajos:** recordatorios tras medianoche o tras suspender el portátil, clave temporal `ritmo.v1.probe`, descarga del texto dañado, foco tras guardar/borrar en Paso, pasos y agua en días futuros, «hoy» desfasado tras medianoche, anillo de foco en campos de fecha/hora.
+- Tests finales: Ritmo **58** (+3), Paso **35**; smoke tests en verde 3 veces seguidas cada uno. **Problema:** un smoke de Ritmo falló una vez mientras el revisor aún ejecutaba los suyos sobre los mismos ficheros; 9 ejecuciones posteriores, todas en verde.
+- **Sin arreglar (a propósito):** si 15-hábitos está abierta en otra pestaña puede pisar ticks escritos por Ritmo al guardar (solo se arregla en 15; documentado).
