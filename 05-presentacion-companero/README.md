@@ -1,6 +1,6 @@
 # 05 · Presentar las ideas de proyecto al compañero (23-29 nov)
 
-Material para proponer un proyecto conjunto: un *one-pager* por idea, una comparativa honesta y una presentación de 12 diapositivas en Markdown (Marp).
+Material para proponer un proyecto conjunto: un *one-pager* por idea, una comparativa honesta y una presentación de 13 diapositivas en Markdown (Marp).
 
 ## Qué hay
 | Fichero | Contenido |
@@ -8,7 +8,7 @@ Material para proponer un proyecto conjunto: un *one-pager* por idea, una compar
 | [one-pager-suite-aero.md](one-pager-suite-aero.md) | Túnel de viento neuronal + generador de alas: problema, por qué importa, qué se construye, datos, stack, riesgos, hitos 3/6 meses, qué aprende cada uno |
 | [one-pager-barcos-oscuros.md](one-pager-barcos-oscuros.md) | Detección SAR + cruce AIS, misma estructura |
 | [comparativa.md](comparativa.md) | 10 criterios puntuados (38 vs 36) y lectura honesta |
-| [presentacion.md](presentacion.md) | 12 diapositivas Marp |
+| [presentacion.md](presentacion.md) | 13 diapositivas Marp (con figuras reales de 06 y 07) |
 
 ## Cómo usarlo
 **Ver/exportar la presentación (gratis):**
@@ -30,7 +30,7 @@ npx @marp-team/marp-cli@latest presentacion.md --pptx
 - 💡 Los cuatro documentos, listos para usar.
 
 ## Qué falta / siguientes pasos
-- Añadir 1-2 imágenes (perfil generado por el VAE de `07-`, gráfica de error del surrogate de `06-`, una escena SAR de ejemplo): `![w:500](ruta.png)` en Marp.
+- ✅ Añadida diapositiva con los resultados y la figura del generador (07). Si exportas a PDF desde otra carpeta, mantén las rutas relativas `../07-generador-alas/...`.
 - Adaptar los "qué aprende cada uno" cuando sepas qué le interesa a tu compañero.
 
 ## Decisiones

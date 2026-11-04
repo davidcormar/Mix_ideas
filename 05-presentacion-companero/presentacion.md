@@ -48,7 +48,16 @@ David · noviembre 2026
 | Modelos | MLP (coeficientes) · U-Net/GNN (campos) · VAE/difusión |
 | Demo | Gradio / Streamlit |
 
-<span class="small">Ya hay un prototipo: método de paneles + red que predice Cl y VAE de perfiles UIUC (carpetas 06 y 07 de mi repo).</span>
+---
+
+## Suite aero · ya hay prototipo
+
+![bg right:45% fit](../07-generador-alas/figuras/perfiles_generados.png)
+
+- **Solver propio** (paneles de vórtices): NACA 0012 a 5° → Cl 0,599 ✔
+- **Red surrogate**: error medio en Cl **0,002**, **~1.600× más rápida**
+- **Generador (CVAE)** sobre 2.090 perfiles reales UIUC: **100 % válidos**, cumple el Cl pedido con error ~0,01-0,03
+- Lo que falta es lo interesante: **viscosidad (Cd), campos completos y efecto suelo**
 
 ---
 
@@ -72,6 +81,8 @@ David · noviembre 2026
 | Detector | U-Net / CenterNet (soluciones ganadoras de xView3 como base) |
 | AIS | Danish Maritime Authority, NOAA, Global Fishing Watch |
 | Salida | mapa de detecciones "oscuras" (Folium/Leaflet) |
+
+<span class="small">Esqueleto ya funcionando sobre escena sintética (carpeta 08): tiles → CFAR → eslora → cruce AIS.</span>
 
 ---
 
