@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Ritmo: planifica el día, organiza tareas y sigue tus hábitos sin saltar entre apps.">
+<meta name="theme-color" content="#EEEEEB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111311" media="(prefers-color-scheme: dark)">
+<title>Ritmo · Hoy</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231E2320'/%3E%3Ctext x='32' y='44' font-family='system-ui,Arial' font-size='36' font-weight='600' text-anchor='middle' fill='%23ffffff'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#view">Saltar al contenido</a>
+
+<aside class="sidebar" aria-label="Ritmo">
+  <div class="brand"><span class="logo" aria-hidden="true">R</span><span class="brand-name">Ritmo</span></div>
+  <nav aria-label="Secciones" class="side-nav">
+    <a href="#/hoy" data-nav="hoy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 2.75v3.5M16 2.75v3.5M3.5 9.5h17"/><rect x="7.5" y="12.5" width="4" height="4" rx="1"/></svg><span>Hoy</span></a>
+    <a href="#/semana" data-nav="semana"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M9.2 9.5v11M14.8 9.5v11"/></svg><span>Semana</span></a>
+    <a href="#/mes" data-nav="mes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M3.5 15h17M9.2 9.5v11M14.8 9.5v11"/></svg><span>Mes</span></a>
+    <a href="#/habitos" data-nav="habitos"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.4 2.6 2.6 5-5.2"/></svg><span>Hábitos</span><span class="badge" id="navHabitBadge" hidden></span></a>
+    <a href="#/progreso" data-nav="progreso"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M10 20V6M15 20v-9M20 20V9.5M3 20.5h18"/></svg><span>Progreso</span></a>
+  </nav>
+  <p class="side-label" id="rutinasLabel">Rutinas</p>
+  <nav aria-labelledby="rutinasLabel" class="side-nav side-sub" id="routineNav"></nav>
+
+  <div class="side-bottom">
+    <div class="review-card">
+      <p class="review-kicker">Cada noche · 5 min</p>
+      <p class="review-text">Repasa el día tarea a tarea y deja mañana planificado.</p>
+      <button type="button" id="btnReview" class="btn btn-secondary btn-block">🌙 Revisión nocturna</button>
+    </div>
+    <nav aria-label="Ajustes" class="side-nav">
+      <a href="#/ajustes" data-nav="ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg><span>Ajustes y datos</span></a>
+    </nav>
+  </div>
+</aside>
+
+<main id="main">
+  <div class="main-inner">
+    <div id="banners"></div>
+    <div id="view" tabindex="-1"></div>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Secciones (móvil)">
+  <a href="#/hoy" data-tab="hoy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 2.75v3.5M16 2.75v3.5M3.5 9.5h17"/><rect x="7.5" y="12.5" width="4" height="4" rx="1"/></svg><span>Hoy</span></a>
+  <a href="#/semana" data-tab="semana"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M9.2 9.5v11M14.8 9.5v11"/></svg><span>Semana</span></a>
+  <a href="#/habitos" data-tab="habitos"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.4 2.6 2.6 5-5.2"/></svg><span>Hábitos</span><span class="badge" id="tabHabitBadge" hidden></span></a>
+  <a href="#/progreso" data-tab="progreso"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M10 20V6M15 20v-9M20 20V9.5M3 20.5h18"/></svg><span>Progreso</span></a>
+  <a href="#/ajustes" data-tab="ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg><span>Ajustes</span></a>
+</nav>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<!-- Task editor -->
+<dialog id="taskDialog" aria-labelledby="taskDlgTitle">
+  <form id="taskForm" class="dlg" novalidate>
+    <header class="dlg-h">
+      <h2 id="taskDlgTitle">Nueva tarea</h2>
+      <button type="button" class="btn-icon" data-close-dialog aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="dlg-body">
+      <label class="field"><span class="field-l">Título</span><input id="tTitle" type="text" required maxlength="200" autocomplete="off" placeholder="¿Qué vas a hacer?"></label>
+      <div class="row2">
+        <label class="field"><span class="field-l">Categoría</span><select id="tCategory"></select></label>
+        <label class="field"><span class="field-l">Fecha</span><input id="tDate" type="date"></label>
+      </div>
+      <div class="row2">
+        <label class="field"><span class="field-l">Hora <span class="opt">(opcional)</span></span><input id="tTime" type="time" step="300"></label>
+        <label class="field"><span class="field-l">Duración (min)</span><input id="tDuration" type="number" min="5" max="720" step="5" inputmode="numeric"></label>
+      </div>
+      <div class="chips-row" role="group" aria-label="Duración rápida">
+        <button type="button" class="chip chip-btn" data-dur="15">15'</button><button type="button" class="chip chip-btn" data-dur="30">30'</button><button type="button" class="chip chip-btn" data-dur="45">45'</button><button type="button" class="chip chip-btn" data-dur="60">1 h</button><button type="button" class="chip chip-btn" data-dur="90">1 h 30</button><button type="button" class="chip chip-btn" data-dur="120">2 h</button>
+      </div>
+      <div class="row2" id="tEntregaRow">
+        <label class="field"><span class="field-l">Fecha de entrega</span><input id="tDue" type="date"></label>
+        <label class="field"><span class="field-l">Peso en la nota (%)</span><input id="tWeight" type="number" min="0" max="100" step="1" inputmode="numeric"></label>
+      </div>
+      <label class="field"><span class="field-l">Notas</span><textarea id="tNotes" rows="3" maxlength="2000" placeholder="Contexto, enlaces, siguiente paso…"></textarea></label>
+      <div id="tWarnings" class="warn-list" aria-live="polite"></div>
+      <p id="tHint" class="hint" hidden>Consejo: divide en bloques de 2 h como máximo</p>
+      <p id="tError" class="form-error" role="alert" hidden></p>
+    </div>
+    <footer class="dlg-f">
+      <button type="button" id="tDelete" class="btn btn-ghost btn-danger">Borrar</button>
+      <span class="grow"></span>
+      <button type="button" id="tArchive" class="btn btn-secondary">Archivar</button>
+      <button type="button" id="tDone" class="btn btn-secondary">Marcar hecha</button>
+      <button type="submit" id="tSave" class="btn btn-primary">Guardar</button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- Nightly review wizard -->
+<dialog id="reviewDialog" aria-labelledby="reviewTitle" class="dlg-wide">
+  <div class="dlg">
+    <header class="dlg-h">
+      <div>
+        <h2 id="reviewTitle">🌙 Revisión nocturna</h2>
+        <ol class="steps" id="reviewSteps" aria-label="Pasos"></ol>
+      </div>
+      <button type="button" class="btn-icon" id="reviewClose" aria-label="Cancelar y cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="dlg-body" id="reviewBody"></div>
+    <footer class="dlg-f" id="reviewFoot"></footer>
+  </div>
+</dialog>
+
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
