@@ -110,3 +110,9 @@ test("pendingItems and day mutations: water never below 0, portions clamped to 0
   L.setSteps(data, T, 0);
   assert.strictEqual(data.days[T], undefined); // empty days are pruned
 });
+
+test("modo India: 8 platos con raciones orientativas, fuera de las 20 recetas", () => {
+  assert.strictEqual(L.INDIA.length, 8);
+  assert.ok(L.INDIA.every((r) => r.id > 100 && r.protein >= 0 && r.veg >= 0 && r.carbs >= 0 && r.fat >= 0 && ["c", "d", "t"].includes(r.group)));
+  assert.strictEqual(L.RECIPES.length, 20);
+});

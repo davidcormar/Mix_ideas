@@ -183,3 +183,4 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 
 ## Extras finales — hasta 17:02
 - Aviso de copia de seguridad (> 7 días), meditación (Hoy, semana, mes, informe; importada de «Mindfulness» de Salud) y «Copiar resumen» en Markdown para Obsidian. +2 tests. Guía de inicio en `GUIA-INICIO.md`.
+- Últimos extras: «hace un mes / un año» del diario, racha de 0 redes, modo India en Paso (8 platos) y enlace a la copia completa desde Ritmo y Paso. +3 tests.

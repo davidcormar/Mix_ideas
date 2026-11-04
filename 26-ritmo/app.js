@@ -706,6 +706,7 @@
       + `<label class="field" style="margin-top:8px"><span class="field-l">Avisar</span><select data-set="reminders.leadMin">${[0, 5, 10].map((v) => `<option value="${v}"${st.reminders.leadMin === v ? " selected" : ""}>${v ? v + " min antes" : "A la hora de empezar"}</option>`).join("")}</select></label>`
       + `<div class="switch-row" style="margin-top:10px"><button type="button" id="notifBtn" class="btn btn-secondary btn-sm">Permitir notificaciones</button><span id="notifState" class="muted">${esc(notif)}</span></div></section>`
       + `<section class="card" data-sec="datos"><h2>Datos</h2><p class="card-sub">Todo vive en este navegador (localStorage). Exporta el JSON de vez en cuando.</p>`
+      + `<p class="muted" style="margin:8px 0"><a href="../28-panel-vida/#/ajustes">Copia de seguridad de TODAS tus apps en un fichero (Panel) →</a></p>`
       + `<div class="btn-row"><button type="button" id="exportJson" class="btn btn-primary btn-sm">Exportar JSON</button><button type="button" id="importBtn" class="btn btn-secondary btn-sm">Importar JSON</button></div>`
       + `<label class="cb-row" style="margin-top:8px"><input type="checkbox" class="cbx" id="importHabits"><span>Importar también hábitos (sobrescribe habitos.v1)</span></label>`
       + `<div class="btn-row" style="margin-top:12px"><button type="button" id="icsDay" class="btn btn-secondary btn-sm">Calendario de hoy (.ics)</button><button type="button" id="icsWeek" class="btn btn-secondary btn-sm">Calendario de la semana (.ics)</button></div>`

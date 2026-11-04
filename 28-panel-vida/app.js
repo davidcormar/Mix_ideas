@@ -247,7 +247,7 @@
     out.push(`<section class="card c4"><h2>${dot(L.movil)}Móvil <span class="right">máx. ${S.settings.screenGoalMin} min</span></h2>
       ${sc.n ? `<div class="kpi" style="margin-top:10px">${Math.round(sc.avg)}<small>min/día</small></div>${pctBar(sc.avg / (S.settings.screenGoalMin * 2), L.movil, 0.5)}
       <div class="rows"><div class="row"><span>Días dentro del objetivo</span><b>${sc.onGoal} de ${sc.n}</b></div>
-      ${sc.noSocialN ? `<div class="row"><span>0 redes antes de las 14:00</span><b>${sc.noSocialAM} de ${sc.noSocialN}</b></div>` : ""}
+      ${sc.noSocialN ? `<div class="row"><span>0 redes antes de las 14:00</span><b>${sc.noSocialAM} de ${sc.noSocialN}${P.noSocialStreak(S, t) > 1 ? ` · racha ${P.noSocialStreak(S, t)} 🔥` : ""}</b></div>` : ""}
       ${ch !== null ? `<div class="row"><span>vs. semana anterior</span><b>${ch > 0 ? "↑" : ch < 0 ? "↓" : "="} ${Math.abs(ch)} %</b></div>` : ""}</div>`
       : `<p class="empty">Mira <i>Ajustes → Tiempo de uso</i> en el iPhone y apúntalo en <a href="#/hoy">Hoy</a>.</p>`}</section>`);
     // languages
@@ -310,9 +310,10 @@
         <div class="fields"><label class="field">Tiempo de pantalla (min)<input type="number" inputmode="numeric" min="0" max="1440" step="5" data-f="screenMin" value="${e.screenMin ?? ""}" placeholder="p. ej. 55"></label>
           <label class="field">🧘 Meditación (min)<input type="number" inputmode="numeric" min="0" max="600" step="1" data-f="meditMin" value="${e.meditMin ?? ""}" placeholder="p. ej. 10"></label></div>
         <p class="faint" style="margin-top:6px">Meditación: ${P.meditStreak(S, t)} ${P.meditStreak(S, t) === 1 ? "día seguido" : "días seguidos"}. Las sesiones de «Mindfulness» de Salud llegan solas con Importar salud.</p>
-        <label class="check" style="margin-top:12px"><input type="checkbox" data-f="noSocialAM" ${e.noSocialAM ? "checked" : ""}> 0 redes sociales antes de las 14:00</label>
+        <label class="check" style="margin-top:12px"><input type="checkbox" data-f="noSocialAM" ${e.noSocialAM ? "checked" : ""}> 0 redes sociales antes de las 14:00${P.noSocialStreak(S, t) ? ` <span class="faint">· racha ${P.noSocialStreak(S, t)} ${P.noSocialStreak(S, t) === 1 ? "día" : "días"}</span>` : ""}</label>
         <details class="help"><summary>¿Dónde lo miro?</summary>iPhone: <i>Ajustes → Tiempo de uso → Ver toda la actividad</i>, pestaña <i>Día</i>. Apunta el total de ayer por la mañana si te resulta más fácil (cambia el día con ‹).</details>
       </section>
+      ${P.onThisDay(S, d).map((x) => `<section class="card c6"><h2>🕰️ ${x.label} <span class="right"><a href="#/hoy?d=${x.date}">${P.fmtDay(x.date)}</a></span></h2><div class="journal-entry" style="margin-top:10px">${x.journal.good ? `✓ ${esc(x.journal.good)}<br>` : ""}${x.journal.better ? `↗ ${esc(x.journal.better)}<br>` : ""}${x.journal.grateful ? `♡ ${esc(x.journal.grateful)}` : ""}</div></section>`).join("")}
       <section class="card c12"><h2>📓 Diario de 3 líneas <span class="right" id="jStreak">${P.journalStreak(S, t) === 1 ? "1 día seguido" : `${P.journalStreak(S, t)} días seguidos`}</span></h2><p class="sub">Se guarda solo. Te servirá en la revisión semanal.</p>
         <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
           <label class="field">Qué salió bien<textarea data-j="good" maxlength="500">${esc(j.good || "")}</textarea></label>

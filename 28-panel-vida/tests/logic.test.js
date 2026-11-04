@@ -384,3 +384,18 @@ test("meditación, aviso de copia y resumen para compartir", () => {
   const txt = L.summaryText("Semana 45", [["Sueño medio", "7 h 50"], ["Pasos", null]], { score: 8, wins: ["5K", ""], priorities: ["Francés"], lesson: "" });
   assert.equal(txt, "## Semana 45\n\n- **Sueño medio:** 7 h 50\n- **Nota:** 8/10\n\n**Victorias**\n- 5K\n\n**Prioridades**\n- Francés\n");
 });
+
+test("hace un mes / un año y racha de 0 redes", () => {
+  let s = L.emptyState();
+  s = L.setDay(s, "2026-10-04", { journal: { good: "Series" } });
+  s = L.setDay(s, "2025-11-04", { journal: { grateful: "Familia" } });
+  assert.deepEqual(L.onThisDay(s, T).map((x) => x.label), ["Hace un mes", "Hace un año"]);
+  assert.deepEqual(L.onThisDay(s, "2026-03-31"), []); // 31 de febrero no existe
+  assert.equal(L.onThisDay(s, "2026-01-04").length, 0);
+  for (const d of ["2026-11-01", "2026-11-02", "2026-11-03"]) s = L.setDay(s, d, { noSocialAM: true });
+  assert.equal(L.noSocialStreak(s, T), 3);
+  s = L.setDay(s, T, { noSocialAM: false });
+  assert.equal(L.noSocialStreak(s, T), 3);
+  s = L.setDay(s, "2026-11-02", { noSocialAM: false });
+  assert.equal(L.noSocialStreak(s, T), 1);
+});

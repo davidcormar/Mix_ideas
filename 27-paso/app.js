@@ -720,8 +720,8 @@
         <div class="table-wrap"><table class="t7"><thead><tr><th scope="col">Día</th>${th("🥩", "Proteína (palmas)")}${th("🥦", "Verdura (puños)")}${th("🍚", "Hidratos (manos)")}${th("🥑", "Grasa (pulgares)")}${th("💧", "Agua")}</tr></thead><tbody>${rows7.join("")}</tbody></table></div>
       </section>`;
     // recipes
-    const FILTERS = [["all", "Todas"], ["d", "Desayunos y batidos"], ["c", "Comidas y cenas"], ["t", "Tentempiés"], ["veg", "Más verdura (≥ 1,5)"]];
-    const list = L.RECIPES.filter((r) => recipeFilter === "all" || (recipeFilter === "veg" ? r.veg >= 1.5 : r.group === recipeFilter));
+    const FILTERS = [["all", "Todas"], ["d", "Desayunos y batidos"], ["c", "Comidas y cenas"], ["t", "Tentempiés"], ["veg", "Más verdura (≥ 1,5)"], ["india", "🇮🇳 India (Woxsen)"]];
+    const list = recipeFilter === "india" ? L.INDIA : L.RECIPES.filter((r) => recipeFilter === "all" || (recipeFilter === "veg" ? r.veg >= 1.5 : r.group === recipeFilter));
     const recCard = `
       <section class="card span-2" id="recetas" aria-labelledby="recTitle">
         <div class="card-head"><h2 class="card-title" id="recTitle">Recetas con verdura escondida</h2><span class="card-sub">De 16-nutricion/recetas.md · 1 persona</span></div>
@@ -729,7 +729,7 @@
         <ul id="recipeList">${list.map((r) => `
           <li class="recipe">
             <b>${r.id} · ${esc(r.name)}</b>
-            <span class="meta">⏱ ${r.minutes}' · 🥩 ${L.fmtNum(r.protein)} · 🥦 ${L.fmtNum(r.veg)}</span>
+            <span class="meta">${r.minutes ? `⏱ ${r.minutes}' · ` : ""}🥩 ${L.fmtNum(r.protein)} · 🥦 ${L.fmtNum(r.veg)}${r.carbs !== undefined ? ` · 🍚 ${L.fmtNum(r.carbs)} · 🥑 ${L.fmtNum(r.fat)}` : ""}</span>
             <span class="hid">${r.hidden ? `escondida: ${esc(r.hidden)}` : "sin verdura (tentempié de proteína)"}</span>
             <button type="button" class="btn sm" data-use-recipe="${r.id}" aria-label="Usar ${esc(r.name)}">Usar</button>
           </li>`).join("")}</ul>
@@ -827,6 +827,7 @@
         <section class="card" aria-labelledby="stD">
           <h2 id="stD">Datos</h2>
           <div class="btn-col">
+            <a class="btn" href="../28-panel-vida/#/ajustes" style="text-decoration:none;text-align:center">Copia de TODAS tus apps (Panel) →</a>
             <button type="button" class="btn" id="exportJson">Exportar JSON</button>
             <button type="button" class="btn" id="importBtn">Importar JSON</button>
             <input type="file" id="importFile" accept=".json,application/json" hidden>
@@ -899,12 +900,13 @@
     $("#mFat").textContent = L.fmtNum(mealCtx.values.fat);
   }
   function applyRecipe(id) {
-    const r = L.RECIPES.find((x) => x.id === Number(id));
+    const r = L.RECIPES.find((x) => x.id === Number(id)) || L.INDIA.find((x) => x.id === Number(id));
     if (!r) return;
     $("#mDesc").value = r.name;
     mealCtx.values.protein = r.protein;
     mealCtx.values.veg = r.veg;
-    $("#mRecipe").value = String(r.id);
+    if (r.carbs !== undefined) { mealCtx.values.carbs = r.carbs; mealCtx.values.fat = r.fat; }
+    $("#mRecipe").value = r.id <= 20 ? String(r.id) : ""; // India dishes are not one of the 20 recipes
     updateOutputs();
   }
   function openMeal({ date, id = null, recipe = null }) {

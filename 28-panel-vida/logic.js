@@ -348,6 +348,21 @@
     return out.join("\n") + "\n";
   }
 
+  /** Journal of the same day 1 month and 1 year ago (skipped when that date does not exist, e.g. 31 → 30-day month). */
+  function onThisDay(state, iso) {
+    const [y, m, d] = iso.split("-").map(Number), out = [];
+    const cands = [["Hace un mes", m === 1 ? `${y - 1}-12-${pad2(d)}` : `${y}-${pad2(m - 1)}-${pad2(d)}`], ["Hace un año", `${y - 1}-${pad2(m)}-${pad2(d)}`]];
+    for (const [label, date] of cands) if (isISO(date) && journalDone(state.days[date])) out.push({ label, date, journal: state.days[date].journal });
+    return out;
+  }
+  /** Consecutive days with «0 redes antes de las 14:00» = true (today counts if already marked; an unmarked today doesn't break it). */
+  function noSocialStreak(state, today) {
+    const on = (d) => !!(state.days[d] && state.days[d].noSocialAM === true);
+    let d = on(today) ? today : addDays(today, -1), n = 0;
+    while (on(d)) { n++; d = addDays(d, -1); }
+    return n;
+  }
+
   // ───────────── month & year
   const nextYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${pad2(m + 1)}`; };
   const prevYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${pad2(m - 1)}`; };
@@ -485,7 +500,7 @@
 
   const api = {
     KEY, isISO, isHM, isObj, esc, todayISO, stamp, numLike, SETTING_RANGE, reviewDefault, cleanLang, FR_B2_DATE, WOXSEN_DATE, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
-    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport, meditStats, meditStreak, backupDue, summaryText,
+    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport, meditStats, meditStreak, backupDue, summaryText, onThisDay, noSocialStreak,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
     goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
   };

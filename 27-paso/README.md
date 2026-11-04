@@ -52,11 +52,13 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # Chromium headless: recorrido 
 - ✅ Campana con lo que falta hoy, avisos (toasts), modo oscuro, móvil desde 360 px sin scroll horizontal, barra de pestañas, foco visible y navegación con teclado.
 - ✅ 35 tests de lógica (incluidos los vectores compartidos de deporte con Ritmo y un `export.xml` sintético en `tests/fixtures/`) + smoke test con capturas.
 
+- ✅ **Modo India (Woxsen):** filtro «🇮🇳 India» en Comidas con 8 platos típicos (thali, dal, chana masala, palak paneer, tandoori, egg bhurji, upma/idli con sambar, curd) y raciones orientativas con la mano, incluidas hidratos y grasa. Consejo: pide doble de sabzi (verdura).
+- ✅ Enlace en Ajustes a la copia de seguridad de todas las apps (Panel).
+
 ## Qué falta / siguientes pasos
 - **Importar fusionando** (merge) una copia JSON en vez de sustituirla entera.
 - Leer directamente el **`export.zip`** de Salud (ahora hay que descomprimirlo).
 - **Prioridad de fuentes por intervalos** como hace Apple Health (ahora se toma la mayor por día; ver *Decisiones*).
-- **Modo India / thali** para Woxsen: raciones típicas (dal, arroz, chapati, paneer) precargadas.
 
 ## Decisiones
 - **Sin calorías, con la mano.** Es la unidad de tu guía y no exige pesar nada. Hidratos y grasa son **solo guía** (cambian con el tipo de día) y nunca puntúan; puntúan pasos, proteína, verdura y agua.

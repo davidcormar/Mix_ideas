@@ -478,6 +478,17 @@
     // Recipe 20: the source gives no 🥦 value; 0.5 is our estimate (pimiento, espinacas y cebolla in 2 muffins).
     { id: 20, name: "Muffins salados de huevo y verduras", minutes: 25, protein: 1, veg: 0.5, group: "t", hidden: "pimiento, espinacas, cebolla" },
   ];
+  /** Modo India (Woxsen): typical dishes with orientative hand portions per serving (not from 16-nutricion). */
+  const INDIA = [
+    { id: 101, name: "Thali vegetariano (dal, sabzi, raita, 2 chapatis, arroz)", minutes: 0, protein: 1.5, veg: 1.5, carbs: 3, fat: 2, group: "c", hidden: "pide doble de sabzi (verdura)" },
+    { id: 102, name: "Dal tadka con arroz", minutes: 0, protein: 1, veg: 0.5, carbs: 2, fat: 1, group: "c", hidden: "tomate y cebolla del dal" },
+    { id: 103, name: "Chana masala con 2 chapatis", minutes: 0, protein: 1, veg: 1, carbs: 2, fat: 1, group: "c", hidden: "tomate, cebolla y espinacas si hay" },
+    { id: 104, name: "Palak paneer con 1 chapati", minutes: 0, protein: 1.5, veg: 1.5, carbs: 1, fat: 2, group: "c", hidden: "espinacas (palak)" },
+    { id: 105, name: "Pollo tandoori con kachumber", minutes: 0, protein: 2, veg: 1, carbs: 0, fat: 1, group: "c", hidden: "ensalada de pepino, tomate y cebolla" },
+    { id: 106, name: "Egg bhurji con paratha", minutes: 0, protein: 1.5, veg: 0.5, carbs: 1, fat: 1, group: "d", hidden: "tomate, cebolla y pimiento" },
+    { id: 107, name: "Upma o idli de verduras con sambar", minutes: 0, protein: 0.5, veg: 1, carbs: 2, fat: 1, group: "d", hidden: "verduras del sambar" },
+    { id: 108, name: "Curd (yogur) o lassi salado con fruta", minutes: 0, protein: 1, veg: 0, carbs: 1, fat: 0, group: "t", hidden: "" },
+  ];
   const RECIPE_GROUPS = { desayuno: ["d"], merienda: ["d", "t"], comida: ["c"], cena: ["c"], extra: ["c"] };
   /** Top-6 veg recipes for the slot, rotated by date (deterministic variety). */
   function suggestRecipes(slot, iso, n = 3) {
@@ -833,7 +844,7 @@
     // history
     dayScore, isDayMet, monthHeat, weekMet,
     // recipes
-    RECIPES, suggestRecipes,
+    RECIPES, INDIA, suggestRecipes,
     // imports
     decodeXmlEntities, parseTagAttrs, findTagEnd, createHealthStepParser, aggregateHealth, parseCSVDate, parseStepsCSV, mergeSteps, importSummaryText,
     // foreign
