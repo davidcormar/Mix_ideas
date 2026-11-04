@@ -334,3 +334,38 @@ test("hora local para las marcas de tiempo (nunca UTC)", () => {
   assert.equal(L.stamp(new Date(2026, 10, 4, 0, 30)), "2026-11-04 00:30");
   assert.equal(L.todayISO(new Date(2026, 11, 31, 23, 59)), "2026-12-31");
 });
+
+test("Bevel: recuperación y esfuerzo 0-100 %", () => {
+  let s = L.setDay(L.emptyState(), T, { recovery: 72, strain: "45" });
+  assert.equal(s.days[T].recovery, 72); assert.equal(s.days[T].strain, 45);
+  s = L.migrate({ days: { [T]: { recovery: 140, strain: -1, energy: 3 } } });
+  assert.deepEqual(s.days[T], { energy: 3 });
+});
+
+test("mes: foto del mes, revisión mensual y mes por defecto", () => {
+  let s = L.emptyState();
+  s = L.setDay(s, "2026-11-02", { bed: "23:00", wake: "07:00", recovery: 80, journal: { good: "x" } });
+  s = L.setDay(s, "2026-11-03", { bed: "00:00", wake: "07:00", recovery: 60, screenMin: 50 });
+  s.reviews["2026-W45"] = L.normReview({ score: 8 });
+  const m = L.monthSnapshot(s, "2026-11", T, { sport: 4 });
+  assert.equal(m.days, 4); assert.equal(m.sleepAvgMin, 450); assert.equal(m.recoveryAvg, 70); assert.equal(m.journalDays, 1);
+  assert.equal(m.weekReviews, 1); assert.equal(m.scoreAvg, 8); assert.equal(m.sport, 4);
+  assert.equal(L.monthSnapshot(s, "2026-12", T).days, 0);
+  assert.equal(L.monthDefault(s, T), "2026-10");
+  assert.equal(L.monthDefault(L.migrate({ monthReviews: { "2026-10": { score: 7 } } }), T), "2026-11");
+  assert.equal(L.monthDefault(s, "2026-11-20"), "2026-11");
+  assert.equal(L.nextYM("2026-12"), "2027-01"); assert.equal(L.prevYM("2027-01"), "2026-12");
+  const r = L.normMonthReview({ objectives: ["Francés 30' diarios"], wins: "no", score: 11 });
+  assert.deepEqual(r.objectives, ["Francés 30' diarios", "", ""]); assert.deepEqual(r.wins, ["", "", ""]); assert.equal(r.score, null);
+  assert.equal(Object.keys(L.migrate({ monthReviews: { "2026-13": {}, "2026-11": { score: 6 } } }).monthReviews).join(), "2026-11");
+});
+
+test("informe anual: meses hasta hoy, totales y libros del año", () => {
+  let s = L.migrate({ books: [{ id: "b1", title: "Meditaciones", total: 10, progress: 0 }] });
+  s = L.logReading(s, "b1", 10, 30, "2026-10-15");
+  s = L.setDay(s, "2026-10-14", { bed: "23:00", wake: "07:00" });
+  const y = L.yearReport(s, 2026, T, { "2026-10": { sport: 12 }, "2026-11": { sport: 3 } });
+  assert.equal(y.months.length, 2); assert.equal(y.totals.pages, 10); assert.equal(y.totals.sport, 15);
+  assert.equal(y.totals.sleepAvgMin, 480); assert.deepEqual(y.books.map((b) => b.title), ["Meditaciones"]);
+  assert.equal(L.yearReport(s, 2027, T).months.length, 0);
+});

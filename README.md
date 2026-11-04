@@ -35,7 +35,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 24 | [`24-carrera-practicas/`](24-carrera-practicas/) | Mapa de empresas (F1, espacio, IA, Galicia), calendario a ene-2028, CV ML y 32 preguntas de entrevista en inglés | 💡 |
 | 25 | [`25-habilidades/`](25-habilidades/) | Plan de habilidades (retórica, estoicismo, móvil antidopamina…) + app de mecanografía y atajos | ✅ |
 | **Panel de vida** | | | |
-| 28 | [`28-panel-vida/`](28-panel-vida/) | **Portada de todo:** tu vida por áreas con semáforo + sueño y energía, móvil, diario de 3 líneas, lectura y cursos, metas con progreso esperado, revisión semanal y copia de seguridad de las 9 apps | ✅ |
+| 28 | [`28-panel-vida/`](28-panel-vida/) | **Portada de todo:** tu vida por áreas con semáforo + sueño y energía (y Bevel), móvil, diario de 3 líneas, lectura y cursos, metas, revisión semanal y **mensual**, **informe anual en PDF**, tendencias de 8 semanas y copia de seguridad de las 9 apps | ✅ |
 | 29 | [`29-importar-salud/`](29-importar-salud/) | Pasos, sueño y entrenos sin apuntar a mano: Atajo del iPhone, `export.xml` de Salud y CSV de Strava (sin duplicados), hacia Paso y el Panel | ✅ |
 | **De tus capturas** | | | |
 | 26 | [`26-ritmo/`](26-ritmo/) | Organizador de hábitos y rutinas: bloques del día con tus franjas, revisión nocturna, mínimos de deporte y francés, rutinas, comparte hábitos con 15 | ✅ |

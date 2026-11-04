@@ -55,7 +55,7 @@
     sportYear: "Sesiones de deporte (desde «Desde»)",
     habitsMean: "Media de hábitos del mes",
   };
-  const emptyState = () => ({ version: 1, settings: { ...DEFAULT_SETTINGS, countdowns: COUNTDOWNS.map((c) => ({ ...c })) }, days: {}, books: [], readLog: [], goals: [], reviews: {} });
+  const emptyState = () => ({ version: 1, settings: { ...DEFAULT_SETTINGS, countdowns: COUNTDOWNS.map((c) => ({ ...c })) }, days: {}, books: [], readLog: [], goals: [], reviews: {}, monthReviews: {} });
 
   /** Accepts anything; returns a valid state (drops what it cannot understand). */
   function migrate(any) {
@@ -76,6 +76,7 @@
       .map((r) => ({ date: r.date, bookId: r.bookId, amount: clamp(Math.round(num(r.amount)), 0, 100000), minutes: clamp(Math.round(num(r.minutes)), 0, 1440) }));
     if (Array.isArray(any.goals)) s.goals = any.goals.filter((g) => isObj(g) && typeof g.title === "string" && g.title.trim()).map(normGoal);
     if (isObj(any.reviews)) for (const [w, v] of Object.entries(any.reviews)) if (/^\d{4}-W\d{2}$/.test(w) && isObj(v)) s.reviews[w] = normReview(v);
+    if (isObj(any.monthReviews)) for (const [m, v] of Object.entries(any.monthReviews)) if (/^\d{4}-(0[1-9]|1[0-2])$/.test(m) && isObj(v)) s.monthReviews[m] = normMonthReview(v);
     if (any.demo === true) {
       s.demo = true;
       // what the Panel held before loading the examples; «Quitar datos de ejemplo» brings it back
@@ -90,6 +91,7 @@
     if (numLike(v.energy) && Number(v.energy) >= 1 && Number(v.energy) <= 5) e.energy = Math.round(Number(v.energy));
     if (numLike(v.screenMin) && Number(v.screenMin) >= 0) e.screenMin = Math.min(1440, Math.round(Number(v.screenMin)));
     if (typeof v.noSocialAM === "boolean") e.noSocialAM = v.noSocialAM;
+    for (const k of ["recovery", "strain"]) if (numLike(v[k]) && Number(v[k]) >= 0 && Number(v[k]) <= 100) e[k] = Math.round(Number(v[k])); // Bevel, %
     if (isObj(v.journal)) {
       const j = {};
       for (const k of ["good", "better", "grateful"]) if (typeof v.journal[k] === "string" && v.journal[k].trim()) j[k] = v.journal[k].slice(0, 500);
@@ -311,6 +313,49 @@
     return dow(today) === 1 && !state.reviews[isoWeek(today)] && !state.reviews[isoWeek(prev)] ? prev : today;
   }
   /** Snapshot numbers for the week of `iso` (Mon–Sun, capped at today). ext comes from other apps. */
+  // ───────────── month & year
+  const nextYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${pad2(m + 1)}`; };
+  const prevYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${pad2(m - 1)}`; };
+  /** Days of month ym up to today (none if the month is in the future). */
+  function monthDays(ym, today) { const out = []; for (let d = `${ym}-01`; d.slice(0, 7) === ym && d <= today; d = addDays(d, 1)) out.push(d); return out; }
+  function normMonthReview(v) {
+    const arr = (a, n) => (Array.isArray(a) ? a : []).slice(0, n).map((x) => String(x ?? "").slice(0, 300));
+    const pad3 = (a) => [0, 1, 2].map((i) => a[i] || "");
+    return { at: typeof v.at === "string" ? v.at : "", score: Number(v.score) >= 1 && Number(v.score) <= 10 ? Math.round(Number(v.score)) : null,
+      wins: pad3(arr(v.wins, 3)), lesson: String(v.lesson || "").slice(0, 800), objectives: pad3(arr(v.objectives, 3)), snapshot: isObj(v.snapshot) ? v.snapshot : {} };
+  }
+  /** Numbers of a month from the Panel's own data; ext adds the other apps' (sport, habitsMean, frMin, stepsAvg, spend). */
+  function monthSnapshot(state, ym, today, ext = {}) {
+    const days = monthDays(ym, today), sl = sleepStats(state, days), sc = screenStats(state, days), rd = readingStats(state, days);
+    const vals = (k) => days.map((d) => state.days[d]).filter((e) => e && e[k] !== undefined).map((e) => e[k]);
+    const weeks = [...new Set(days.map(isoWeek))], rv = weeks.map((w) => state.reviews[w]).filter(Boolean);
+    const scores = rv.map((r) => r.score).filter((x) => x != null);
+    return { ym, days: days.length, sleepAvgMin: sl.avgMin, debtMin: sl.debtMin, energyAvg: sl.energyAvg, recoveryAvg: mean(vals("recovery")), strainAvg: mean(vals("strain")),
+      screenAvg: sc.avg, screenOnGoal: sc.onGoal, screenN: sc.n, journalDays: days.filter((d) => journalDone(state.days[d])).length,
+      pages: rd.pages, lessons: rd.lessons, learnMin: rd.learnMin,
+      booksDone: state.books.filter((b) => b.finished && b.finished.slice(0, 7) === ym).map((b) => b.title),
+      weekReviews: rv.length, weeks: weeks.length, scoreAvg: mean(scores), ...ext };
+  }
+  /** Month suggested by "Mes": the previous one during the first 7 days if its review is still missing. */
+  const monthDefault = (state, today) => (Number(today.slice(8)) <= 7 && !state.monthReviews[prevYM(today.slice(0, 7))] ? prevYM(today.slice(0, 7)) : today.slice(0, 7));
+  /** Year report: one snapshot per month up to today + totals. extByMonth[ym] = other apps' numbers for that month. */
+  function yearReport(state, year, today, extByMonth = {}) {
+    const months = [];
+    // months with no data in any app are left out (before you started using the apps), so they don't drag the averages down
+    const active = (x) => x.sleepAvgMin != null || x.screenAvg != null || x.energyAvg != null || x.pages > 0 || x.learnMin > 0 || x.journalDays > 0 ||
+      x.sport > 0 || x.habitsMean > 0 || x.frMin > 0 || x.stepsAvg != null || x.spend > 0 || x.weekReviews > 0 || !!state.monthReviews[x.ym];
+    for (let m = 1; m <= 12; m++) { const ym = `${year}-${pad2(m)}`; if (`${ym}-01` <= today) { const x = monthSnapshot(state, ym, today, extByMonth[ym] || {}); if (active(x)) months.push(x); } }
+    const sum = (k) => months.reduce((a, x) => a + (Number(x[k]) || 0), 0);
+    const avgOf = (k) => mean(months.map((x) => x[k]).filter((v) => v != null));
+    const yr = String(year);
+    return { year, months,
+      totals: { pages: sum("pages"), lessons: sum("lessons"), learnMin: sum("learnMin"), journalDays: sum("journalDays"), weekReviews: sum("weekReviews"),
+        sport: months.some((x) => x.sport != null) ? sum("sport") : null, spend: months.some((x) => x.spend != null) ? sum("spend") : null,
+        sleepAvgMin: avgOf("sleepAvgMin"), energyAvg: avgOf("energyAvg"), screenAvg: avgOf("screenAvg"), habitsMean: avgOf("habitsMean"), recoveryAvg: avgOf("recoveryAvg") },
+      books: state.books.filter((b) => b.finished && b.finished.slice(0, 4) === yr).map((b) => ({ title: b.title, author: b.author, finished: b.finished })),
+      monthReviews: Object.entries(state.monthReviews).filter(([m]) => m.slice(0, 4) === yr).sort(([a], [b]) => a.localeCompare(b)).map(([ym, v]) => ({ ym, ...v })) };
+  }
+
   function weekSnapshot(state, iso, today, ext = {}) {
     const days = weekDays(iso).filter((d) => d <= today);
     const sl = sleepStats(state, days), sc = screenStats(state, days), rd = readingStats(state, days);
@@ -405,7 +450,7 @@
 
   const api = {
     KEY, isISO, isHM, isObj, esc, todayISO, stamp, numLike, SETTING_RANGE, reviewDefault, cleanLang, FR_B2_DATE, WOXSEN_DATE, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
-    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview,
+    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
     goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
   };

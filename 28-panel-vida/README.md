@@ -10,6 +10,8 @@ La portada de todas tus apps: **tu vida en una pantalla**, por áreas de tus vis
 | **Lectura** | Añadir libros (páginas) y cursos (lecciones) | Páginas de la semana frente a tu objetivo, % de cada libro y **cuándo lo acabas** a tu ritmo de las últimas 2 semanas |
 | **Metas** | Metas con número («llevo X de Y») o hitos con pasos, con fecha | Barra de progreso + **marca de dónde deberías ir** → «En ritmo» / «Atrasada». Algunas se calculan solas desde tus apps |
 | **Semana** | El domingo, 10 min: nota 1-10, 3 victorias, 1 lección, 3 prioridades | Foto automática de la semana de **todas** tus apps con semáforos + tu diario de la semana. Las prioridades salen luego en el Panel |
+| **Mes** | Tu «día al mes» (primera semana): nota, 3 logros, qué cambias y **3 objetivos para el mes siguiente** | Foto del mes de todas tus apps con flechas frente al mes anterior; los objetivos pasan a **Hábitos** (los ves en Ritmo y en la hoja de 15) |
+| **Informe anual** | Mirar o **imprimir / guardar en PDF** | Resumen del año, tabla mes a mes, metas, libros terminados y tus revisiones mensuales |
 | **Ajustes** | Tus objetivos (sueño 8 h, acostarte 23:30, móvil 60 min, 100 páginas/semana, 180 min de cursos) | **Copia de seguridad de las 9 apps en un solo fichero** y restauración |
 
 <img src="captura-escritorio.png" width="640" alt="Panel de vida en escritorio">
@@ -39,6 +41,9 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # recorrido completo en Chromiu
 - ✅ El smoke test comprueba además que el uso normal solo escribe `panel.v1` (espiando `localStorage.setItem`), el teclado en energía y nota, dos pestañas abiertas, la copia de las 9 apps (las claves desconocidas se ignoran), el aviso de datos dañados y la revisión del lunes a las 00:30 con la hora de la India.
 - ✅ Funciona sin conexión e instalable en la pantalla de inicio (ver «Sin conexión (PWA)»).
 
+- ✅ Revisión mensual con envío de objetivos a Hábitos, informe anual imprimible y recuperación/esfuerzo de **Bevel** en *Hoy* (media en la tarjeta de sueño y en el mes).
+- ✅ Acceso directo a [Importar salud](../29-importar-salud/) (Atajo del iPhone, `export.xml`, Strava).
+
 ## Qué falta / siguientes pasos
 - Gráficas de tendencia de varias semanas (sueño y móvil) y correlaciones más finas (p. ej. móvil ↔ sueño).
 - Importar el tiempo de pantalla y el sueño directamente de Apple Health (Paso ya sabe leer `export.xml`).
@@ -48,7 +53,10 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # recorrido completo en Chromiu
 
 ## Decisiones
 - **Una sola app, no seis.** Sueño, lectura, diario, metas, revisión y móvil son secciones del Panel: menos sitios donde apuntar y una sola copia de seguridad.
-- **Solo escribe `panel.v1`.** Las demás apps se leen con los mismos lectores de Ritmo (`../26-ritmo/logic.js`) e Idiomas (`../21-idiomas-plan/logic.js`), así los números coinciden en todas partes (deporte: `max(hábito, gimnasio + carreras, tareas de Ritmo)` por día, sin contar dos veces). La única excepción es «Restaurar copia», que pide confirmación y dice qué apps sustituye.
+- **Escrituras fuera de `panel.v1` (solo dos, y explícitas):** «Restaurar copia» (con confirmación) y, en *Mes*, la casilla «Poner estos 3 objetivos en Hábitos», que escribe solo los objetivos del mes siguiente en `habitos.v1` con el mismo protocolo que Ritmo (`applyHabitMutation` + `setObjective` sobre una copia recién leída; nunca toca ticks). Por su parte, [Importar salud](../29-importar-salud/) escribe el sueño en `panel.v1` con `PanelLogic.setDay`.
+- **Bevel:** su recuperación y esfuerzo (0-100 %) se apuntan a mano porque Bevel no los escribe en Salud.
+- **Informe anual:** los meses sin ningún dato (antes de empezar a usar las apps) no salen ni cuentan en las medias.
+- **Solo escribe `panel.v1` en el uso normal.** Las demás apps se leen con los mismos lectores de Ritmo (`../26-ritmo/logic.js`) e Idiomas (`../21-idiomas-plan/logic.js`), así los números coinciden en todas partes (deporte: `max(hábito, gimnasio + carreras, tareas de Ritmo)` por día, sin contar dos veces). La única excepción es «Restaurar copia», que pide confirmación y dice qué apps sustituye.
 - **El Panel no marca hábitos.** Los ticks los pone Ritmo o Hábitos; así hay un único escritor de `habitos.v1` además de la propia app 15.
 - **Sueño:** la noche cuenta en el día en que te levantas. Más de 16 h se descarta como error. La hora media de acostarse se calcula desde el mediodía, para que 23:30 y 00:30 queden cerca. Se cuenta la **hora de reloj**: la noche del cambio de hora (25 oct 2026, 31 oct 2027) duermes 1 h más de lo que sale, y la de marzo 1 h menos; en la India no hay cambio de hora. Así el cálculo no depende de la zona horaria del móvil. Objetivo por defecto 8 h (las recomendaciones generales para adultos jóvenes están entre 7 y 9 h; es información general, no consejo médico: si duermes mal de forma continuada, consúltalo con tu médico).
 - **Energía y sueño:** si hay al menos 2 noches «largas» y 2 «cortas», el resumen compara tu energía media en ambas (te dirá si te compensa acostarte antes).

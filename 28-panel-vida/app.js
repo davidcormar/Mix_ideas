@@ -116,16 +116,17 @@
   }
 
   // ───────────── routes
-  const NAV = [["panel", "Panel", "◎"], ["hoy", "Hoy", "☀︎"], ["lectura", "Lectura", "▤"], ["metas", "Metas", "◆"], ["semana", "Semana", "▦"]];
+  const NAV = [["panel", "Panel", "◎"], ["hoy", "Hoy", "☀︎"], ["lectura", "Lectura", "▤"], ["metas", "Metas", "◆"], ["semana", "Semana", "▦"], ["mes", "Mes", "▣"], ["informe", "Informe anual", "⎙"]];
   function route() {
     const m = location.hash.match(/^#\/(\w+)(?:\?(.*))?$/) || [];
-    const name = ["panel", "hoy", "lectura", "metas", "semana", "ajustes"].includes(m[1]) ? m[1] : "panel";
+    const name = ["panel", "hoy", "lectura", "metas", "semana", "mes", "informe", "ajustes"].includes(m[1]) ? m[1] : "panel";
     const q = new URLSearchParams(m[2] || "");
-    return { name, d: P.isISO(q.get("d")) ? q.get("d") : null };
+    const ym = /^\d{4}-(0[1-9]|1[0-2])$/.test(q.get("m") || "") ? q.get("m") : null, y = /^20\d\d$/.test(q.get("y") || "") ? Number(q.get("y")) : null;
+    return { name, d: P.isISO(q.get("d")) ? q.get("d") : null, m: ym, y };
   }
   function renderNav(cur) {
     $("#sideNav").innerHTML = NAV.map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
-    $("#tabbar").innerHTML = NAV.map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
+    $("#tabbar").innerHTML = NAV.slice(0, 5).map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
     const aj = $(".side-link"); if (cur === "ajustes") aj.setAttribute("aria-current", "page"); else aj.removeAttribute("aria-current");
     const t = today(), ref = P.reviewDefault(S, t), late = ref !== t, wk = P.isoWeek(ref), done = !!S.reviews[wk];
     $("#sideCard").innerHTML = `<span class="faint">Revisión · semana ${Number(wk.slice(6))}</span><b>${done ? "Hecha ✓" : late ? "Te falta la de la semana pasada" : P.dow(t) >= 5 ? "Te toca este finde" : "El domingo, 10 min"}</b><a class="btn small ${done ? "" : "primary"}" href="${late ? `#/semana?d=${ref}` : "#/semana"}" style="text-decoration:none;display:inline-flex;align-items:center">${done ? "Ver" : "Hacer revisión"}</a>`;
@@ -140,7 +141,7 @@
     } else if (!store.ok) { b.hidden = false; b.textContent = "⚠️ El navegador bloquea el almacenamiento: lo que apuntes se perderá al cerrar. Exporta antes de salir."; }
     else b.hidden = true;
     const t = today(), X = readAll(t);
-    const v = { panel: vPanel, hoy: vHoy, lectura: vLectura, metas: vMetas, semana: vSemana, ajustes: vAjustes }[r.name];
+    const v = { panel: vPanel, hoy: vHoy, lectura: vLectura, metas: vMetas, semana: vSemana, mes: vMes, informe: vInforme, ajustes: vAjustes }[r.name];
     const fk = focusKey(document.activeElement);
     let html;
     try { html = v(t, X, r); } catch (e) {
@@ -149,7 +150,7 @@
     }
     $("#view").innerHTML = html;
     if (fk) { const n = $(fk); if (n) n.focus({ preventScroll: true }); else $("#main").focus({ preventScroll: true }); }
-    document.title = `${{ panel: "Panel", hoy: "Hoy", lectura: "Lectura", metas: "Metas", semana: "Semana", ajustes: "Ajustes" }[r.name]} · Panel de vida`;
+    document.title = `${{ panel: "Panel", hoy: "Hoy", lectura: "Lectura", metas: "Metas", semana: "Semana", mes: "Mes", informe: "Informe anual", ajustes: "Ajustes" }[r.name]} · Panel de vida`;
   }
 
   /** Selector for the focused control, to give focus back after a re-render (keyboard use of energy, score, steps…). */
@@ -166,7 +167,7 @@
   const APPS = [
     ["26-ritmo/", "🗓️", "Ritmo", "día y rutinas"], ["27-paso/", "👟", "Paso", "pasos y comidas"], ["15-habitos/app/", "✅", "Hábitos", "10 hábitos"],
     ["10-gym-tracker/", "🏋️", "Gym", "fuerza"], ["21-idiomas-plan/", "🇫🇷", "Idiomas", "horas al B2"], ["11-finanzas/", "💶", "Finanzas", "gastos y metas"],
-    ["12-mapa-viajes/", "🗺️", "Viajes", "mapa"], ["25-habilidades/mecanografia/", "⌨️", "Mecanografía", "y atajos"],
+    ["12-mapa-viajes/", "🗺️", "Viajes", "mapa"], ["25-habilidades/mecanografia/", "⌨️", "Mecanografía", "y atajos"], ["29-importar-salud/", "⤓", "Importar salud", "Atajo, Salud, Strava"],
   ];
   function vPanel(t, X) {
     const last7 = P.range(P.addDays(t, -6), t), prev7 = P.range(P.addDays(t, -13), P.addDays(t, -7));
@@ -182,6 +183,7 @@
     if (firstRun) out.push(`<div class="callout"><p><b>Primer paso (1 minuto):</b> en <i>Hoy</i> apunta a qué hora te acostaste y te levantaste, tu energía y el móvil. Cada tarjeta se llena sola con lo que apuntes aquí y en tus otras apps. ¿Quieres verlo lleno antes? Carga los datos de ejemplo en <a href="#/ajustes">Ajustes</a>.</p><a class="btn primary" href="#/hoy" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[wk] && P.dow(t) >= 6) out.push(`<div class="callout"><p><b>Toca la revisión semanal.</b> 10 minutos: cómo fue la semana en todas tus áreas y 3 prioridades para la siguiente.</p><a class="btn primary" href="#/semana" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[prevWk] && P.dow(t) === 1) out.push(`<div class="callout"><p><b>No hiciste la revisión de la semana pasada.</b> Aún estás a tiempo.</p><a class="btn primary" href="#/semana?d=${P.addDays(t, -7)}" style="text-decoration:none">Hacerla ahora</a></div>`);
+    { const pm = P.prevYM(t.slice(0, 7)); if (Number(t.slice(8)) <= 7 && !S.monthReviews[pm]) out.push(`<div class="callout"><p><b>Tu día al mes:</b> revisa ${P.MONTHS[Number(pm.slice(5)) - 1]} y elige 3 objetivos para este mes.</p><a class="btn primary" href="#/mes" style="text-decoration:none">Revisar el mes</a></div>`); }
     out.push('<div class="grid">');
     // hero "tu día"
     const jd = P.journalDone(e);
@@ -234,6 +236,7 @@
       <div class="rows"><div class="row"><span>Deuda vs. ${h(S.settings.sleepGoalMin)}</span><b>${h(sl.debtMin)}</b></div>
       <div class="row"><span>Hora media de acostarte</span><b>${sl.bedAvg}${bedLate > 15 ? ` · ${bedLate} min tarde` : ""}</b></div>
       <div class="row"><span>Energía media</span><b>${sl.energyN ? P.fmtDec(sl.energyAvg) + " / 5" : "—"}</b></div>
+      ${(() => { const rc = last7.map((d) => (S.days[d] || {}).recovery).filter((x) => x != null); return rc.length ? `<div class="row"><span>Recuperación Bevel</span><b>${Math.round(P.mean(rc))} %${e.recovery != null ? ` · hoy ${e.recovery} %` : ""}</b></div>` : ""; })()}
       ${slPrev.nights ? `<div class="row"><span>vs. semana anterior</span><b>${Math.round(sl.avgMin - slPrev.avgMin) >= 0 ? "+" : "−"}${Math.abs(Math.round(sl.avgMin - slPrev.avgMin))} min</b></div>` : ""}</div>
       <a class="more" href="#/semana">Ver tendencia de 8 semanas →</a>`
       : `<p class="empty">Apunta a qué hora te acostaste y te levantaste en <a href="#/hoy">Hoy</a>.</p>`}</section>`);
@@ -298,6 +301,8 @@
         <p class="faint" style="margin-top:8px" id="sleepCalc">${m !== null ? `Dormiste <b>${h(m)}</b> · objetivo ${h(S.settings.sleepGoalMin)}` : "Pon las dos horas para calcular cuánto dormiste."}</p>
         <p class="field" style="margin-top:12px">Energía (1 agotado · 5 a tope)</p>
         <div class="energy" role="group" aria-label="Energía">${[1, 2, 3, 4, 5].map((n) => `<button data-energy="${n}" aria-pressed="${e.energy === n}" aria-label="Energía ${n} de 5">${n}</button>`).join("")}</div>
+        <div class="fields"><label class="field">Recuperación Bevel (%)<input type="number" inputmode="numeric" min="0" max="100" data-f="recovery" value="${e.recovery ?? ""}" placeholder="opcional"></label>
+          <label class="field">Esfuerzo Bevel (%)<input type="number" inputmode="numeric" min="0" max="100" data-f="strain" value="${e.strain ?? ""}" placeholder="opcional"></label></div>
       </section>
       <section class="card c6"><h2>📵 Móvil</h2><p class="sub">Tu hábito: 0 redes antes de las 14:00 y máximo ${S.settings.screenGoalMin} min.</p>
         <div class="fields"><label class="field">Tiempo de pantalla (min)<input type="number" inputmode="numeric" min="0" max="1440" step="5" data-f="screenMin" value="${e.screenMin ?? ""}" placeholder="p. ej. 55"></label></div>
@@ -431,6 +436,7 @@
           </div>
           <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><span class="faint">Se guarda con la foto de los números de arriba.</span></div>
         </form></section>
+      <section class="card c12 no-print"><h2>Más allá de la semana</h2><div class="actions"><a class="btn" href="#/mes" style="text-decoration:none">Revisión mensual</a><a class="btn" href="#/informe" style="text-decoration:none">Informe anual (PDF)</a><a class="btn" href="../29-importar-salud/" style="text-decoration:none">Importar salud</a></div></section>
       ${trendCard(t)}
       <section class="card c12"><h2>Tu diario de la semana</h2><div class="list">${journals || '<p class="empty">No escribiste el diario esta semana.</p>'}</div></section>
     </div>`;
@@ -457,6 +463,77 @@
       ${row("Energía media", "energyAvg", (v) => P.fmtDec(v) + " / 5", 3.5, "up", 5)}
       ${row("Móvil", "screenAvg", (v) => Math.round(v) + " min", st.screenGoalMin, "down", st.screenGoalMin)}
     </div></section>`;
+  }
+
+  // ───────────── MES (revisión mensual) e INFORME ANUAL
+  function rangeExt(days, X) {
+    const e = {};
+    if (!days.length) return e;
+    const from = days[0], to = days.at(-1);
+    if (X.hasSport) e.sport = safe(() => X.sportOf(days).total);
+    if (X.habits) e.habitsMean = safe(() => P.mean(days.map((d) => R.dayScore(X.habits, d))));
+    if (X.idi) e.frMin = safe(() => X.idi.log.filter((x) => x.lang === "fr" && x.date >= from && x.date <= to).reduce((a, x) => a + (Number(x.minutes) || 0), 0));
+    if (X.pasoDays) { const st = days.map((d) => P.isObj(X.pasoDays[d]) && Number(X.pasoDays[d].steps)).filter((n) => n > 0 && n < 1e6); if (st.length) e.stepsAvg = P.mean(st); }
+    if (X.txs) e.spend = spend(X.txs, from, to);
+    return e;
+  }
+  const monthName = (ym) => `${P.MONTHS[Number(ym.slice(5)) - 1]} ${ym.slice(0, 4)}`;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  /** Rows shared by Mes and the annual report: [label, key, format]. */
+  const MROWS = [
+    ["Sueño medio", "sleepAvgMin", (v) => h(v)], ["Energía", "energyAvg", (v) => P.fmtDec(v) + " / 5"], ["Recuperación Bevel", "recoveryAvg", (v) => Math.round(v) + " %"],
+    ["Móvil", "screenAvg", (v) => Math.round(v) + " min/día"], ["Sesiones de deporte", "sport", (v) => String(v)], ["Hábitos", "habitsMean", (v) => P.fmtDec(v) + " / día"],
+    ["Francés", "frMin", (v) => `${P.fmtDec(v / 60)} h`], ["Pasos", "stepsAvg", (v) => P.fmtInt(v) + " /día"], ["Lectura", "pages", (v) => `${v} págs.`],
+    ["Cursos", "learnMin", (v) => `${v} min`], ["Diario", "journalDays", (v) => `${v} días`], ["Gasto", "spend", (v) => euros(v)],
+  ];
+  function vMes(t, X, r) {
+    const ym = r.m && `${r.m}-01` <= t ? r.m : P.monthDefault(S, t), days = P.monthDays(ym, t), prev = P.prevYM(ym);
+    const snap = P.monthSnapshot(S, ym, t, rangeExt(days, X)), before = P.monthSnapshot(S, prev, t, rangeExt(P.monthDays(prev, t), X));
+    const rv = S.monthReviews[ym], v = rv || P.normMonthReview({}), nx = P.nextYM(ym);
+    const delta = (k, fmt) => (snap[k] != null && before[k] != null && Math.abs(snap[k] - before[k]) > 0.0001 ? `<span class="faint"> ${snap[k] > before[k] ? "↑" : "↓"} ${fmt(Math.abs(snap[k] - before[k]))}</span>` : "");
+    const nav = `<div class="seg" role="group" aria-label="Cambiar de mes"><button data-mgo="${prev}" aria-label="Mes anterior">‹</button><button data-mgo="${nx}" aria-label="Mes siguiente" ${`${nx}-01` > t ? "disabled" : ""}>›</button></div>`;
+    const habObjs = X.habits ? safe(() => R.objectivesOf(X.habits, ym)) || [] : [];
+    return header(`Revisión mensual · tu «día al mes»`, `<b>${cap(monthName(ym))}</b>${rv ? ' <span class="chip ok">hecha</span>' : ""}`, nav) + `<div class="grid">
+      <section class="card c5"><h2>Cómo fue el mes <span class="right">${snap.days} días · vs. ${P.MONTHS[Number(prev.slice(5)) - 1]}</span></h2>
+        <div class="table-wrap"><table class="t"><tbody>${MROWS.map(([label, k, fmt]) => `<tr><td>${label}</td><td class="n">${snap[k] == null || (k === "recoveryAvg" && !snap[k] && snap[k] !== 0) ? '<span class="faint">sin datos</span>' : esc(fmt(snap[k])) + delta(k, fmt)}</td></tr>`).join("")}
+          <tr><td>Revisiones semanales</td><td class="n">${snap.weekReviews} de ${snap.weeks}${snap.scoreAvg != null ? ` · nota media ${P.fmtDec(snap.scoreAvg)}` : ""}</td></tr>
+          ${snap.booksDone.length ? `<tr><td>Libros terminados</td><td class="n">${snap.booksDone.map(esc).join(", ")}</td></tr>` : ""}</tbody></table></div>
+        ${habObjs.some((o) => o.text) ? `<p class="faint" style="margin-top:12px">Tus 3 objetivos de este mes (Hábitos):</p><ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${habObjs.filter((o) => o.text).map((o) => `<li>${o.done ? "✓ " : ""}${esc(o.text)}</li>`).join("")}</ul>` : ""}
+      </section>
+      <section class="card c7"><h2>Tu revisión ${rv && rv.at ? `<span class="right">guardada ${esc(rv.at.slice(0, 16).replace("T", " "))}</span>` : ""}</h2>
+        <form id="monthForm" data-ym="${ym}">
+          <p class="field" style="margin-top:12px">Nota del mes (1-10)</p>
+          <div class="energy" role="group" aria-label="Nota del mes">${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<button type="button" data-score="${n}" aria-pressed="${v.score === n}" aria-label="Nota ${n}" style="width:40px;height:40px;font-size:15px">${n}</button>`).join("")}</div>
+          <div class="fields" style="grid-template-columns:1fr">
+            ${[0, 1, 2].map((i) => `<label class="field">Logro ${i + 1}<input name="w${i}" maxlength="300" value="${esc(v.wins[i])}"></label>`).join("")}
+            <label class="field">Qué aprendí / qué cambio el mes que viene<textarea name="lesson" maxlength="800">${esc(v.lesson)}</textarea></label>
+            ${[0, 1, 2].map((i) => `<label class="field">Objetivo ${i + 1} para ${P.MONTHS[Number(nx.slice(5)) - 1]}<input name="o${i}" maxlength="300" value="${esc(v.objectives[i])}"></label>`).join("")}
+          </div>
+          <label class="check" style="margin-top:12px"><input type="checkbox" name="toHab" ${R ? "checked" : "disabled"}> Poner estos 3 objetivos en Hábitos para ${P.MONTHS[Number(nx.slice(5)) - 1]} (los ves en Ritmo y en la hoja de 15)</label>
+          <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><span class="faint">Se guarda con la foto de los números.</span></div>
+        </form>
+        <details class="help"><summary>Ideas para tu día al mes</summary>Repasa tus visiones y metas, mira la tendencia de 8 semanas, ordena finanzas (importa el CSV del banco), planifica el mes en Ritmo y haz la copia de seguridad.</details>
+      </section></div>`;
+  }
+  function vInforme(t, X, r) {
+    const year = r.y || Number(t.slice(0, 4)), ext = {};
+    for (let m = 1; m <= 12; m++) { const ym = `${year}-${String(m).padStart(2, "0")}`; if (`${ym}-01` <= t) ext[ym] = rangeExt(P.monthDays(ym, t), X); }
+    const rep = P.yearReport(S, year, t, ext), T = rep.totals;
+    const goals = S.goals.map((g) => ({ g, p: P.goalProgress(g, t, goalExt(t, X, g)) }));
+    const cols = MROWS.filter(([, k]) => rep.months.some((m) => m[k] != null && !(k === "recoveryAvg" && m[k] == null)));
+    const nav = `<div class="seg no-print" role="group" aria-label="Cambiar de año"><button data-ygo="${year - 1}" aria-label="Año anterior">‹</button><button data-ygo="${year + 1}" aria-label="Año siguiente" ${year + 1 > Number(t.slice(0, 4)) ? "disabled" : ""}>›</button></div>
+      <button class="btn primary no-print" id="printBtn">Imprimir / guardar PDF</button>`;
+    return header(`Informe anual · ${esc(S.settings.name)}`, `<b>${year}</b> en números`, nav) + `<div class="grid report">
+      <section class="card c12"><h2>Resumen del año</h2><div class="count">
+        ${[["Sesiones de deporte", T.sport != null ? P.fmtInt(T.sport) : "—"], ["Sueño medio", T.sleepAvgMin != null ? h(T.sleepAvgMin) : "—"], ["Hábitos / día", T.habitsMean != null ? P.fmtDec(T.habitsMean) : "—"],
+          ["Páginas leídas", P.fmtInt(T.pages)], ["Libros terminados", String(rep.books.length)], ["Días con diario", String(T.journalDays)], ["Revisiones semanales", String(T.weekReviews)], ["Móvil medio", T.screenAvg != null ? Math.round(T.screenAvg) + " min" : "—"]]
+          .map(([k, val]) => `<div><b>${esc(val)}</b><span>${k}</span></div>`).join("")}</div></section>
+      <section class="card c12"><h2>Mes a mes</h2>${rep.months.length ? `<div class="table-wrap"><table class="t"><thead><tr><th>Mes</th>${cols.map(([l]) => `<th>${l}</th>`).join("")}</tr></thead><tbody>
+        ${rep.months.map((m) => `<tr><td>${cap(P.MONTHS[Number(m.ym.slice(5)) - 1]).slice(0, 3)}</td>${cols.map(([, k, fmt]) => `<td class="n">${m[k] == null ? "—" : esc(fmt(m[k]))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : '<p class="empty">Aún no hay datos de este año.</p>'}</section>
+      <section class="card c6"><h2>Metas</h2><div class="list">${goals.map(({ g, p }) => `<div class="row"><span style="color:var(--ink)">${esc(g.title)}</span><b>${chipL(p.status === "hecho" ? "ok" : p.status === "atrasada" || p.status === "vencida" ? "bad" : "", P.STATUS_LABEL[p.status])} ${Math.round(p.pct * 100)} %</b></div>`).join("") || '<p class="empty">Sin metas.</p>'}</div></section>
+      <section class="card c6"><h2>Libros y cursos terminados</h2><div class="list">${rep.books.map((b) => `<div class="row"><span style="color:var(--ink)">${esc(b.title)}${b.author ? ` · ${esc(b.author)}` : ""}</span><b>${P.fmtDay(b.finished)}</b></div>`).join("") || '<p class="empty">Ninguno todavía.</p>'}</div></section>
+      <section class="card c12"><h2>Tus revisiones mensuales</h2><div class="list">${rep.monthReviews.map((mr) => `<div class="journal-entry"><b>${cap(monthName(mr.ym))}${mr.score ? ` · nota ${mr.score}` : ""}</b>${mr.wins.filter(Boolean).map((w) => `✓ ${esc(w)}`).join("<br>")}${mr.lesson ? `<br>↗ ${esc(mr.lesson)}` : ""}</div>`).join("") || '<p class="empty">Aún no hay revisiones mensuales. Hazlas en <a href="#/mes">Mes</a>.</p>'}</div></section>
+    </div>`;
   }
 
   // ───────────── AJUSTES
@@ -501,6 +578,9 @@
       if (persist(P.setDay(S, d, { energy: (S.days[d] || {}).energy === n ? null : n }))) refreshHoy();
       return;
     }
+    if (el.dataset.mgo) { location.hash = `#/mes?m=${el.dataset.mgo}`; return; }
+    if (el.dataset.ygo) { location.hash = `#/informe?y=${el.dataset.ygo}`; return; }
+    if (el.id === "printBtn") { window.print(); return; }
     if (el.dataset.score) { ev.preventDefault(); el.parentElement.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === el && b.getAttribute("aria-pressed") !== "true"))); return; }
     if (el.dataset.bstatus) { const s = { ...S, books: S.books.map((b) => (b.id === el.dataset.bstatus ? { ...b, status: el.dataset.to } : b)) }; commit(s); return; }
     if (el.dataset.bdel) { const b = S.books.find((x) => x.id === el.dataset.bdel); if (b && confirm(`¿Borrar «${b.title}» y su registro de lectura?`)) commit({ ...S, books: S.books.filter((x) => x !== b), readLog: S.readLog.filter((x) => x.bookId !== b.id) }, "Borrado"); return; }
@@ -557,7 +637,7 @@
     if (el.dataset.f) {
       const d = $("[data-day]").dataset.day, f = el.dataset.f;
       let v = el.type === "checkbox" ? el.checked : el.value;
-      if (f === "screenMin") v = el.value === "" || !Number.isFinite(Number(el.value)) ? null : Math.max(0, Math.min(1440, Math.round(Number(el.value))));
+      if (f === "screenMin" || f === "recovery" || f === "strain") v = el.value === "" || !Number.isFinite(Number(el.value)) ? null : Math.max(0, Math.min(f === "screenMin" ? 1440 : 100, Math.round(Number(el.value))));
       if (persist(P.setDay(S, d, { [f]: v === "" ? null : v }), f === "screenMin" && v !== null ? `Móvil: ${v} min` : null)) refreshHoy();
       else render(); // not saved (damaged data or full storage): show what is really stored
       return;
@@ -627,6 +707,22 @@
       if (g.deadline && g.start && g.deadline < g.start) { alert("La fecha límite es anterior a «Desde»."); return; }
       editGoal = null;
       commit({ ...S, goals: old ? S.goals.map((x) => (x.id === old.id ? g : x)) : [...S.goals, g] }, old ? "Meta guardada" : "Meta añadida"); return;
+    }
+    if (f.id === "monthForm") {
+      const ym = f.dataset.ym, X = readAll(t), sc = f.querySelector('[data-score][aria-pressed="true"]');
+      const snap = P.monthSnapshot(S, ym, t, rangeExt(P.monthDays(ym, t), X));
+      const objectives = [0, 1, 2].map((i) => String(fd.get("o" + i) || "").trim());
+      const rv = P.normMonthReview({ at: P.stamp(new Date()), score: sc ? Number(sc.dataset.score) : null, wins: [0, 1, 2].map((i) => fd.get("w" + i)), lesson: fd.get("lesson"), objectives, snapshot: snap });
+      let msg = "Revisión del mes guardada";
+      if (fd.get("toHab") && R && objectives.some(Boolean)) {
+        const nx = P.nextYM(ym), raw = store.get("habitos.v1");
+        if (R.readHabits(raw).status === "invalid") msg += " · Hábitos está dañado: objetivos no enviados";
+        else {
+          const res = R.applyHabitMutation(raw, (d) => objectives.every((text, i) => !text || R.setObjective(d, nx, i, { text })));
+          msg += res.ok && store.set("habitos.v1", res.json) ? ` · objetivos de ${P.MONTHS[Number(nx.slice(5)) - 1]} en Hábitos` : " · no se pudieron enviar los objetivos";
+        }
+      }
+      commit({ ...S, monthReviews: { ...S.monthReviews, [ym]: rv } }, msg); return;
     }
     if (f.id === "reviewForm") {
       const wk = f.dataset.week, ref = f.dataset.ref, X = readAll(t), sc = f.querySelector('[data-score][aria-pressed="true"]');

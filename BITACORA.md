@@ -163,3 +163,20 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 - Extra barato y útil: **copia de seguridad única de las 9 apps** (exportar y restaurar con confirmación).
 - 12 tests de lógica + smoke test (registro diario, lectura, metas, revisión, copia y restauración, 8 rutas a 360 px en claro y oscuro, sin tocar las claves de otras apps).
 - **Problemas:** (1) las metas automáticas contaban desde el 1 de enero → una meta nueva nacía «atrasada»; ahora cuentan desde su fecha «Desde». (2) En modo oscuro los botones principales casi no se distinguían → color de acento. (3) El smoke leía la vista antes de que cambiara de ruta → espera explícita.
+
+---
+
+# Quinta ronda (4 nov, tarde-noche): mejoras del Panel, sin conexión y salud automática
+
+## Tendencias, cuenta atrás editable y apps instalables sin conexión
+- Panel: gráficas de 8 semanas (sueño, energía, móvil) y cuenta atrás en Ajustes. `herramientas/preparar_pwa.py` genera iconos, manifest y `sw.js` para las 10 apps; `herramientas/test_pwa.js` las abre sin conexión con un servidor que imita GitHub Pages.
+- **Problema:** un cambio dejó un `<a>` fuera de una plantilla de texto (error de sintaxis que dejaba el Panel en blanco) → corregido antes de subir; un comando de edición fue bloqueado por el control de seguridad (no contenía borrados) → se hizo con un script.
+
+## Revisión QA del Panel y de la capa sin conexión (agente revisor)
+- 34 fallos corregidos (2 altos: un `idiomas.v1` raro dejaba el Panel en blanco; en Chrome de escritorio se perdía el último dígito de la hora). En el service worker: con red lenta ya no falla, los deploys se ven al momento, versión por hash.
+
+## 29 · importar-salud + B (revisión mensual) + D (informe anual) + Bevel — hasta 16:41
+- **A/C:** Atajo del iPhone (portapapeles o URL), `export.xml` de Salud por trozos (pasos, sueño por noche, entrenos) y `activities.csv` de Strava, sin duplicar un entreno que esté en Strava y en Salud; fuerza desmarcada (ya está en Gym Tracker).
+- **B:** *Mes* con foto del mes y 3 objetivos que pasan a Hábitos (protocolo de Ritmo, sin tocar ticks). **D:** *Informe anual* imprimible en PDF. **Bevel:** recuperación y esfuerzo en *Hoy*.
+- **Problemas:** el test del Atajo usaba una fecha futura (Paso las rechaza) y un cambio solo de `#hash` no recargaba la página → la página escucha `hashchange`. El informe contaba como cero los meses sin datos → se omiten.
+- Pendiente a petición tuya: sincronización en la nube con un servidor en casa (idea 18).

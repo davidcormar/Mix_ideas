@@ -9,7 +9,7 @@ const URL = "file://" + path.join(ROOT, "index.html");
 const T = "2026-11-04";
 const R = require("../../26-ritmo/logic.js");
 const PA = require("../../27-paso/logic.js");
-const ROUTES = ["#/panel", "#/hoy", "#/lectura", "#/metas", "#/semana", "#/ajustes", "#/hoy?d=2026-11-01", "#/semana?d=2026-10-28"];
+const ROUTES = ["#/panel", "#/hoy", "#/lectura", "#/metas", "#/semana", "#/mes", "#/informe", "#/ajustes", "#/hoy?d=2026-11-01", "#/semana?d=2026-10-28"];
 
 function check(c, msg) { if (!c) throw new Error("FALLO: " + msg); }
 
@@ -103,6 +103,26 @@ function check(c, msg) { if (!c) throw new Error("FALLO: " + msg); }
   check(st.reviews["2026-W45"].score === 8 && st.reviews["2026-W45"].priorities[0] === "Francés antes de cenar" && st.reviews["2026-W45"].snapshot.sport >= 2, "revisión guardada con foto");
 
   check((await page.textContent("#view")).includes("Tendencia de 8 semanas") && (await page.$$(".tbars")).length === 3, "tendencia de 8 semanas");
+
+  // 6b · monthly review → 3 objectives for next month written into habitos.v1 (other habit data untouched)
+  const habBefore = JSON.parse(await page.evaluate(() => localStorage.getItem("habitos.v1")));
+  await page.goto(URL + "#/mes?m=2026-11"); await page.waitForSelector("#monthForm");
+  await page.click('#monthForm [data-score="7"]');
+  await page.fill('#monthForm [name="w0"]', "26:47 en 5K"); await page.fill('#monthForm [name="o0"]', "Francés 30 min diarios"); await page.fill('#monthForm [name="o1"]', "Nadar 2 veces");
+  await page.click("#monthForm button.primary");
+  await page.waitForFunction(() => { const p = JSON.parse(localStorage.getItem("panel.v1")); return p.monthReviews && p.monthReviews["2026-11"]; });
+  const habAfter = JSON.parse(await page.evaluate(() => localStorage.getItem("habitos.v1")));
+  check(habAfter.objectives["2026-12"][0].text === "Francés 30 min diarios" && habAfter.objectives["2026-12"][1].text === "Nadar 2 veces", "objetivos del mes siguiente en Hábitos");
+  check(JSON.stringify(habAfter.months) === JSON.stringify(habBefore.months) && JSON.stringify(habAfter.habits) === JSON.stringify(habBefore.habits), "los ticks de Hábitos no cambian");
+  check(JSON.parse(await page.evaluate(() => localStorage.getItem("panel.v1"))).monthReviews["2026-11"].score === 7, "nota del mes guardada");
+  foreign["habitos.v1"] = JSON.stringify(habAfter); // expected state from now on
+  await page.goto(URL + "#/informe"); await page.waitForSelector(".report");
+  const inf = await page.textContent("#view");
+  check(inf.includes("Mes a mes") && inf.includes("26:47 en 5K") && inf.includes("Sesiones de deporte"), "informe anual con revisiones y deporte");
+  // Bevel
+  await page.goto(URL + "#/hoy"); await page.waitForSelector('[data-f="recovery"]');
+  await page.fill('[data-f="recovery"]', "72"); await page.locator('[data-f="recovery"]').dispatchEvent("change");
+  check(JSON.parse(await page.evaluate(() => localStorage.getItem("panel.v1"))).days["2026-11-04"].recovery === 72, "recuperación Bevel guardada");
 
   // 7 · settings: editable countdowns (bad line rejected, good list saved)
   await page.click('a[data-nav="ajustes"]'); await page.waitForSelector("#backupAll");

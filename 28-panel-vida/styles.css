@@ -189,3 +189,17 @@ details.help summary { cursor: pointer; font-weight: 600; }
 .tbars i.none { height: 14px; background: transparent; border: 1.5px dashed var(--line); opacity: 1; }
 .tbars span { position: absolute; bottom: -18px; font-size: 11px; color: var(--ink-3); }
 .tbars > u { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed var(--ink-2); z-index: 1; pointer-events: none; }
+
+/* annual report: print / PDF */
+.report .count b { font-size: 24px; }
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; }
+  .sidebar, .tabbar, .toasts, .banner, .no-print, .skip { display: none !important; }
+  .shell { display: block; }
+  main { padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .grid { display: block; } .grid > .card { margin-bottom: 10px; }
+  .chip { border: 1px solid #ccc; }
+}
+.report table.t th:not(:first-child) { text-align: right; }

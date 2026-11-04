@@ -87,3 +87,11 @@ Construidas a partir de tus capturas, pero **adaptadas a tus visiones** (no son 
 - Nuevo para medir lo que faltaba: **sueño y energía**, **minutos de móvil** (+ 0 redes antes de las 14:00), **diario de 3 líneas**, **lectura y cursos** con fecha estimada de fin, **metas** con «dónde deberías ir» y **revisión semanal** del domingo con la foto de todas tus apps.
 - **Copia de seguridad de las 9 apps en un solo fichero** (Ajustes). Hazla cada domingo tras la revisión.
 - **A2 arreglado:** la app de Hábitos (15) ya no borra los ticks que pone Ritmo si tienes las dos abiertas.
+
+## Quinta ronda: menos apuntar a mano, más revisar
+
+- **Importar salud (29):** crea una vez el Atajo de [`29-importar-salud/ATAJO-IPHONE.md`](29-importar-salud/ATAJO-IPHONE.md) (5 min) y cada noche: abrir → «Pegar del Atajo» → «Importar». Pasos y sueño (Watch o Bevel) sin teclear. Para el historial y los entrenos: `export.xml` de Salud o el CSV de Strava (un entreno en los dos sitios cuenta una vez).
+- **Panel:** *Mes* (tu «día al mes»: 3 objetivos que pasan solos a Hábitos), *Informe anual* (Imprimir → Guardar como PDF), tendencias de 8 semanas, cuenta atrás editable, recuperación de Bevel en *Hoy*.
+- **Sin conexión:** las 10 apps abren sin internet una vez visitadas en GitHub Pages; instálalas desde Safari (Compartir → Añadir a pantalla de inicio).
+- **Ojo en el iPhone:** una web instalada en la pantalla de inicio guarda sus datos aparte de Safari. Usa siempre la versión instalada (y «Pegar del Atajo», no la URL).
+- **Pendiente:** la sincronización móvil ↔ ordenador con tu servidor de casa.
