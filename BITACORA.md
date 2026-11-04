@@ -82,3 +82,10 @@ Horas en hora de Madrid (CET).
 
 ## 19 · londres — 01:04 → 01:04
 - Guía (pasaporte + ETA, presupuesto, transporte, itinerario de 4 días, museos gratis incluido el RAF Museum) y ruta GPX de 7,1 km generada por script (reutiliza el haversine de 02).
+
+## Calidad (sección 5) — 01:05 → 01:07
+- `PARA-DAVID.md` escrito pronto (por si se acaba el crédito). `ejecutar_tests.sh` + GitHub Actions. Diapositiva con resultados reales en 05.
+
+## 20 · efecto-suelo (idea nueva) — 01:07 → 01:08
+- Solver de paneles multicuerpo + método de imágenes, ala invertida, barrido de altura, Cp, surrogate MLP con h/c (error mediano 0,6 %). 8 tests.
+- **Problema:** convención de ángulo en el ala invertida (con α "morro arriba" el ala invertida apenas daba carga) → α > 0 = morro abajo para alas invertidas.
