@@ -79,3 +79,6 @@ Horas en hora de Madrid (CET).
 
 ## 18 · servidor-casa — 01:03 → 01:03
 - Guía completa (hardware, consumo, SO endurecido, Docker, Tailscale, servicios, copias 3-2-1, plan de 4 fines de semana) + docker-compose validados y script de backup.
+
+## 19 · londres — 01:04 → 01:04
+- Guía (pasaporte + ETA, presupuesto, transporte, itinerario de 4 días, museos gratis incluido el RAF Museum) y ruta GPX de 7,1 km generada por script (reutiliza el haversine de 02).

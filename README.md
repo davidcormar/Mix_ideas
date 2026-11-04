@@ -25,6 +25,6 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 16 | [`16-nutricion/`](16-nutricion/) | Raciones con la mano, 20 recetas con verdura escondida, pre/post entreno, lista de la compra | 💡 |
 | 17 | [`17-sistema-claude/`](17-sistema-claude/) | Diseño del sistema: memoria, skills, rutinas, conexiones, fases + plantillas | 💡 |
 | 18 | [`18-servidor-casa/`](18-servidor-casa/) | Guía mini PC + Ubuntu + Docker + Tailscale + restic, servicios y docker-compose | 💡 |
-| 19 | `19-londres/` | Viaje Birmingham + Londres | ⏳ |
+| 19 | [`19-londres/`](19-londres/) | Itinerario ~300 €, transporte, museos gratis y ruta GPX de 7 km por Hyde Park | ✅ |
 
 Ver también: [`BITACORA.md`](BITACORA.md) (qué se hizo y cuándo) y [`PARA-DAVID.md`](PARA-DAVID.md) (resumen de la noche).
