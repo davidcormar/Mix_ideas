@@ -1,6 +1,6 @@
 # Para David · resumen de la noche (3 → 4 nov 2026)
 
-Buenos días. Las **19 ideas** tienen su carpeta, con README (qué es, cómo usarlo, qué falta y decisiones). Todo está subido a la rama **`claude/amazing-heisenberg-dlbnt1`** (no a `main`: era la rama asignada a esta sesión). Para tenerlo en `main`, abre un *pull request* desde esa rama y fusiónalo.
+Buenos días. Las **19 ideas** tienen su carpeta, más **una nueva (20 · efecto suelo)**, con README (qué es, cómo usarlo, qué falta y decisiones). Todo está subido a la rama **`claude/amazing-heisenberg-dlbnt1`** (no a `main`: era la rama asignada a esta sesión). Para tenerlo en `main`, abre un *pull request* desde esa rama y fusiónalo.
 
 ## ⚠️ Lo urgente (esta semana)
 1. **Vacunas para India:** pide cita ya en el Centro de Vacunación Internacional (A Coruña). Algunas pautas llevan varias dosis y en diciembre hay lista de espera. → `13-india-woxsen/`
@@ -12,6 +12,7 @@ Buenos días. Las **19 ideas** tienen su carpeta, con README (qué es, cómo usa
 | | Qué | Por qué merece la pena |
 |---|---|---|
 | 🛩️ **06 + 07** | Túnel de viento neuronal + generador de alas | Método de paneles propio validado (NACA 0012 a 5° → Cl 0,599), red ×1.600 más rápida (MAE Cl 0,002) y un **VAE condicional escrito en NumPy** que genera perfiles UIUC 100 % válidos con el Cl que pides. Es la base real de tu "Suite aero" |
+| 🏎️ **20** (nueva) | Efecto suelo | Solver multicuerpo con método de imágenes: tu alerón de F1 invertido cerca del suelo, con flap, y un surrogate que usa la altura como entrada (error mediano 0,6 %). Muestra claramente por qué hace falta OpenFOAM: el modelo no viscoso no reproduce la caída de carga a alturas muy pequeñas |
 | 🏃 **02** | Running tools | Con tu 27:58 sale VDOT 33,5 y ritmos que **coinciden con tus ritmos reales**. Plan hasta el 28-dic exportado a `.ics` para Google Calendar |
 | 🤖 **01** | 12 skills de Claude | Listas para instalar, con validador y empaquetador `.zip` para claude.ai |
 | 📱 **10, 11, 15** | Gym tracker, finanzas, hábitos | Apps de un fichero, funcionan con doble clic y en el móvil, probadas en Chromium |
@@ -35,5 +36,7 @@ Buenos días. Las **19 ideas** tienen su carpeta, con README (qué es, cómo usa
 - **No había PyTorch**: los modelos usan scikit-learn y NumPy puro.
 - Los datos de salud, visados y precios son **información general**: compruébalos en las fuentes oficiales enlazadas.
 - **F1 (04):** solo guía, sin código del análisis, como pediste. Nada de la UIE.
+
+Todos los tests (~60, Python y Node) pasan con `./ejecutar_tests.sh` y se ejecutan en GitHub Actions en cada push.
 
 Bitácora detallada (horas, problemas): [`BITACORA.md`](BITACORA.md). Índice: [`README.md`](README.md).

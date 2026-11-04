@@ -89,3 +89,8 @@ Horas en hora de Madrid (CET).
 ## 20 · efecto-suelo (idea nueva) — 01:07 → 01:08
 - Solver de paneles multicuerpo + método de imágenes, ala invertida, barrido de altura, Cp, surrogate MLP con h/c (error mediano 0,6 %). 8 tests.
 - **Problema:** convención de ángulo en el ala invertida (con α "morro arriba" el ala invertida apenas daba carga) → α > 0 = morro abajo para alas invertidas.
+
+## Cierre — 01:08
+- 20 carpetas (19 pedidas + 1 nueva), `PARA-DAVID.md`, índice actualizado, todos los tests en verde.
+- Paro aquí en lugar de seguir hasta las 8:00 para no pasarme del presupuesto de créditos (no se puede medir el gasto): lo importante ya está hecho y subido.
+- Ideas para otra noche: banco de preguntas de entrevista de ML Engineer, alerón de 2 elementos validado contra datos publicados, pasar 06/07 a PyTorch, análisis de una carpeta entera de GPX (evolución de la FC a ritmo fijo).
