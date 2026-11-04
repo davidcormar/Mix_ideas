@@ -30,6 +30,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 20 | [`20-efecto-suelo/`](20-efecto-suelo/) | Paneles multicuerpo + método de imágenes: alerón de F1 cerca del suelo + surrogate con h/c | ✅ |
 | **De tus visiones** | | | |
 | 21 | [`21-idiomas-plan/`](21-idiomas-plan/) | App de horas por idioma (suelo de 30' acumulable, proyección al B2, ciclo de 7) + plan de alemán + inglés C1 | ✅ |
+| 22 | [`22-escalera-ironman/`](22-escalera-ironman/) | Escalera media → Ironman con VDOT, aprender a nadar, semana híbrida (estándar 5 / suelo 3) y generador de plan de media | ✅ |
 
 ## Tests
 

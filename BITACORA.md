@@ -110,3 +110,6 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 
 ## 21 · idiomas-plan (de *Visión Idiomas*) — 11:24 → 11:26
 - App de horas por idioma con tus reglas (suelo 30' con arrastre, extras no cuentan, ciclo de 7, % de producción, horas previas, proyección vs. fecha), plan de alemán (lo tenías pendiente) y plan de inglés C1 orientado a entrevistas. 8 tests + smoke test.
+
+## 22 · escalera-ironman (de *Visión Deporte*) — 11:27 → 11:28
+- Hoja de ruta con VDOT por escalón, plan de natación desde cero (Woxsen), semana híbrida con suelo de 3, generador de plan de media maratón (reutiliza 02) con 4 tests.

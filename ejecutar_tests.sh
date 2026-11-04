@@ -3,7 +3,7 @@
 set -u
 cd "$(dirname "$0")"
 fail=0
-for d in 01-claude-skills 02-running-tools 03-ml-andrew-ng 06-tunel-viento-neuronal 07-generador-alas 08-barcos-oscuros 09-frances-delf 15-habitos 20-efecto-suelo; do
+for d in 01-claude-skills 02-running-tools 03-ml-andrew-ng 06-tunel-viento-neuronal 07-generador-alas 08-barcos-oscuros 09-frances-delf 15-habitos 20-efecto-suelo 22-escalera-ironman; do
   if [ -d "$d/tests" ]; then
     echo "== pytest $d"
     (cd "$d" && python -m pytest -q tests) || fail=1
