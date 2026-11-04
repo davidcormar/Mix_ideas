@@ -80,3 +80,10 @@ Construidas a partir de tus capturas, pero **adaptadas a tus visiones** (no son 
 **Para que se hablen entre ellas** (Ritmo lee tu gimnasio, idiomas, finanzas y Paso), ábrelas desde GitHub Pages o con Chrome/Edge en local; Firefox aísla cada fichero local. Exporta el JSON de vez en cuando: los datos viven en el navegador.
 
 **Los TikTok** que mandaste no se pueden abrir desde este entorno (el dominio está bloqueado por la red). Si quieres que los use, pega el texto o la descripción, o permite `tiktok.com` en los ajustes de red del entorno.
+
+## Cuarta ronda (4 nov, tarde): tu Panel de vida
+
+- **28 · Panel de vida** es ahora la portada de todo: abre `index.html` en la raíz (o `davidcormar.github.io/Mix_ideas/` si activas GitHub Pages) y ves tu vida por áreas con semáforo: día, hábitos, cuerpo, sueño, móvil, francés, lectura, dinero, metas y cuenta atrás.
+- Nuevo para medir lo que faltaba: **sueño y energía**, **minutos de móvil** (+ 0 redes antes de las 14:00), **diario de 3 líneas**, **lectura y cursos** con fecha estimada de fin, **metas** con «dónde deberías ir» y **revisión semanal** del domingo con la foto de todas tus apps.
+- **Copia de seguridad de las 9 apps en un solo fichero** (Ajustes). Hazla cada domingo tras la revisión.
+- **A2 arreglado:** la app de Hábitos (15) ya no borra los ticks que pone Ritmo si tienes las dos abiertas.

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEEEEB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111311" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vida">
+<title>Panel de vida</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E2320'/%3E%3Ctext x='32' y='44' font-family='system-ui' font-size='34' font-weight='700' fill='%23F3F4F1' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="shell">
+  <aside class="sidebar" aria-label="Navegación">
+    <div class="brand"><span class="logo" aria-hidden="true">V</span>Panel de vida</div>
+    <nav class="side-nav" id="sideNav"></nav>
+    <div class="side-card" id="sideCard"></div>
+    <a class="side-link" href="#/ajustes" data-nav="ajustes"><span class="ico" aria-hidden="true">⚙︎</span>Ajustes y datos</a>
+  </aside>
+  <main id="main" tabindex="-1">
+    <div class="banner" id="banner" hidden></div>
+    <div id="view"></div>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fileIn" accept="application/json,.json" hidden>
+<!-- Lectores de las otras apps del repo (solo lectura). Si no están, el panel funciona igual. -->
+<script src="../26-ritmo/logic.js"></script>
+<script src="../21-idiomas-plan/logic.js"></script>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

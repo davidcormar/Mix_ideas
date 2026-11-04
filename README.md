@@ -34,6 +34,8 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 23 | [`23-finanzas-sistema/`](23-finanzas-sistema/) | Simulador de tus 4 cuentas desde el primer sueldo + guía y calculadora para leer resultados de empresas | ✅ |
 | 24 | [`24-carrera-practicas/`](24-carrera-practicas/) | Mapa de empresas (F1, espacio, IA, Galicia), calendario a ene-2028, CV ML y 32 preguntas de entrevista en inglés | 💡 |
 | 25 | [`25-habilidades/`](25-habilidades/) | Plan de habilidades (retórica, estoicismo, móvil antidopamina…) + app de mecanografía y atajos | ✅ |
+| **Panel de vida** | | | |
+| 28 | [`28-panel-vida/`](28-panel-vida/) | **Portada de todo:** tu vida por áreas con semáforo + sueño y energía, móvil, diario de 3 líneas, lectura y cursos, metas con progreso esperado, revisión semanal y copia de seguridad de las 9 apps | ✅ |
 | **De tus capturas** | | | |
 | 26 | [`26-ritmo/`](26-ritmo/) | Organizador de hábitos y rutinas: bloques del día con tus franjas, revisión nocturna, mínimos de deporte y francés, rutinas, comparte hábitos con 15 | ✅ |
 | 27 | [`27-paso/`](27-paso/) | Pasos y comidas sin calorías: anillo de pasos, raciones con la mano (verdura = punto débil), agua, importación de Apple Health/CSV, historial del mes | ✅ |
@@ -44,5 +46,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 ./ejecutar_tests.sh   # ~60 tests Python + Node de todas las carpetas
 ```
 También se ejecutan en GitHub Actions en cada push (`.github/workflows/tests.yml`).
+
+**Para usarlo todo desde el móvil:** activa GitHub Pages (Settings → Pages → rama principal, carpeta raíz) y abre `https://davidcormar.github.io/Mix_ideas/`: entra directo al Panel de vida (`index.html` de la raíz).
 
 Ver también: [`BITACORA.md`](BITACORA.md) (qué se hizo y cuándo) y [`PARA-DAVID.md`](PARA-DAVID.md) (resumen de la noche).

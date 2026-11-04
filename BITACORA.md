@@ -152,3 +152,14 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 
 ## A2 · 15-hábitos ya no pisa a Ritmo — 13:40
 - 15-hábitos cargaba `habitos.v1` una vez y guardaba el objeto entero: con Ritmo abierto a la vez se perdían ticks. Ahora relee antes de cada cambio (casilla u objetivo) y se repinta con el evento `storage`. Verificado en Chromium con dos pestañas: el tick externo se conserva.
+
+---
+
+# Cuarta ronda (4 nov, tarde): Panel de vida (A1 + A2)
+
+## 28 · panel-vida — 13:45 → 15:31 (hecho directamente, sin agentes, para ahorrar presupuesto)
+- Pedido: panel de vida + sueño y energía + lectura y aprendizaje + diario + metas + revisión semanal + móvil. **Decisión:** una sola app con 6 secciones en vez de 6 apps, con `index.html` en la raíz que redirige al panel (A1).
+- Reutiliza los lectores de Ritmo e Idiomas (`../26-ritmo/logic.js`, `../21-idiomas-plan/logic.js`) para que deporte, hábitos y francés den los mismos números que en esas apps. Solo escribe `panel.v1`.
+- Extra barato y útil: **copia de seguridad única de las 9 apps** (exportar y restaurar con confirmación).
+- 12 tests de lógica + smoke test (registro diario, lectura, metas, revisión, copia y restauración, 8 rutas a 360 px en claro y oscuro, sin tocar las claves de otras apps).
+- **Problemas:** (1) las metas automáticas contaban desde el 1 de enero → una meta nueva nacía «atrasada»; ahora cuentan desde su fecha «Desde». (2) En modo oscuro los botones principales casi no se distinguían → color de acento. (3) El smoke leía la vista antes de que cambiara de ruta → espera explícita.
