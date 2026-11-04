@@ -50,6 +50,8 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # recorrido completo en Chromiu
 
 - ✅ **Hace un mes / hace un año** en *Hoy*: lo que escribiste en el diario ese día. **Racha de «0 redes antes de las 14:00»** en *Hoy* y en la tarjeta de Móvil.
 
+- ✅ **Frase estoica del día** (Marco Aurelio, Séneca, Epicteto; dominio público, traducción libre) bajo el saludo del Panel. Tecla **`b`** (fuera de un campo de texto): descarga la copia de seguridad de todas las apps.
+
 ## Qué falta / siguientes pasos
 - Gráficas de tendencia de varias semanas (sueño y móvil) y correlaciones más finas (p. ej. móvil ↔ sueño).
 - Importar el tiempo de pantalla y el sueño directamente de Apple Health (Paso ya sabe leer `export.xml`).

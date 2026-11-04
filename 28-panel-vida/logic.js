@@ -363,6 +363,30 @@
     return n;
   }
 
+  /** Stoic quotes (public domain, free translation). One per day, same for everyone on that date. */
+  const QUOTES = [
+    ["Deja ya de discutir cómo debe ser un hombre bueno y sé uno.", "Marco Aurelio, Meditaciones X, 16"],
+    ["Lo que se interpone en el camino se convierte en el camino.", "Marco Aurelio, Meditaciones V, 20"],
+    ["No actúes como si fueras a vivir diez mil años.", "Marco Aurelio, Meditaciones IV, 17"],
+    ["Si no es correcto, no lo hagas; si no es verdad, no lo digas.", "Marco Aurelio, Meditaciones XII, 17"],
+    ["El alma se tiñe del color de sus pensamientos.", "Marco Aurelio, Meditaciones V, 16"],
+    ["La mejor venganza es no parecerse a quien te hizo daño.", "Marco Aurelio, Meditaciones VI, 6"],
+    ["Lo que no es útil para la colmena tampoco lo es para la abeja.", "Marco Aurelio, Meditaciones VI, 54"],
+    ["Se necesita muy poco para vivir bien: todo está en tu forma de pensar.", "Marco Aurelio, Meditaciones VII, 67"],
+    ["No es que tengamos poco tiempo, es que perdemos mucho.", "Séneca, Sobre la brevedad de la vida, 1"],
+    ["Mientras se aplaza, la vida pasa.", "Séneca, Cartas a Lucilio, 1"],
+    ["Sufrimos más en la imaginación que en la realidad.", "Séneca, Cartas a Lucilio, 13"],
+    ["Ningún viento es favorable para quien no sabe a qué puerto va.", "Séneca, Cartas a Lucilio, 71"],
+    ["Mientras enseñamos, aprendemos.", "Séneca, Cartas a Lucilio, 7"],
+    ["No es pobre quien tiene poco, sino quien desea más.", "Séneca, Cartas a Lucilio, 2"],
+    ["Nadie es libre si es esclavo de su cuerpo.", "Séneca, Cartas a Lucilio, 92"],
+    ["Unas cosas dependen de nosotros y otras no.", "Epicteto, Enquiridión, 1"],
+    ["No nos perturban las cosas, sino las opiniones que tenemos sobre ellas.", "Epicteto, Enquiridión, 5"],
+    ["Si quieres progresar, acepta parecer necio en lo externo.", "Epicteto, Enquiridión, 13"],
+    ["Primero di qué quieres ser; después haz lo que tengas que hacer.", "Epicteto, Disertaciones III, 23"],
+  ];
+  const quoteOfDay = (iso) => { const n = QUOTES.length, i = ((daysBetween("2026-01-01", iso) % n) + n) % n; return { text: QUOTES[i][0], author: QUOTES[i][1] }; };
+
   // ───────────── month & year
   const nextYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${pad2(m + 1)}`; };
   const prevYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${pad2(m - 1)}`; };
@@ -500,7 +524,7 @@
 
   const api = {
     KEY, isISO, isHM, isObj, esc, todayISO, stamp, numLike, SETTING_RANGE, reviewDefault, cleanLang, FR_B2_DATE, WOXSEN_DATE, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
-    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport, meditStats, meditStreak, backupDue, summaryText, onThisDay, noSocialStreak,
+    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport, meditStats, meditStreak, backupDue, summaryText, onThisDay, noSocialStreak, QUOTES, quoteOfDay,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
     goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
   };

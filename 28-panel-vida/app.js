@@ -183,6 +183,7 @@
     if (firstRun) out.push(`<div class="callout"><p><b>Primer paso (1 minuto):</b> en <i>Hoy</i> apunta a qué hora te acostaste y te levantaste, tu energía y el móvil. Cada tarjeta se llena sola con lo que apuntes aquí y en tus otras apps. ¿Quieres verlo lleno antes? Carga los datos de ejemplo en <a href="#/ajustes">Ajustes</a>.</p><a class="btn primary" href="#/hoy" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[wk] && P.dow(t) >= 6) out.push(`<div class="callout"><p><b>Toca la revisión semanal.</b> 10 minutos: cómo fue la semana en todas tus áreas y 3 prioridades para la siguiente.</p><a class="btn primary" href="#/semana" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[prevWk] && P.dow(t) === 1) out.push(`<div class="callout"><p><b>No hiciste la revisión de la semana pasada.</b> Aún estás a tiempo.</p><a class="btn primary" href="#/semana?d=${P.addDays(t, -7)}" style="text-decoration:none">Hacerla ahora</a></div>`);
+    { const q = P.quoteOfDay(t); out.push(`<p class="quote">«${esc(q.text)}» <span>— ${esc(q.author)}</span></p>`); }
     { const bd = P.backupDue(S, t); if (bd !== null) out.push(`<div class="callout"><p><b>${bd === Infinity ? "Aún no has hecho ninguna copia de seguridad." : `Tu última copia de seguridad es de hace ${bd} días.`}</b> Tus datos solo viven en este navegador: descárgala y guárdala en iCloud o Drive.</p><button class="btn primary" id="backupAll">Descargar copia</button></div>`); }
     { const pm = P.prevYM(t.slice(0, 7)); if (Number(t.slice(8)) <= 7 && !S.monthReviews[pm]) out.push(`<div class="callout"><p><b>Tu día al mes:</b> revisa ${P.MONTHS[Number(pm.slice(5)) - 1]} y elige 3 objetivos para este mes.</p><a class="btn primary" href="#/mes" style="text-decoration:none">Revisar el mes</a></div>`); }
     out.push('<div class="grid">');
@@ -765,6 +766,10 @@
   document.addEventListener("input", onInput);
   document.addEventListener("change", onChange);
   document.addEventListener("submit", onSubmit);
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "b" || ev.ctrlKey || ev.metaKey || ev.altKey || /INPUT|TEXTAREA|SELECT/.test((ev.target || {}).tagName || "") || (ev.target || {}).isContentEditable) return;
+    const b = document.createElement("button"); b.id = "backupAll"; b.hidden = true; document.body.append(b); b.click(); b.remove();
+  });
   window.addEventListener("hashchange", () => { editGoal = null; render(); $("#main").focus({ preventScroll: true }); window.scrollTo(0, 0); });
   // another tab changed something: re-read the Panel (key null = storage cleared) and redraw unless you are typing
   window.addEventListener("storage", (ev) => { if (ev.key === P.KEY || ev.key === null) { load(); flushJournal(); } if (!document.activeElement || !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) render(); });

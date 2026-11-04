@@ -399,3 +399,11 @@ test("hace un mes / un año y racha de 0 redes", () => {
   s = L.setDay(s, "2026-11-02", { noSocialAM: false });
   assert.equal(L.noSocialStreak(s, T), 1);
 });
+
+test("frase estoica del día: determinista, rota cada día y cubre todas", () => {
+  assert.deepEqual(L.quoteOfDay(T), L.quoteOfDay(T));
+  assert.notEqual(L.quoteOfDay(T).text, L.quoteOfDay(L.addDays(T, 1)).text);
+  const seen = new Set(L.range("2026-01-01", L.addDays("2026-01-01", L.QUOTES.length - 1)).map((d) => L.quoteOfDay(d).text));
+  assert.equal(seen.size, L.QUOTES.length);
+  assert.ok(L.quoteOfDay("2025-12-31").text);
+});

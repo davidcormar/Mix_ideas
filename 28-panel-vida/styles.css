@@ -203,3 +203,6 @@ details.help summary { cursor: pointer; font-weight: 600; }
   .chip { border: 1px solid #ccc; }
 }
 .report table.t th:not(:first-child) { text-align: right; }
+.quote { font-size: 15px; font-style: italic; color: var(--ink-2); margin: -8px 0 16px; }
+.quote span { font-style: normal; font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+@media print { .quote { display: none; } }
