@@ -17,13 +17,26 @@ Extensión del túnel de viento neuronal al **ángulo propio de tu Suite aero: e
 > [!warning] Lo que este modelo NO captura
 > En flujo no viscoso la carga **crece sin límite** al acercarse al suelo. En la realidad (experimentos de Zerihan & Zhang con un alerón de F1) la carga alcanza un **máximo a alturas pequeñas y luego cae**, porque la capa límite de la cara de succión se separa por el fuerte gradiente adverso de presión. Ese máximo es justo lo que un dataset propio en **OpenFOAM** (con suelo móvil) tendría que capturar: es la aportación original del proyecto.
 
+## Alerón de 2 elementos (`dos_elementos.py`)
+Ala principal NACA 4412 + flap (35 % de cuerda, hueco 2 %, solape 3 %), invertido, α = 4°, Cl referido a la cuerda total:
+
+| Flap δ | −Cl sin suelo | −Cl a h/c = 0,2 |
+|---|---|---|
+| 0° | 0,93 | 2,57 |
+| 10° | 1,65 | 5,00 |
+| 20° | 2,34 | 7,99 |
+| 30° | 3,01 | 11,41 |
+
+(Ala simple sin suelo: 0,99.) Tendencias correctas; los valores absolutos con flap muy deflectado y cerca del suelo están sobreestimados por la falta de viscosidad.
+
 ## Cómo usarlo
 ```bash
 cd 20-efecto-suelo
 pip install -r requirements.txt
 python suelo.py           # tabla rápida de Cl frente a h/c
+python dos_elementos.py   # alerón principal + flap
 python experimento.py     # figuras + surrogate (≈20 s)
-python -m pytest -q tests # 8 tests
+python -m pytest -q tests # 9 tests
 ```
 Necesita `06-tunel-viento-neuronal/` al lado (reutiliza `aero/`).
 
@@ -33,7 +46,7 @@ Necesita `06-tunel-viento-neuronal/` al lado (reutiliza `aero/`).
 - ✅ Barrido, distribución de presiones, surrogate con h/c, 8 tests.
 
 ## Qué falta / siguientes pasos
-1. **Alerón de 2 elementos** (main + flap) con `solve_bodies` — el solver ya lo admite; falta geometría y validación.
+1. Validar el alerón de 2 elementos contra datos publicados (p. ej. configuraciones tipo NLR 7301 o GA(W)-1 con flap) y optimizar hueco/solape.
 2. Corrección viscosa sencilla (acoplar capa límite tipo Thwaites/Head) para ver el inicio de la separación.
 3. Casos OpenFOAM 2D con suelo móvil (simpleFoam, k-ω SST) a 5-10 alturas para calibrar el surrogate.
 

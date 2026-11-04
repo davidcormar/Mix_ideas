@@ -50,3 +50,12 @@ def test_mesh_convergence():
 def test_place_sets_ride_height():
     Xp, Yp = suelo.place(X, Y, 3, 0.15, True)
     assert Yp.min() == pytest.approx(0.15)
+
+
+def test_two_element_flap_increases_downforce():
+    import dos_elementos as de
+    cls = [-de.total_cl(de.transform(de.build(d), 4, None, True))[0] for d in (0, 15, 30)]
+    assert cls[0] < cls[1] < cls[2]
+    free = -de.total_cl(de.transform(de.build(20), 4, None, True))[0]
+    ground = -de.total_cl(de.transform(de.build(20), 4, 0.2, True), 0.2)[0]
+    assert ground > free
