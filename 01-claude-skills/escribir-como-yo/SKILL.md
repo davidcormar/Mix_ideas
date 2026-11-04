@@ -6,7 +6,7 @@ description: 'Redacta o reescribe textos con el estilo personal de David (tono, 
 # Escribir como David
 
 > [!warning] Esqueleto pendiente de rellenar
-> Esta skill solo funciona bien cuando `referencia/guia-estilo.md` y `referencia/ejemplos.md` estén rellenos con textos reales de David. Instrucciones en `COMO-RELLENARLA.md`.
+> `referencia/guia-estilo.md` tiene una **versión provisional** sacada de sus notas de Obsidian (sirve para notas y documentos). Para mensajes y correos necesita sus textos reales: instrucciones en `COMO-RELLENARLA.md`.
 
 ## Límites
 - **Nunca** para trabajos, foros, prácticas o informes de la universidad (la UIE prohíbe contenido generado por IA). Si la petición lo parece, dilo y ofrece solo feedback sobre su propio texto.

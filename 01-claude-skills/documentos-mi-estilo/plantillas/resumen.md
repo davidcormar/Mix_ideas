@@ -2,7 +2,7 @@
 tipo: resumen
 area: 
 estado: terminado
-fecha: {{date}}
+fecha: "{{date}}"
 tags: []
 ---
 # {{título}}
@@ -27,5 +27,7 @@ tags: []
 > - 
 
 ## Relacionado
-**Sube:** [[ ]]
-**Baja:** —
+
+- **Sube:** [[ ]]
+- **Baja:** [[ ]]
+- **Puentes:** [[ ]]

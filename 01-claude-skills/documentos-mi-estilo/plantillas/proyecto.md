@@ -2,7 +2,7 @@
 tipo: proyecto
 area: 
 estado: activo
-fecha: {{date}}
+fecha: "{{date}}"
 tags: []
 ---
 # {{título}}
@@ -22,5 +22,7 @@ tags: []
 |---|---|---|
 
 ## Relacionado
-**Sube:** [[ ]]
-**Baja:** —
+
+- **Sube:** [[ ]]
+- **Baja:** [[ ]]
+- **Puentes:** [[ ]]

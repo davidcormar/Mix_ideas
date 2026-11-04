@@ -2,7 +2,7 @@
 
 | Mes | Nivel | Puntos clave |
 |---|---|---|
-| Oct-nov 2026 | A1→A2 | présent (réguliers + être, avoir, aller, faire, venir, prendre, pouvoir, vouloir, devoir), articles, négation, futur proche, passé récent, questions |
+| Oct-nov 2026 | A1→A2 (producción; la comprensión ya es A2+) | présent (réguliers + être, avoir, aller, faire, venir, prendre, pouvoir, vouloir, devoir), articles, négation, futur proche, passé récent, questions |
 | Nov-dic 2026 | A2 | passé composé (avoir/être, accord), pronoms COD/COI, imparfait (formation), il y a / depuis / pendant |
 | Ene 2027 | A2 | passé composé vs imparfait, comparatif/superlatif, pronoms y/en, futur simple |
 | Feb 2027 | A2→B1 | pronoms relatifs (qui, que, où, dont), conditionnel présent, impératif + pronoms |

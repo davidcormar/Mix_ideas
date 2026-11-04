@@ -7,8 +7,10 @@ description: 'Optimiza el perfil de LinkedIn de David (titular, extracto "Acerca
 
 ## Contexto
 - Estudiante de 3º de Ingeniería en Sistemas Inteligentes en la UIE (A Coruña). Intercambio en Woxsen University (India) ene-may 2027.
-- Meta: **ML Engineer** centrado en deep learning e investigación aplicada: "convertir ideas difíciles en sistemas reales".
-- Intereses que diferencian: aviación/aerodinámica, F1, espacio, deporte de resistencia, idiomas.
+- Meta: **ML Engineer** centrado en deep learning e investigación aplicada (en la industria: *ML Engineer*, *Applied Scientist*, *Applied Research Engineer*): "convertir ideas difíciles en sistemas reales". No le atrae AI/LLM Engineer como especialización principal, ni MLOps, ni Data Science (usa los LLM como herramienta).
+- Búsqueda de **prácticas en otoño de 2027** (empiezan en enero de 2028) = búsqueda del primer trabajo. Abierto a Europa (Suiza, Alemania, Reino Unido, Suecia, Francia…) y EE. UU.
+- Idiomas: español nativo · **inglés B2 (Cambridge)**, objetivo C1 tras Woxsen · **francés** en camino al DELF B2 (2027) · alemán desde el verano de 2027.
+- Intereses que diferencian: aviación/aerodinámica, F1, espacio, robótica y sistemas autónomos, visión por computador, deporte híbrido (fuerza + resistencia, camino al Ironman), idiomas.
 - **No inventes** experiencia, empresas, cifras ni certificaciones. Si falta algo, deja `[COMPLETAR]`.
 
 ## Procedimiento

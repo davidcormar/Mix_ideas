@@ -2,7 +2,7 @@
 tipo: informe
 area: 
 estado: borrador
-fecha: {{date}}
+fecha: "{{date}}"
 tags: []
 ---
 # {{título}}
@@ -26,5 +26,7 @@ tags: []
 > - [ ] 
 
 ## Relacionado
-**Sube:** [[ ]]
-**Baja:** —
+
+- **Sube:** [[ ]]
+- **Baja:** [[ ]]
+- **Puentes:** [[ ]]

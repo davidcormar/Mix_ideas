@@ -1,6 +1,6 @@
 # 01 · Skills de Claude para el día a día
 
-12 *Agent Skills* en el formato oficial de Anthropic (carpeta + `SKILL.md` con frontmatter YAML) para que Claude haga, siempre igual y sin repetir instrucciones, las tareas que David repite cada semana.
+13 *Agent Skills* en el formato oficial de Anthropic (carpeta + `SKILL.md` con frontmatter YAML) para que Claude haga, siempre igual y sin repetir instrucciones, las tareas que David repite cada semana.
 
 ## Qué hay
 
@@ -18,6 +18,7 @@
 | `video-a-notas` | "pasa este vídeo a notas de Obsidian" | **Extra** |
 | `revision-habitos-semanal` | "revisa mis hábitos" (10 hábitos, media 7,5) | **Extra** |
 | `cuestionario-dominio` | "hazme un test" (opciones sutiles, todas plausibles) | **Extra** |
+| `revision-carrera` | "revisión de octubre", "¿voy bien en mi carrera?" (chequeo semestral + 5 dimensiones) | **Nueva (de tu Visión Profesional)** |
 
 Más `tools/validar_skills.py`, que valida todas las skills (nombre, descripción, YAML, enlaces rotos) y las empaqueta en `.zip` para subirlas a claude.ai.
 
@@ -51,8 +52,17 @@ Para un solo proyecto: `<proyecto>/.claude/skills/<nombre>/`. Claude Code las de
 
 > [!tip] Las skills de claude.ai y las de Claude Code **no se sincronizan**: instálalas en los dos sitios si las quieres en ambos.
 
+## Cambios tras leer tus visiones (4 nov, mañana)
+- `frances-sesion`: ya no "de cero" → comprensión A2+ / producción A1-A2; **prioridad producción**; estructura repaso → aprender → practicar → apuntar; suelo de 30' con **minutos pendientes que se suman**; discurso de 1 minuto con 10 palabras; aviso de inscripción al DELF desde India.
+- `revision-deportiva-semanal`: atleta híbrido, **estándar 5+ / suelo 3**, 26:47 y meta 26:00, escalera hacia el Ironman.
+- `revisar-gastos`: tu filosofía (sin culpa en hobbies, colecciones y viajes; cazar dinero parado, suscripciones, comisiones e impulsos; hasta 2028 solo ahorro para viajes).
+- `documentos-mi-estilo`: formato real de tus notas (`fecha` entre comillas, áreas `aprendizaje/cuerpo/finanzas/tecnico`, "Resumen en 30 segundos", **Sube/Baja/Puentes** en lista) + plantilla de **visión**.
+- `escribir-como-yo`: guía de estilo **provisional** sacada de tus notas.
+- `linkedin-perfil` y `organizador-diario`: B2 de Cambridge, prácticas en otoño 2027, suelos de deporte y francés.
+- Nueva: `revision-carrera`.
+
 ## Qué está hecho
-- ✅ 7 skills pedidas + 5 extra, todas validadas automáticamente.
+- ✅ 7 skills pedidas + 6 extra, todas validadas automáticamente.
 - ✅ Ficheros de referencia separados (progresión de francés, temario de ML, plantillas de Obsidian) para que el `SKILL.md` sea corto (*progressive disclosure*).
 - ✅ Validador + empaquetador con 5 tests.
 

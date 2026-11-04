@@ -24,7 +24,7 @@ Saca cada cosa nueva como tarea con fecha.
 ## Paso 3 — Priorizar (orden fijo)
 1. **Eventos fijos** (clases, citas, vuelos, exámenes).
 2. **Entregas por fecha y peso** (lo más cercano y lo que más cuenta primero; usa `peso × urgencia`).
-3. **Mínimos de deporte y francés** (sesión de entrenamiento del plan + francés 1 h, o 30' si el día está cargado).
+3. **Mínimos de deporte y francés**: deporte → estándar 5+ sesiones/semana, **suelo 3** (mira cuántas lleva esta semana: si está en riesgo de no llegar a 3, sube de prioridad); francés → 1 h estándar, **suelo 30'**, y si ayer no lo hizo, **se suman los minutos pendientes**.
 4. **Hitos de Fase 0** (miniproyecto F1 → curso de Andrew Ng).
 5. **Resto** (recados, ideas, lectura extra).
 
