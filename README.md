@@ -48,6 +48,8 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 ```
 También se ejecutan en GitHub Actions en cada push (`.github/workflows/tests.yml`).
 
+**Empieza por aquí:** [`GUIA-INICIO.md`](GUIA-INICIO.md) (publicar, instalar en el iPhone, primer uso y qué comprobar).
+
 **Para usarlo todo desde el móvil:** activa GitHub Pages (Settings → Pages → rama principal, carpeta raíz) y abre `https://davidcormar.github.io/Mix_ideas/`: entra directo al Panel de vida (`index.html` de la raíz).
 
 Ver también: [`BITACORA.md`](BITACORA.md) (qué se hizo y cuándo) y [`PARA-DAVID.md`](PARA-DAVID.md) (resumen de la noche).
