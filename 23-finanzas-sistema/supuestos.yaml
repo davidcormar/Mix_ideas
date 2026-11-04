@@ -1,0 +1,19 @@
+# ALL figures are assumptions to edit — not a forecast and not financial advice.
+inicio: "2028-01"             # first salary (internship)
+fin: "2037-12"
+practicas:   { hasta: "2028-06", neto_mes: 800 }
+primer_trabajo: { desde: "2028-07", neto_mes: 1900, subida_anual: 0.05 }   # raise every July
+gastos:
+  con_padres: 450              # €/month while living with parents
+  independiente: 1300          # €/month after moving out
+  independizarse: "2030-01"
+  parte_subida_a_gasto: 0.5    # your principle: at most half of each raise goes to spending
+caprichos_viajes_mes: 150      # guilt-free spending (hobbies, collections, trips)
+fondo_emergencia_meses: { con_padres: 3, independiente: 6 }
+cuenta_remunerada_tae: 0.02
+inversion:
+  rentabilidad_anual: 0.05     # long-run assumption for a global index fund, NOT a promise
+  parte_activa: 0.20           # share of invested money in the active account (your lab)
+metas:
+  coche: { fecha: "2029-07", precio: 9000 }
+  casa:  { fecha: "2036-06", precio: 250000, entrada: 0.30, empezar_anios_antes: 5 }   # principle 4: <3-5 years → savings account

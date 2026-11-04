@@ -1,0 +1,10 @@
+{
+  "nombre": "Aeroficticia S.A. (empresa INVENTADA para practicar)",
+  "unidades": "millones de euros",
+  "datos": {
+    "ingresos": 1200, "coste_ventas": 660, "ebitda": 300, "ebit": 210, "beneficio_neto": 150, "intereses": 20,
+    "activo_total": 2000, "activo_corriente": 700, "pasivo_corriente": 500, "patrimonio_neto": 900,
+    "deuda_financiera": 600, "caja": 150, "flujo_operativo": 260, "capex": 90,
+    "acciones": 100, "precio_accion": 30
+  }
+}

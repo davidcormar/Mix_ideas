@@ -113,3 +113,8 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 
 ## 22 · escalera-ironman (de *Visión Deporte*) — 11:27 → 11:28
 - Hoja de ruta con VDOT por escalón, plan de natación desde cero (Woxsen), semana híbrida con suelo de 3, generador de plan de media maratón (reutiliza 02) con 4 tests.
+
+## 23 · finanzas-sistema (de *Visión Finanzas* y *Habilidades*) — 11:29 → 11:31
+- Simulador mensual de las 4 cuentas con tus principios (fondo, coche al contado 2029, entrada de casa 2036, mitad de cada subida al ahorro), sensibilidad y ahorro extra necesario; calculadora de 13 ratios y guía para leer resultados. 8 tests.
+- **Hallazgo:** con supuestos por defecto la entrada de la casa en 2036 no llega (~490 €/mes extra) y hay tensión con aportar a la jubilación cada mes.
+- **Problema:** un `.replace(",", ".")` para formatear euros rompía las comas del texto → función `eur()`.

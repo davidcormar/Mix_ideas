@@ -31,6 +31,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | **De tus visiones** | | | |
 | 21 | [`21-idiomas-plan/`](21-idiomas-plan/) | App de horas por idioma (suelo de 30' acumulable, proyección al B2, ciclo de 7) + plan de alemán + inglés C1 | ✅ |
 | 22 | [`22-escalera-ironman/`](22-escalera-ironman/) | Escalera media → Ironman con VDOT, aprender a nadar, semana híbrida (estándar 5 / suelo 3) y generador de plan de media | ✅ |
+| 23 | [`23-finanzas-sistema/`](23-finanzas-sistema/) | Simulador de tus 4 cuentas desde el primer sueldo + guía y calculadora para leer resultados de empresas | ✅ |
 
 ## Tests
 
