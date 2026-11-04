@@ -125,3 +125,22 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 ## 25 · habilidades (de la nota *Habilidades*) — 11:34 → 11:37
 - Plan en 5 bloques con primeros pasos y recursos gratuitos/dominio público + app de mecanografía (ES/EN/FR/código) y 25 atajos con repaso espaciado. 4 tests + smoke test.
 - **Problema:** un `mkdir` con llaves anidadas creó una carpeta `{mecanografia` → borrada y recreada. Los TikTok de la nota no se pueden abrir: listas propias, avisado.
+
+---
+
+# Tercera ronda (4 nov, mediodía): apps de tus capturas «Ritmo» y «Paso»
+
+## Plan y especificación — 11:39 → 12:01
+- Capturas analizadas (APP 03/05 *Ritmo* y APP 04/05 *Paso*) y cruzadas con tus visiones y con lo que ya hay en el repo (15-hábitos, 10-gym, 16-nutrición, 21-idiomas, organizador-diario).
+- Plan en [`docs/plan-ritmo-paso.md`](docs/plan-ritmo-paso.md). Un **agente organizador** (solo lectura) escribió la especificación completa en [`docs/spec-ritmo-paso.md`](docs/spec-ritmo-paso.md): modelo de datos, contratos de lectura de las otras apps, protocolo de escritura en `habitos.v1`, regla de deporte compartida, pantallas, criterios de aceptación y tests.
+- **Problema:** los enlaces de TikTok no se pueden abrir desde aquí (dominio bloqueado por la red del entorno) → se trabajó con las capturas.
+
+## 26 · ritmo y 27 · paso — 12:01 → 12:43 (2 agentes ejecutores en paralelo)
+- Cada ejecutor construyó su app en su carpeta, sin tocar git; yo integré y subí.
+- **27-paso:** 35 tests de lógica + smoke test (Apple Health en streaming con un `export.xml` sintético, CSV, raciones con la mano, historial). **Problema:** condición de carrera en el smoke test (comprobaba el texto antes de que se pintara la vista) → espera también al contenido.
+- **26-ritmo:** 55 tests + smoke test; dos tests comprueban contra el código real de 15-hábitos (`validate()`) y 21-idiomas (`pending()`).
+- **Incidencia menor:** los dos ejecutores ejecutaron una vez `git status` (solo lectura), que el encargo prohibía; no cambió nada.
+- Hice un commit intermedio de 26-ritmo mientras el ejecutor seguía puliendo, para no perder trabajo si el contenedor se reciclaba.
+
+## Revisión QA — 12:44 → …
+- Un agente revisor comprueba ambas apps contra la especificación (seguridad de datos entre apps, fechas con el cambio de hora y en hora de India, accesibilidad, primer arranque sin datos, modo oscuro) y corrige.

@@ -63,3 +63,18 @@ Bitácora detallada (horas, problemas): [`BITACORA.md`](BITACORA.md). Índice: [
 **Dos números que conviene que mires:**
 - Francés: a 1 h/día y sin contar el colegio, llegar a ~600 h en junio exige ~165 min/día. Pon tus horas previas en la app (21): con 180 h, ~115 min/día. Tu "muy ambicioso" es literal.
 - Casa en 2036 (supuestos editables): la entrada del 30 % no llega sin ~490 €/mes extra, y hay tensión con aportar a la jubilación cada mes (23).
+
+## Tercera ronda (4 nov, mediodía): tus apps «Ritmo» y «Paso»
+
+Construidas a partir de tus capturas, pero **adaptadas a tus visiones** (no son copias genéricas). Se abren con doble clic o, mejor, desde GitHub Pages (`davidcormar.github.io/Mix_ideas/26-ritmo/` y `/27-paso/`), y en el móvil con «Añadir a pantalla de inicio».
+
+| # | App | Lo que hace por ti |
+|---|---|---|
+| 26 | **Ritmo** | Tu día en bloques con tus franjas (entrenar por la mañana o ≥ 19:00, foco 20-23, evitar 15-17), tareas por prioridad, **revisión nocturna** tarea a tarea (Hecha / Sigue mañana / Nueva fecha / Archivar) con propuesta de bloques para mañana, **mínimos** (deporte suelo 3 / estándar 5, francés 30' acumulables), rutinas Mañana/Noche, recordatorios y `.ics`. Marca tus 10 hábitos **en el mismo almacenamiento que la app 15**, así no apuntas nada dos veces. |
+| 27 | **Paso** | Pasos con anillo y «te faltan N · X km», comidas **sin calorías** (palmas, puños, manos, pulgares de tu guía 16), la **verdura marcada como punto débil** con recetas de verdura escondida, agua en vasos, **importación de Apple Health** (sin contar dos veces iPhone + Watch) y CSV, historial del mes. |
+
+**Cómo se hizo:** un agente organizador escribió la especificación (`docs/spec-ritmo-paso.md`), dos agentes ejecutores construyeron las apps en paralelo y un revisor QA las comprobó. Hay 90 tests de lógica y 2 recorridos completos en navegador con capturas.
+
+**Para que se hablen entre ellas** (Ritmo lee tu gimnasio, idiomas, finanzas y Paso), ábrelas desde GitHub Pages o con Chrome/Edge en local; Firefox aísla cada fichero local. Exporta el JSON de vez en cuando: los datos viven en el navegador.
+
+**Los TikTok** que mandaste no se pueden abrir desde este entorno (el dominio está bloqueado por la red). Si quieres que los use, pega el texto o la descripción, o permite `tiktok.com` en los ajustes de red del entorno.
