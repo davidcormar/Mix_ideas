@@ -35,6 +35,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 24 | [`24-carrera-practicas/`](24-carrera-practicas/) | Mapa de empresas (F1, espacio, IA, Galicia), calendario a ene-2028, CV ML y 32 preguntas de entrevista en inglés | 💡 |
 | 25 | [`25-habilidades/`](25-habilidades/) | Plan de habilidades (retórica, estoicismo, móvil antidopamina…) + app de mecanografía y atajos | ✅ |
 | **De tus capturas** | | | |
+| 26 | [`26-ritmo/`](26-ritmo/) | Organizador de hábitos y rutinas: bloques del día con tus franjas, revisión nocturna, mínimos de deporte y francés, rutinas, comparte hábitos con 15 | ✅ |
 | 27 | [`27-paso/`](27-paso/) | Pasos y comidas sin calorías: anillo de pasos, raciones con la mano (verdura = punto débil), agua, importación de Apple Health/CSV, historial del mes | ✅ |
 
 ## Tests

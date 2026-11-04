@@ -9,7 +9,7 @@ for d in 01-claude-skills 02-running-tools 03-ml-andrew-ng 06-tunel-viento-neuro
     (cd "$d" && python -m pytest -q tests) || fail=1
   fi
 done
-for d in 10-gym-tracker 11-finanzas 12-mapa-viajes 15-habitos 21-idiomas-plan 25-habilidades/mecanografia 27-paso; do
+for d in 10-gym-tracker 11-finanzas 12-mapa-viajes 15-habitos 21-idiomas-plan 25-habilidades/mecanografia 26-ritmo 27-paso; do
   echo "== node --test $d"
   (cd "$d" && node --test tests/*.test.js >/dev/null && echo ok) || { echo "FAIL $d"; fail=1; }
 done
