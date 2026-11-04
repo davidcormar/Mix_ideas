@@ -27,4 +27,11 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 18 | [`18-servidor-casa/`](18-servidor-casa/) | Guía mini PC + Ubuntu + Docker + Tailscale + restic, servicios y docker-compose | 💡 |
 | 19 | [`19-londres/`](19-londres/) | Itinerario ~300 €, transporte, museos gratis y ruta GPX de 7 km por Hyde Park | ✅ |
 
+## Tests
+
+```bash
+./ejecutar_tests.sh   # ~60 tests Python + Node de todas las carpetas
+```
+También se ejecutan en GitHub Actions en cada push (`.github/workflows/tests.yml`).
+
 Ver también: [`BITACORA.md`](BITACORA.md) (qué se hizo y cuándo) y [`PARA-DAVID.md`](PARA-DAVID.md) (resumen de la noche).
