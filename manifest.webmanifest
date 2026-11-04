@@ -1,7 +1,10 @@
 {
+  "id": "./28-panel-vida/",
   "name": "Panel de vida",
   "short_name": "Vida",
   "lang": "es",
+  "dir": "ltr",
+  "description": "Tu vida en una pantalla: sueño, móvil, lectura, metas y revisión semanal, con tus apps del repo.",
   "start_url": "./28-panel-vida/",
   "scope": "./",
   "display": "standalone",
@@ -11,13 +14,20 @@
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
