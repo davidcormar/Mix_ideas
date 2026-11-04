@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Paso: pasos, raciones con la mano (sin calorías), agua y actividad de la semana.">
+<title>Paso · Hoy</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231E2320'/%3E%3Cpath d='M12 24V8h5.2a4.8 4.8 0 0 1 0 9.6H12' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-hoy" viewBox="0 0 24 24"><polyline points="3 12 7 12 10 5 14 19 17 12 21 12"/></symbol>
+  <symbol id="i-act" viewBox="0 0 24 24"><path d="M5 20v-7M10 20V6M15 20v-9M20 20V4"/></symbol>
+  <symbol id="i-com" viewBox="0 0 24 24"><path d="M6 3v6a2 2 0 0 0 4 0V3M8 11v10M17 21V3c-2.2 1.4-3 4-3 7v3h3"/></symbol>
+  <symbol id="i-his" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-aju" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2.5h-15z"/><path d="M10 21a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-tick" viewBox="0 0 24 24"><polyline points="5 12.5 10 17 19 7"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><polyline points="15 5 8 12 15 19"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><polyline points="9 5 16 12 9 19"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo" aria-hidden="true">P</span><span>Paso</span></div>
+    <nav class="side-nav" aria-label="Secciones">
+      <a href="#/hoy" data-nav="hoy"><svg class="ico" aria-hidden="true"><use href="#i-hoy"/></svg>Hoy</a>
+      <a href="#/actividad" data-nav="actividad"><svg class="ico" aria-hidden="true"><use href="#i-act"/></svg>Actividad</a>
+      <a href="#/comidas" data-nav="comidas"><svg class="ico" aria-hidden="true"><use href="#i-com"/></svg>Comidas</a>
+      <a href="#/historial" data-nav="historial"><svg class="ico" aria-hidden="true"><use href="#i-his"/></svg>Historial</a>
+    </nav>
+    <section aria-labelledby="goalsTitle">
+      <h2 class="side-title" id="goalsTitle">Objetivos</h2>
+      <ul class="goals" id="sideGoals"></ul>
+    </section>
+    <div class="side-bottom">
+      <div class="side-card" id="weekMet"></div>
+      <a href="#/ajustes" class="side-link" data-nav="ajustes"><svg class="ico" aria-hidden="true"><use href="#i-aju"/></svg>Ajustes y datos</a>
+    </div>
+  </aside>
+
+  <main id="main" tabindex="-1">
+    <header class="page-head" id="pageHead"></header>
+    <div id="banner"></div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Secciones">
+  <a href="#/hoy" data-nav="hoy"><svg class="ico" aria-hidden="true"><use href="#i-hoy"/></svg>Hoy</a>
+  <a href="#/actividad" data-nav="actividad"><svg class="ico" aria-hidden="true"><use href="#i-act"/></svg>Actividad</a>
+  <a href="#/comidas" data-nav="comidas"><svg class="ico" aria-hidden="true"><use href="#i-com"/></svg>Comidas</a>
+  <a href="#/historial" data-nav="historial"><svg class="ico" aria-hidden="true"><use href="#i-his"/></svg>Historial</a>
+  <a href="#/ajustes" data-nav="ajustes"><svg class="ico" aria-hidden="true"><use href="#i-aju"/></svg>Ajustes</a>
+</nav>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<dialog id="mealDialog" aria-labelledby="mealDialogTitle">
+  <form id="mealForm" novalidate>
+    <header class="dlg-head">
+      <h2 id="mealDialogTitle">Añadir comida</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Cerrar">✕</button>
+    </header>
+    <div class="dlg-body">
+      <div class="form-grid">
+        <label class="field">Comida
+          <select id="mSlot"></select>
+        </label>
+        <label class="field">Hora
+          <input type="time" id="mTime">
+        </label>
+        <label class="field full">Qué has comido
+          <input type="text" id="mDesc" maxlength="140" placeholder="p. ej. Pollo, arroz y verdura" autocomplete="off">
+        </label>
+        <label class="field full">Receta con verdura escondida
+          <select id="mRecipe"></select>
+        </label>
+      </div>
+      <p class="hint" id="mDateHint"></p>
+      <div class="steppers" id="mSteppers"></div>
+      <p class="hint">Raciones con la mano: no hace falta pesar ni contar calorías. Medias raciones (0,5) valen.</p>
+    </div>
+    <footer class="dlg-foot">
+      <button type="button" class="btn danger" id="mDelete">Borrar</button>
+      <span class="grow"></span>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn primary" id="mSave">Guardar</button>
+    </footer>
+  </form>
+</dialog>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

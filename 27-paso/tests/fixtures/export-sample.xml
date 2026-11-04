@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HealthData [
+<!-- Synthetic sample in the shape of an Apple Health export.xml. No real personal data. -->
+<!ELEMENT HealthData (ExportDate,Me,(Record|Correlation|Workout|ActivitySummary)*)>
+<!ATTLIST Record
+  type          CDATA #REQUIRED
+  sourceName    CDATA #REQUIRED
+  value         CDATA #IMPLIED>
+]>
+<HealthData locale="es_ES">
+ <ExportDate value="2026-11-04 18:00:00 +0100"/>
+ <Me HKCharacteristicTypeIdentifierDateOfBirth="" HKCharacteristicTypeIdentifierBiologicalSex="HKBiologicalSexNotSet"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" sourceVersion="18.1" device="&lt;&lt;HKDevice: 0x0&gt;, name:iPhone, manufacturer:Apple Inc.&gt;" unit="count" creationDate="2026-10-25 01:45:00 +0200" startDate="2026-10-25 01:30:00 +0200" endDate="2026-10-25 01:40:00 +0200" value="1200"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch de prueba" sourceVersion="11.1" unit="count" creationDate="2026-10-25 01:45:00 +0200" startDate="2026-10-25 01:30:00 +0200" endDate="2026-10-25 01:40:00 +0200" value="1100"/>
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch de prueba" unit="count/min" creationDate="2026-10-25 10:00:00 +0100" startDate="2026-10-25 10:00:00 +0100" endDate="2026-10-25 10:00:00 +0100" value="62"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="2026-10-25 18:31:00 +0100" startDate="2026-10-25 18:00:00 +0100" endDate="2026-10-25 18:30:00 +0100" value="3000"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch de prueba" sourceVersion="11.1" unit="count" creationDate="2026-10-25 18:31:00 +0100" startDate="2026-10-25 18:00:00 +0100" endDate="2026-10-25 18:30:00 +0100" value="2800">
+  <MetadataEntry key="HKMetadataKeySyncVersion" value="2"/>
+  <MetadataEntry key="HKMetadataKeySyncIdentifier" value="abc"/>
+ </Record>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="2026-10-25 23:59:00 +0100" startDate="2026-10-25 23:55:00 +0100" endDate="2026-10-26 00:10:00 +0100" value="300"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="2026-10-25 20:00:00 +0100" startDate="2026-10-25 20:00:00 +0100" endDate="2026-10-25 20:05:00 +0100" value="abc"/>
+ <Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="40" sourceName="Apple Watch de prueba" startDate="2026-10-26 07:00:00 +0100" endDate="2026-10-26 07:40:00 +0100"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" sourceVersion="18.1 > beta" unit="count" creationDate="2026-10-26 08:20:00 +0100" startDate="2026-10-26 08:00:00 +0100" endDate="2026-10-26 08:15:00 +0100" value="2500"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch de prueba" unit="count" creationDate="2026-10-26 08:20:00 +0100" startDate="2026-10-26 08:00:00 +0100" endDate="2026-10-26 08:15:00 +0100" value="2600"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="2026-10-26 12:20:00 +0100" startDate="2026-10-26 12:00:00 +0100" endDate="2026-10-26 12:15:00 +0100" value="1000"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch de prueba" unit="count" creationDate="2026-10-26 12:20:00 +0100" startDate="2026-10-26 12:00:00 +0100" endDate="2026-10-26 12:15:00 +0100" value="1500"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="B&#xE1;scula &amp; Co" unit="count" creationDate="2026-10-26 09:00:00 +0100" startDate="2026-10-26 09:00:00 +0100" endDate="2026-10-26 09:01:00 +0100" value="50"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="2026-10-26 13:00:00 +0100" startDate="2026-10-26 13:00:00 +0100" endDate="2026-10-26 13:05:00 +0100" value="-5"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" unit="count" creationDate="fecha-rota" startDate="fecha-rota" endDate="fecha-rota" value="40"/>
+ <RecordFake type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de prueba" startDate="2026-10-26 14:00:00 +0100" value="999"/>
+ <ActivitySummary dateComponents="2026-10-26" activeEnergyBurned="0" appleExerciseTime="40"/>
+</HealthData>
