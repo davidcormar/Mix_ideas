@@ -76,3 +76,6 @@ Horas en hora de Madrid (CET).
 
 ## 17 · sistema-claude — 01:02 → 01:02
 - Documento de diseño (arquitectura, memoria en capas, conexiones, rutinas, qué automatizar, 5 fases, riesgos) + plantillas de instrucciones del Proyecto y TASKS.md.
+
+## 18 · servidor-casa — 01:03 → 01:03
+- Guía completa (hardware, consumo, SO endurecido, Docker, Tailscale, servicios, copias 3-2-1, plan de 4 fines de semana) + docker-compose validados y script de backup.

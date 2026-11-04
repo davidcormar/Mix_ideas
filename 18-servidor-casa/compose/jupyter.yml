@@ -1,0 +1,13 @@
+# ~/servicios/jupyter/docker-compose.yml
+# Jupyter Lab with the scientific stack. Access via Tailscale: http://<server>:8888
+services:
+  jupyter:
+    image: quay.io/jupyter/scipy-notebook:latest
+    container_name: jupyter
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./work:/home/jovyan/work
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN}   # put a long random token in .env (never commit .env)
