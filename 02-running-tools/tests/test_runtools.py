@@ -109,3 +109,10 @@ def test_ics_valid():
     ics = plan.to_ics(plan.build_plan())
     assert ics.startswith("BEGIN:VCALENDAR\r\n") and ics.endswith("END:VCALENDAR\r\n")
     assert ics.count("BEGIN:VEVENT") == ics.count("END:VEVENT") == len(plan.build_plan())
+
+
+def test_plan_labels_follow_goal():
+    p = plan.build_plan(1607, 1560)
+    assert p[-1].title == "🎯 5K < 26:00"
+    assert "Plan 5K < 26:00" in plan.to_markdown(p, 1607, 1560)
+    assert "sub-26:00" in plan.to_ics(p, 1560)

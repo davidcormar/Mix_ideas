@@ -1,4 +1,4 @@
-"""Training plan 9 Nov -> 28 Dec 2026 towards a sub-27:00 5K, exported to Markdown and iCalendar."""
+"""Training plan 9 Nov -> 28 Dec 2026 towards a 5K goal (default: sub-26:00 after the 26:47 of 3 Nov), exported to Markdown and iCalendar."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -25,7 +25,7 @@ def _p(sec: float) -> str:
     return fmt_pace(sec)
 
 
-def build_plan(current_5k_s: float = 1678, goal_5k_s: float = 1620) -> list[Session]:
+def build_plan(current_5k_s: float = 1607, goal_5k_s: float = 1560) -> list[Session]:
     v_now = vd.vdot(5000, current_5k_s)
     v_goal = vd.vdot(5000, goal_5k_s)
     pn = vd.training_paces(v_now)
@@ -77,7 +77,7 @@ def build_plan(current_5k_s: float = 1678, goal_5k_s: float = 1620) -> list[Sess
     add(Session(W(6) + timedelta(4), "rodaje", "Activación 20' + 4 rectas", f"20' muy suave + 4×100 m a ritmo 5K ({_p(goal_pace)})", 25, hour=10))
     add(Session(W(6) + timedelta(6), "rodaje", "Rodaje 25' suave", f"25' a {e}", 25, hour=10))
     # --- Race day
-    add(Session(RACE, "test", "🎯 5K < 27:00", f"Calentar 15' + 4 rectas · salir a {_p(goal_pace)} los 2 primeros km, apretar desde el 3", 45, hour=10))
+    add(Session(RACE, "test", f"🎯 5K < {fmt_time(goal_5k_s)}", f"Calentar 15' + 4 rectas · salir a {_p(goal_pace)} los 2 primeros km, apretar desde el 3", 45, hour=10))
     return sorted(S, key=lambda s: s.day)
 
 
@@ -88,10 +88,10 @@ WEEK_NOTES = {
 DAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
 
-def to_markdown(plan: list[Session], current_5k_s: float = 1678, goal_5k_s: float = 1620) -> str:
+def to_markdown(plan: list[Session], current_5k_s: float = 1607, goal_5k_s: float = 1560) -> str:
     v_now, v_goal = vd.vdot(5000, current_5k_s), vd.vdot(5000, goal_5k_s)
     out = [
-        "# Plan 5K < 27:00 · 9 nov → 28 dic 2026", "",
+        f"# Plan 5K < {fmt_time(goal_5k_s)} · 9 nov → 28 dic 2026", "",
         f"- Marca actual: **{fmt_time(current_5k_s)}** → VDOT {v_now:.1f}",
         f"- Objetivo: **{fmt_time(goal_5k_s)}** → VDOT {v_goal:.1f} (ritmo {fmt_pace(goal_5k_s / 5)})",
         "- Ritmos fáciles con el VDOT actual; series al ritmo del VDOT objetivo.",
@@ -114,10 +114,10 @@ def _ics_escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
-def to_ics(plan: list[Session]) -> str:
+def to_ics(plan: list[Session], goal_5k_s: float = 1560) -> str:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mix_ideas//runtools//ES", "CALSCALE:GREGORIAN",
-             "X-WR-CALNAME:Plan 5K sub-27", "X-WR-TIMEZONE:Europe/Madrid"]
+             f"X-WR-CALNAME:Plan 5K sub-{fmt_time(goal_5k_s)}", "X-WR-TIMEZONE:Europe/Madrid"]
     for i, s in enumerate(plan):
         start = datetime(s.day.year, s.day.month, s.day.day, s.hour, 0)
         end = start + timedelta(minutes=s.minutes)
