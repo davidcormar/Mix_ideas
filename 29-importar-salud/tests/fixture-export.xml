@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Datos inventados para los tests -->
+<HealthData locale="es_ES">
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de Prueba" unit="count" startDate="2026-11-03 09:00:00 +0100" endDate="2026-11-03 09:10:00 +0100" value="4000"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone de Prueba" unit="count" startDate="2026-11-03 18:00:00 +0100" endDate="2026-11-03 18:10:00 +0100" value="3000"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch de Prueba" unit="count" startDate="2026-11-03 09:00:00 +0100" endDate="2026-11-03 09:10:00 +0100" value="7500"><MetadataEntry key="x" value="y"/></Record>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch de Prueba" startDate="2026-11-03 23:20:00 +0100" endDate="2026-11-03 23:40:00 +0100" value="HKCategoryValueSleepAnalysisInBed"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch de Prueba" startDate="2026-11-03 23:40:00 +0100" endDate="2026-11-04 03:00:00 +0100" value="HKCategoryValueSleepAnalysisAsleepCore"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch de Prueba" startDate="2026-11-04 03:00:00 +0100" endDate="2026-11-04 03:10:00 +0100" value="HKCategoryValueSleepAnalysisAwake"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch de Prueba" startDate="2026-11-04 03:10:00 +0100" endDate="2026-11-04 07:25:00 +0100" value="HKCategoryValueSleepAnalysisAsleepDeep"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Bevel" startDate="2026-11-04 00:30:00 +0100" endDate="2026-11-04 06:00:00 +0100" value="HKCategoryValueSleepAnalysisAsleepUnspecified"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch de Prueba" startDate="2026-11-04 16:00:00 +0100" endDate="2026-11-04 16:30:00 +0100" value="HKCategoryValueSleepAnalysisAsleepCore"/>
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch de Prueba" startDate="2026-11-04 10:00:00 +0100" endDate="2026-11-04 10:00:00 +0100" value="58"/>
+ <Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="32.5" durationUnit="min" sourceName="Strava" startDate="2026-11-04 18:12:00 +0100" endDate="2026-11-04 18:45:00 +0100">
+  <WorkoutStatistics type="HKQuantityTypeIdentifierDistanceWalkingRunning" startDate="2026-11-04 18:12:00 +0100" endDate="2026-11-04 18:45:00 +0100" sum="5.12" unit="km"/>
+ </Workout>
+ <Workout workoutActivityType="HKWorkoutActivityTypeTraditionalStrengthTraining" duration="3600" durationUnit="s" sourceName="Apple Watch de Prueba" startDate="2026-11-03 19:00:00 +0100" endDate="2026-11-03 20:00:00 +0100"/>
+ <Workout workoutActivityType="HKWorkoutActivityTypeSwimming" duration="40" durationUnit="min" totalDistance="1500" totalDistanceUnit="m" sourceName="Apple Watch de Prueba" startDate="2026-11-02 07:00:00 +0100" endDate="2026-11-02 07:40:00 +0100"/>
+</HealthData>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Importar salud</title>
+<link rel="stylesheet" href="../28-panel-vida/styles.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; }
+  .drop { border: 1.5px dashed var(--line); border-radius: var(--r-md); padding: 14px; text-align: center; margin-top: 12px; }
+  .drop input { max-width: 100%; }
+  .prog { height: 6px; background: var(--surface-2); border-radius: 9px; overflow: hidden; margin-top: 8px; }
+  .prog i { display: block; height: 100%; background: var(--accent); width: 0; }
+  .wk { display: flex; gap: 8px; align-items: center; font-size: 13px; flex-wrap: wrap; }
+  .wk + .wk { margin-top: 4px; }
+  ol.steps-guide { padding-left: 20px; font-size: 14px; display: grid; gap: 4px; margin: 10px 0 0; }
+  @media (max-width: 820px) { main { padding-bottom: 32px; } }
+</style>
+</head>
+<body>
+<main id="main" tabindex="-1">
+  <header class="head"><div><p class="eyebrow"><a href="../28-panel-vida/">← Panel de vida</a></p><h1><b>Importar salud</b></h1>
+    <p class="muted" style="margin-top:4px">Pasos, sueño y entrenos desde el iPhone, Apple Health y Strava. Se guardan en <b>Paso</b> (pasos y entrenos) y en el <b>Panel</b> (sueño).</p></div></header>
+  <div class="grid">
+    <section class="card c4"><h2>📲 Atajo del iPhone</h2><p class="sub">Lo de hoy en 1 toque: pasos y sueño.</p>
+      <div class="actions"><button class="btn primary" id="paste">Pegar del Atajo</button></div>
+      <label class="field" style="margin-top:12px">…o pega aquí el texto<textarea id="scText" rows="3" placeholder="d=2026-11-04;steps=8420;bed=23:40;wake=07:25"></textarea></label>
+      <div class="actions"><button class="btn small" id="scRead">Leer texto</button></div>
+      <details class="help"><summary>Cómo crear el Atajo (5 min, una vez)</summary><a href="ATAJO-IPHONE.md">Guía paso a paso</a>. El Atajo copia una línea como la del ejemplo; luego abres esta página y pulsas «Pegar del Atajo».</details>
+    </section>
+    <section class="card c4"><h2>❤️ Apple Health</h2><p class="sub">Todo tu historial: pasos, sueño (Watch, Bevel…) y entrenos.</p>
+      <div class="drop"><input type="file" id="xmlFile" accept=".xml,text/xml" aria-label="Elegir export.xml"></div>
+      <div class="prog" hidden id="xmlProg"><i></i></div><p class="faint" id="xmlInfo" style="margin-top:6px"></p>
+      <details class="help"><summary>¿De dónde saco el export.xml?</summary>iPhone → Salud → tu foto → <i>Exportar todos los datos de salud</i>. Descomprime <code>export.zip</code> y elige <code>apple_health_export/export.xml</code>. Se lee por trozos, aunque pese varios GB.</details>
+    </section>
+    <section class="card c4"><h2>🟧 Strava</h2><p class="sub">Tus actividades, aunque no estén en Salud.</p>
+      <div class="drop"><input type="file" id="csvFile" accept=".csv,text/csv" aria-label="Elegir activities.csv"></div>
+      <p class="faint" id="csvInfo" style="margin-top:6px"></p>
+      <details class="help"><summary>¿De dónde saco el CSV?</summary>strava.com → Ajustes → Mi cuenta → <i>Descargar o eliminar tu cuenta</i> → «Solicitar archivo». Te llega un zip por email con <code>activities.csv</code>. Si Strava ya escribe en Salud, no hace falta: el mismo entreno no se cuenta dos veces.</details>
+    </section>
+    <section class="card c12" id="previewCard" hidden><h2>Vista previa <span class="right" id="pvCount"></span></h2>
+      <div class="table-wrap"><table class="t"><thead><tr><th>Día</th><th>Pasos</th><th>Sueño</th><th>Entrenos (marca los que cuentan como sesión)</th></tr></thead><tbody id="pvBody"></tbody></table></div>
+      <label class="check" style="margin-top:12px"><input type="checkbox" id="overwrite"> Sustituir también los días que apunté a mano (pasos en Paso, sueño en el Panel)</label>
+      <div class="actions"><button class="btn primary" id="doImport">Importar</button><button class="btn" id="clear">Descartar</button><span class="faint" id="pvNote"></span></div>
+    </section>
+    <section class="card c12"><h2>Cómo encaja con tus apps</h2><div class="rows" style="font-size:14px">
+      <p>• <b>Pasos:</b> se usa la fuente mayor de cada día (iPhone y Watch no se suman). Los días que escribiste a mano en Paso no se tocan salvo que marques la casilla.</p>
+      <p>• <b>Entrenos:</b> carrera, natación, bici y cardio entran en Paso como sesiones (cuentan para tu suelo de 3). <b>Fuerza</b> sale desmarcada porque ya la apuntas en Gym Tracker; márcala si un día no lo hiciste. Un entreno que esté en Strava y en Salud cuenta una vez, y uno que ya esté en Paso no se duplica.</p>
+      <p>• <b>Sueño:</b> por noche (el día en que te levantas), con la fuente que más sueño registró (Watch, Bevel…). Va al Panel de vida.</p>
+      <p>• <b>Bevel:</b> su recuperación y su esfuerzo no salen de Salud; apúntalos en <a href="../28-panel-vida/#/hoy">Panel → Hoy</a>.</p>
+    </div></section>
+  </div>
+</main>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="../27-paso/logic.js"></script>
+<script src="../28-panel-vida/logic.js"></script>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
