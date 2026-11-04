@@ -95,3 +95,14 @@ Construidas a partir de tus capturas, pero **adaptadas a tus visiones** (no son 
 - **Sin conexión:** las 10 apps abren sin internet una vez visitadas en GitHub Pages; instálalas desde Safari (Compartir → Añadir a pantalla de inicio).
 - **Ojo en el iPhone:** una web instalada en la pantalla de inicio guarda sus datos aparte de Safari. Usa siempre la versión instalada (y «Pegar del Atajo», no la URL).
 - **Pendiente:** la sincronización móvil ↔ ordenador con tu servidor de casa.
+
+## Último día: pequeños extras (todos con tests)
+| Dónde | Qué |
+|---|---|
+| Panel → inicio | Aviso si tu copia de seguridad tiene más de 7 días (o nunca hiciste una) |
+| Panel → Hoy | Meditación (minutos y racha; también llega de «Mindfulness» de Salud), recuperación y esfuerzo de Bevel, racha de «0 redes antes de las 14:00», «hace un mes / hace un año» de tu diario |
+| Panel → Semana y Mes | «Copiar resumen» en Markdown para pegar en Obsidian |
+| Paso → Comidas | Filtro 🇮🇳 India con 8 platos y raciones con la mano para Woxsen |
+| Ritmo y Paso → Ajustes | Enlace a la copia de seguridad de todas las apps |
+
+**Siguiente paso:** [`GUIA-INICIO.md`](GUIA-INICIO.md). **Pendiente:** sincronizar móvil ↔ ordenador con tu servidor de casa.
