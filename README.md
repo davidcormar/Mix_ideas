@@ -21,7 +21,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 12 | [`12-mapa-viajes/`](12-mapa-viajes/) | Leaflet + OSM: lugares visitados/por visitar, viajes con rutas, km y fotos | ✅ |
 | 13 | [`13-india-woxsen/`](13-india-woxsen/) | Checklist hasta el 6-ene, visado, vacunas, dinero, SIM, guía de Hyderabad y presupuesto | 💡 |
 | 14 | [`14-portfolio-linkedin/`](14-portfolio-linkedin/) | README de perfil GitHub, portfolio HTML, LinkedIn ES/EN, plantilla de referentes | 💡 |
-| 15 | `15-habitos/` | Tracker de hábitos | ⏳ |
+| 15 | [`15-habitos/`](15-habitos/) | Hoja A4 en PDF por mes + app digital con media, rachas y hábito más flojo | ✅ |
 | 16 | `16-nutricion/` | Nutrición sin contar calorías | ⏳ |
 | 17 | `17-sistema-claude/` | Diseño del "agentic OS" | ⏳ |
 | 18 | `18-servidor-casa/` | Servidor en casa | ⏳ |

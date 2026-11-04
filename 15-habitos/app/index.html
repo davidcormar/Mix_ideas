@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hábitos</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --mute:#6b7280; --line:#e5e7eb; --acc:#4f46e5; --ok:#16a34a; --bad:#dc2626; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --ink:#e8eaed; --mute:#9aa0a6; --line:#2a2f37; --acc:#818cf8; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:1100px; margin:0 auto; padding:12px 16px 60px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; }
+  .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  button, input { font:inherit; color:inherit; }
+  button { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 12px; cursor:pointer; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; font-size:13px; }
+  th, td { border-bottom:1px solid var(--line); padding:2px; text-align:center; }
+  th.h, td.h { text-align:left; white-space:nowrap; padding-right:8px; position:sticky; left:0; background:var(--card); z-index:1; }
+  td.c { width:26px; height:26px; cursor:pointer; user-select:none; }
+  td.c.on { background:var(--ok); color:#fff; border-radius:6px; }
+  td.c.today { outline:2px solid var(--acc); outline-offset:-2px; border-radius:6px; }
+  td.fut { opacity:.35; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; }
+  .kpi { font-size:22px; font-weight:700; }
+  .muted { color:var(--mute); font-size:13px; }
+  .good { color:var(--ok); } .badc { color:var(--bad); }
+  h1 { font-size:18px; margin:4px 0 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>✅ Hábitos</h1>
+  <div class="card bar">
+    <button id="prev">◀</button><input id="month" type="month" style="padding:7px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"><button id="next">▶</button>
+    <span style="flex:1"></span>
+    <button id="export">Exportar JSON</button><button id="importBtn">Importar JSON</button><input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="card scroll"><table id="grid"></table></div>
+  <div class="card"><b>Por hábito</b><div class="scroll"><table id="per" style="width:100%"></table></div></div>
+  <p class="muted">Toca una casilla para marcar/desmarcar. Datos en este navegador (localStorage). Objetivo: media ≥ 7,5.</p>
+</main>
+<script src="logic.js"></script>
+<script>
+(function () {
+  const H = window.HabitLogic, KEY = "habitos.v1", GOAL = 7.5;
+  const $ = (s) => document.querySelector(s);
+  const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+  let data; try { data = H.validate(JSON.parse(localStorage.getItem(KEY))); } catch { data = { habits: H.HABITS, months: {} }; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {} };
+  $("#month").value = today().slice(0, 7);
+  const shift = (k) => { const [y, m] = $("#month").value.split("-").map(Number); const d = new Date(y, m - 1 + k, 1); $("#month").value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; render(); };
+  $("#prev").onclick = () => shift(-1); $("#next").onclick = () => shift(1); $("#month").onchange = render;
+
+  function render() {
+    const ym = $("#month").value, month = (data.months[ym] ||= {}), n = H.daysIn(ym), t = today();
+    const el = H.elapsedDays(ym, t), s = H.stats(month, data.habits.length, ym, t, GOAL);
+    let html = `<tr><th class="h"></th>${Array.from({ length: n }, (_, i) => `<th>${i + 1}</th>`).join("")}</tr>`;
+    data.habits.forEach((name, h) => {
+      html += `<tr><td class="h">${name}</td>` + Array.from({ length: n }, (_, i) => {
+        const d = i + 1, on = H.isDone(month, h, d);
+        const cls = ["c", on ? "on" : "", ym === t.slice(0, 7) && d === Number(t.slice(8)) ? "today" : "", d > el ? "fut" : ""].join(" ");
+        return `<td class="${cls}" data-h="${h}" data-d="${d}">${on ? "✓" : ""}</td>`;
+      }).join("") + "</tr>";
+    });
+    html += `<tr><td class="h"><b>Total</b></td>${Array.from({ length: n }, (_, i) => { const v = s.daily[i]; return `<td class="${v === undefined ? "" : v >= GOAL ? "good" : "badc"}"><b>${v ?? ""}</b></td>`; }).join("")}</tr>`;
+    $("#grid").innerHTML = html;
+    $("#kpis").innerHTML = `
+      <div class="card"><div class="muted">Media diaria</div><div class="kpi ${s.mean >= GOAL ? "good" : "badc"}">${s.mean.toFixed(1).replace(".", ",")}</div><div class="muted">objetivo 7,5</div></div>
+      <div class="card"><div class="muted">Días ≥ objetivo</div><div class="kpi">${s.daysOnGoal}/${s.days}</div></div>
+      <div class="card"><div class="muted">Hábito más flojo</div><div class="kpi" style="font-size:16px">${s.days ? data.habits[s.weakest.h] : "—"}</div><div class="muted">${s.days ? Math.round(s.weakest.pct * 100) + " %" : ""}</div></div>
+      <div class="card"><div class="muted">Mejor racha activa</div><div class="kpi">${Math.max(0, ...s.perHabit.map((p) => p.current))} días</div></div>`;
+    $("#per").innerHTML = `<tr><th class="h">Hábito</th><th>%</th><th>Hechos</th><th>Racha actual</th><th>Mejor racha</th></tr>` +
+      s.perHabit.map((p) => `<tr><td class="h">${data.habits[p.h]}</td><td>${Math.round(p.pct * 100)}%</td><td>${p.done}</td><td>${p.current}</td><td>${p.best}</td></tr>`).join("");
+  }
+  $("#grid").addEventListener("click", (ev) => {
+    const td = ev.target.closest("td.c"); if (!td) return;
+    H.toggle(data.months[$("#month").value], Number(td.dataset.h), Number(td.dataset.d)); save(); render();
+  });
+  $("#export").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })); a.download = `habitos-${today()}.json`; a.click(); };
+  $("#importBtn").onclick = () => $("#importFile").click();
+  $("#importFile").onchange = async (ev) => { const f = ev.target.files[0]; if (!f) return; try { data = H.validate(JSON.parse(await f.text())); data.habits ||= H.HABITS; save(); render(); } catch (e) { alert("Error: " + e.message); } ev.target.value = ""; };
+  render();
+})();
+</script>
+</body>
+</html>
