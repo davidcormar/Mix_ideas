@@ -22,6 +22,8 @@
 
 **Running:** corre antes de las 8:00 o después de la puesta de sol; hidrata con sales; el campus suele ser lo más seguro y tranquilo para entrenar.
 
+**Bloque de entrenamiento (tu Visión Deporte):** Woxsen es tu bloque intenso de fuerza + resistencia. Pregunta nada más llegar si hay **piscina**: es el momento de **aprender a nadar** (plan en `22-escalera-ironman/`).
+
 ## Moverse
 - **Uber, Ola y Rapido** (taxi, auto-rickshaw y moto-taxi): precio fijado en la app, la opción más fácil.
 - **Hyderabad Metro**: rápido y barato para moverse en la ciudad.

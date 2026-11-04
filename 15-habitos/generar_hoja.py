@@ -32,7 +32,7 @@ def month_days(year: int, month: int) -> list[tuple[int, str]]:
     return [(d, DIAS[calendar.weekday(year, month, d)]) for d in range(1, n + 1)]
 
 
-def build(year: int, month: int, habits: list[str], goal: float, out: Path) -> Path:
+def build(year: int, month: int, habits: list[str], goal: float, out: Path, objectives: list[str] | None = None) -> Path:
     days = month_days(year, month)
     nd, nh = len(days), len(habits)
     fig = plt.figure(figsize=(11.69, 8.27))  # A4 landscape (inches)
@@ -44,6 +44,11 @@ def build(year: int, month: int, habits: list[str], goal: float, out: Path) -> P
     ax.set_ylim(H, 0)
     ax.axis("off")
     fig.text(0.02, 0.94, f"Hábitos · {MESES[month]} {year}", fontsize=20, weight="bold")
+    objs = (list(objectives or []) + ["", "", ""])[:3]
+    fig.text(0.40, 0.955, "3 objetivos del mes:", fontsize=9, weight="bold")
+    for k, o in enumerate(objs):
+        txt = strip_emoji(o) if o else "_" * 34
+        fig.text(0.52, 0.955 - k * 0.022, f"{k + 1}. ☐ {txt}", fontsize=8.5, color="#333")
     fig.text(0.98, 0.94, f"Objetivo: media ≥ {str(goal).replace('.', ',')}/{nh} al día", fontsize=11, ha="right", color="#555")
     # header
     for i, (d, wd) in enumerate(days):
@@ -82,7 +87,8 @@ def main() -> None:
     ap.add_argument("--config", type=Path, default=HERE / "habitos.yaml")
     a = ap.parse_args()
     cfg = yaml.safe_load(a.config.read_text(encoding="utf-8"))
-    out = build(a.year, a.month, cfg["habitos"], cfg.get("objetivo_media", 7.5), HERE / "hojas" / f"habitos-{a.year}-{a.month:02d}.pdf")
+    out = build(a.year, a.month, cfg["habitos"], cfg.get("objetivo_media", 7.5),
+                HERE / "hojas" / f"habitos-{a.year}-{a.month:02d}.pdf", cfg.get("objetivos_mes"))
     print("→", out)
 
 

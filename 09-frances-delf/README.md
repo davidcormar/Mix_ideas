@@ -1,6 +1,9 @@
 # 09 · Banco de material de francés (camino al DELF B2)
 
-Todo el material de apoyo para el plan de francés: de cero (oct 2026) al **DELF B2 (verano 2027)**, con control **B1 en marzo de 2027**. Pensado para usarse con la skill `frances-sesion` de `01-claude-skills/` (que genera y corrige las sesiones del ciclo de 7).
+Todo el material de apoyo para el plan de francés: de una base de colegio oxidada (rutina diaria desde el 15 oct 2026; **comprensión ya A2+, producción A1-A2**) al **DELF B2 (verano 2027)**, con control **B1 en marzo de 2027**.
+
+> [!tip] Prioridad desde noviembre: **producción**
+> Tu examen A2 de muestra (oral 24,5/25, escrita 22/25) dice que entiendes más de lo que produces. Usa este banco sobre todo para **escribir** (`escritura/`) y **hablar** (`oral/`); las fichas de gramática, como herramienta para producir mejor. Pensado para usarse con la skill `frances-sesion` de `01-claude-skills/` (que genera y corrige las sesiones del ciclo de 7).
 
 ## Qué hay
 | Carpeta / fichero | Contenido |

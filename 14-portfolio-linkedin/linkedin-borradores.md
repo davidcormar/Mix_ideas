@@ -25,9 +25,9 @@
 > • Un generador de perfiles alares con un VAE condicional.
 >
 > De enero a mayo de 2027 estudio en Woxsen University (Hyderabad, India).
-> Fuera de la pantalla, corro y entreno, y aplico lo que aprendo a mis propios datos.
+> Fuera de la pantalla entreno como atleta híbrido (fuerza y running, camino al Ironman) y aplico lo que aprendo a mis propios datos. Hablo español, inglés (B2 Cambridge) y francés, y empezaré alemán en 2027.
 >
-> Busco [prácticas de verano 2027 en ML / proyectos de investigación aplicada]. Escríbeme si trabajas en ML aplicado a ingeniería, aeroespacial o deporte.
+> Busco **prácticas desde enero de 2028** en ML / deep learning aplicado (empiezo la búsqueda en otoño de 2027). Escríbeme si trabajas en ML aplicado a ingeniería, aeroespacial o deporte.
 
 **EN**
 > I like turning hard ideas into systems that work.
@@ -40,9 +40,9 @@
 > • An airfoil generator based on a conditional VAE.
 >
 > From January to May 2027 I'm studying at Woxsen University (Hyderabad, India).
-> Off-screen I run and lift, and I apply what I learn to my own training data.
+> Off-screen I train as a hybrid athlete (strength and running, working towards an Ironman) and apply what I learn to my own data. I speak Spanish, English (Cambridge B2) and French, with German starting in 2027.
 >
-> I'm looking for [summer 2027 ML internships / applied research projects]. Reach out if you work on ML for engineering, aerospace or sports.
+> I'm looking for **ML / applied deep learning internships starting January 2028** (applying from autumn 2027). Reach out if you work on ML for engineering, aerospace or sports.
 
 ## Experiencia / proyectos (formato de viñetas)
 **[Nombre del proyecto]** · Proyecto personal · [mes año]

@@ -1,5 +1,7 @@
 # Your habits (order = row order on the sheet). Edit freely.
 objetivo_media: 7.5
+# 3 monthly objectives (idea from your note 'Habilidades'). Leave empty to get blank lines on paper.
+objetivos_mes: []
 habitos:
   - "📵 Móvil: 0 redes antes de 14:00, máx. 1 h"
   - "🧠 Deep work programado"

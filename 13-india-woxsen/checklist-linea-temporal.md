@@ -28,6 +28,9 @@
 | 1-5 ene | eSIM de viaje para los primeros días; descargar mapas offline de Hyderabad | ☐ |
 | 5 ene | Check-in online, cargador, adaptador en la mochila | ☐ |
 | **6 ene** | ✈️ Vuelo · **7 ene** empieza el curso | ☐ |
+| **Marzo 2027** (desde India) | Prueba de nivel B1 de francés (punto de control de tu Visión Idiomas) | ☐ |
+| **1 mar – ~11 abr 2027** (desde India) | **Inscripción al DELF B2** de junio en Galicia (fechas de 2025: 1 mar – 11 abr, 184 €) y reservar el C1 de inglés para después | ☐ |
+| **≤ 30 may 2027** | Vuelta a España (caducidad del visado según tu plan) | ☐ |
 | Llegada | Si el visado lo indica o la estancia > 180 días: registro **e-FRRO** en 14 días (la universidad suele ayudar) | ☐ |
 
 ## 1. Visado de estudiante (información general — verifica siempre en fuentes oficiales)

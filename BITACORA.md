@@ -94,3 +94,16 @@ Horas en hora de Madrid (CET).
 - 20 carpetas (19 pedidas + 1 nueva), `PARA-DAVID.md`, índice actualizado, todos los tests en verde.
 - Paro aquí en lugar de seguir hasta las 8:00 para no pasarme del presupuesto de créditos (no se puede medir el gasto): lo importante ya está hecho y subido.
 - Ideas para otra noche: banco de preguntas de entrevista de ML Engineer, alerón de 2 elementos validado contra datos publicados, pasar 06/07 a PyTorch, análisis de una carpeta entera de GPX (evolución de la FC a ritmo fijo).
+
+---
+
+# Segunda ronda (4 nov, mañana): revisión contra tus visiones
+
+## Revisión — 11:19 → 11:23
+Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión Finanzas* y *Habilidades*. Correcciones:
+- **02:** 5K actualizado a **26:47** (3 nov) → plan regenerado hacia **<26:00**; títulos del plan parametrizados (+1 test).
+- **01:** `frances-sesion` (no "de cero": comprensión A2+, producción A1-A2, prioridad producción, suelo 30' con minutos acumulados, discurso de 1 minuto), `revision-deportiva-semanal` (híbrido, estándar 5+/suelo 3, escalera Ironman), `revisar-gastos` (tu filosofía), `documentos-mi-estilo` (formato real: `fecha` entre comillas, tus áreas, Sube/Baja/**Puentes**), `escribir-como-yo` (guía provisional), `linkedin-perfil`, `organizador-diario`; nueva `revision-carrera`.
+- **09:** ya no "de cero"; aviso de producción; inscripción al DELF de junio desde India (1 mar–11 abr en 2025, 184 €); horas realistas.
+- **13:** prueba B1 en marzo e inscripción al DELF desde India; vuelta ≤ 30 de mayo; piscina en Woxsen para aprender a nadar.
+- **12:** fin del intercambio 30 de mayo. **14:** 26:47, B2 Cambridge, alemán, híbrido, prácticas desde enero de 2028. **17:** instrucciones del Proyecto actualizadas.
+- **15:** **3 objetivos del mes** en la hoja A4 y en la app (+1 test Node, smoke test ampliado).

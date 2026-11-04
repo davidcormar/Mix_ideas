@@ -18,5 +18,5 @@ def test_strip_emoji():
 
 
 def test_build_pdf(tmp_path):
-    out = g.build(2026, 12, ["a", "b"], 7.5, tmp_path / "x.pdf")
+    out = g.build(2026, 12, ["a", "b"], 7.5, tmp_path / "x.pdf", ["Correr 3x/semana"])
     assert out.read_bytes()[:4] == b"%PDF"

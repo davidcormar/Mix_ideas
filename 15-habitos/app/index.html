@@ -37,6 +37,7 @@
     <span style="flex:1"></span>
     <button id="export">Exportar JSON</button><button id="importBtn">Importar JSON</button><input type="file" id="importFile" accept="application/json" hidden>
   </div>
+  <div class="card" id="objs"></div>
   <div class="kpis" id="kpis"></div>
   <div class="card scroll"><table id="grid"></table></div>
   <div class="card"><b>Por hábito</b><div class="scroll"><table id="per" style="width:100%"></table></div></div>
@@ -72,12 +73,21 @@
       <div class="card"><div class="muted">Días ≥ objetivo</div><div class="kpi">${s.daysOnGoal}/${s.days}</div></div>
       <div class="card"><div class="muted">Hábito más flojo</div><div class="kpi" style="font-size:16px">${s.days ? data.habits[s.weakest.h] : "—"}</div><div class="muted">${s.days ? Math.round(s.weakest.pct * 100) + " %" : ""}</div></div>
       <div class="card"><div class="muted">Mejor racha activa</div><div class="kpi">${Math.max(0, ...s.perHabit.map((p) => p.current))} días</div></div>`;
+    const ob = H.objectives(data, ym);
+    $("#objs").innerHTML = `<b>🎯 3 objetivos del mes</b> <span class="muted">(${ob.filter((o) => o.done).length}/3 cumplidos)</span>` +
+      ob.map((o, i) => `<div class="bar" style="margin-top:6px"><input type="checkbox" data-od="${i}" ${o.done ? "checked" : ""}><input data-ot="${i}" value="${o.text.replace(/"/g, "&quot;")}" placeholder="Objetivo ${i + 1}" style="flex:1;padding:7px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"></div>`).join("");
     $("#per").innerHTML = `<tr><th class="h">Hábito</th><th>%</th><th>Hechos</th><th>Racha actual</th><th>Mejor racha</th></tr>` +
       s.perHabit.map((p) => `<tr><td class="h">${data.habits[p.h]}</td><td>${Math.round(p.pct * 100)}%</td><td>${p.done}</td><td>${p.current}</td><td>${p.best}</td></tr>`).join("");
   }
   $("#grid").addEventListener("click", (ev) => {
     const td = ev.target.closest("td.c"); if (!td) return;
     H.toggle(data.months[$("#month").value], Number(td.dataset.h), Number(td.dataset.d)); save(); render();
+  });
+  $("#objs").addEventListener("change", (ev) => {
+    const ob = H.objectives(data, $("#month").value), t = ev.target;
+    if (t.dataset.od !== undefined) ob[t.dataset.od].done = t.checked;
+    if (t.dataset.ot !== undefined) ob[t.dataset.ot].text = t.value;
+    save(); render();
   });
   $("#export").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })); a.download = `habitos-${today()}.json`; a.click(); };
   $("#importBtn").onclick = () => $("#importFile").click();

@@ -31,3 +31,12 @@ test("current streak not broken by today being unticked yet", () => {
   const s = H.stats({ 0: [1, 2, 3] }, 1, "2026-11", "2026-11-04");
   assert.strictEqual(s.perHabit[0].current, 3);
 });
+
+test("three monthly objectives are created and preserved", () => {
+  const d = { months: {} };
+  const ob = H.objectives(d, "2026-12");
+  assert.strictEqual(ob.length, 3);
+  ob[1].text = "Media maratón: elegir carrera"; ob[1].done = true;
+  assert.deepStrictEqual(H.objectives(d, "2026-12")[1], { text: "Media maratón: elegir carrera", done: true });
+  assert.strictEqual(H.objectives(d, "2027-01")[0].text, "");
+});

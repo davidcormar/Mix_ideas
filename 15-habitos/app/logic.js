@@ -40,12 +40,20 @@
     return { days: n, daily, mean, daysOnGoal: daily.filter((x) => x >= goal).length, perHabit, weakest };
   }
 
+  /** Three monthly objectives (idea from the note "Habilidades"): data.objectives[ym] = [{text, done}] ×3 */
+  function objectives(data, ym) {
+    data.objectives ||= {};
+    const cur = data.objectives[ym] || [];
+    data.objectives[ym] = [0, 1, 2].map((i) => ({ text: cur[i]?.text || "", done: !!cur[i]?.done }));
+    return data.objectives[ym];
+  }
+
   function validate(data) {
     if (!data || typeof data.months !== "object") throw new Error("JSON sin 'months'");
     return data;
   }
 
-  const api = { HABITS, daysIn, elapsedDays, isDone, toggle, stats, validate };
+  const api = { HABITS, daysIn, elapsedDays, isDone, toggle, stats, objectives, validate };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.HabitLogic = api;
 })(typeof window !== "undefined" ? window : globalThis);

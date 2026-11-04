@@ -10,7 +10,7 @@
     ],
     trips: [
       { id: "uk2026", name: "Birmingham + Londres", start: "2026-11-19", end: "2026-11-22", route: ["coruna", "birmingham", "londres", "coruna"], photos: [] },
-      { id: "woxsen2027", name: "Intercambio Woxsen", start: "2027-01-06", end: "2027-05-31", route: ["coruna", "hyderabad", "woxsen"], photos: [] },
+      { id: "woxsen2027", name: "Intercambio Woxsen", start: "2027-01-06", end: "2027-05-30", route: ["coruna", "hyderabad", "woxsen"], photos: [] },
     ],
   };
 

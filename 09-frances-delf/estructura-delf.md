@@ -34,7 +34,9 @@
 | oct-dic 2026 | A1 → A2 (ciclo de 7 sesiones diario) |
 | **mar 2027** | **control B1**: simulacro completo con temporizador (una prueba de cada tipo de DELF B1) |
 | abr-may 2027 | B1 consolidado, empezar argumentación B2 |
-| **verano 2027** | **DELF B2** (convocatorias habituales: mayo-junio y noviembre-diciembre; confirma fechas e inscripción ~2 meses antes) |
+| **abril 2027** | **Inscripción desde India** a la convocatoria de junio (en 2025, en Galicia: inscripción del 1 de marzo al 11 de abril, 184 €; examen a principios de junio). Vuelves de Woxsen como muy tarde el 30 de mayo |
+| **junio 2027** | **DELF B2** |
+| otoño-invierno 2027 | Plan B sin drama (convocatoria de noviembre-diciembre) |
 
 > [!tip] Realismo
-> Pasar de cero (oct 2026) a B2 (verano 2027) en ~9 meses son ~270 h si haces 1 h/día: es el **límite bajo** de lo que suele hacer falta (FEI y los centros suelen estimar del orden de 500-650 h acumuladas de A1 a B2). Mantén el control de marzo como punto de decisión: si el B1 sale justo, plantéate presentarte al **B1 en verano** y al **B2 en noviembre-diciembre de 2027**.
+> Del 15 de octubre de 2026 a principios de junio de 2027 hay ~230 días: con tu estándar de 1 h/día son ~230 h nuevas, sobre una base de colegio y una comprensión que ya es A2+. El B2 suele pedir **550-650 h acumuladas** desde cero, así que es **muy ambicioso** (como dice tu propia visión): lo normal tiene que ser la hora, no el suelo de 30'. Lleva la cuenta de horas en `21-idiomas-plan/`. El control de marzo decide: B2 en junio o plan B en otoño-invierno 2027.
