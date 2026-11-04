@@ -193,7 +193,8 @@
       <div class="rows"><div class="row"><span>Deuda vs. ${h(S.settings.sleepGoalMin)}</span><b>${h(sl.debtMin)}</b></div>
       <div class="row"><span>Hora media de acostarte</span><b>${sl.bedAvg}${bedLate > 15 ? ` · ${bedLate} min tarde` : ""}</b></div>
       <div class="row"><span>Energía media</span><b>${sl.energyN ? P.fmtDec(sl.energyAvg) + " / 5" : "—"}</b></div>
-      ${slPrev.nights ? `<div class="row"><span>vs. semana anterior</span><b>${sl.avgMin >= slPrev.avgMin ? "+" : "−"}${Math.abs(Math.round(sl.avgMin - slPrev.avgMin))} min</b></div>` : ""}</div>`
+      ${slPrev.nights ? `<div class="row"><span>vs. semana anterior</span><b>${sl.avgMin >= slPrev.avgMin ? "+" : "−"}${Math.abs(Math.round(sl.avgMin - slPrev.avgMin))} min</b></div>` : ""}</div>
+      <a class="more" href="#/semana">Ver tendencia de 8 semanas →</a>`
       : `<p class="empty">Apunta a qué hora te acostaste y te levantaste en <a href="#/hoy">Hoy</a>.</p>`}</section>`);
     // phone
     const ch = P.pctChange(sc.avg, scPrev.avg);
@@ -235,7 +236,7 @@
         <p class="faint" style="margin-top:4px">${esc(p.label)}${p.daysLeft !== null ? ` · ${p.daysLeft >= 0 ? `quedan ${p.daysLeft} días` : `venció hace ${-p.daysLeft} días`}` : ""}</p></div>`).join("") || '<p class="empty">Sin metas abiertas. <a href="#/metas">Añade una</a>.</p>'}</div>
       <a class="more" href="#/metas">Ver todas →</a></section>`);
     // countdowns
-    out.push(`<section class="card c4"><h2>Cuenta atrás</h2><div class="count">${P.countdowns(t).map((c) => `<div><b>${P.fmtInt(c.days)}</b><span>días · ${esc(c.label)}</span></div>`).join("")}</div></section>`);
+    out.push(`<section class="card c4"><h2>Cuenta atrás <span class="right"><a href="#/ajustes" style="text-decoration:none">Editar</a></span></h2><div class="count">${P.countdowns(t, S.settings).map((c) => `<div><b>${P.fmtInt(c.days)}</b><span>días · ${esc(c.label)}</span></div>`).join("")}</div></section>`);
     // apps
     out.push(`<section class="card c12"><h2>Tus apps</h2><div class="apps">${APPS.map(([href, em, n, s]) => `<a class="app" href="../${href}"><span class="em" aria-hidden="true">${em}</span><span>${n}<small>${s}</small></span></a>`).join("")}</div>
       ${R ? "" : '<p class="faint" style="margin-top:10px">No se encuentran los lectores de las otras apps (../26-ritmo/logic.js). Abre el panel desde la carpeta del repo.</p>'}</section>`);
@@ -387,8 +388,32 @@
           </div>
           <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><span class="faint">Se guarda con la foto de los números de arriba.</span></div>
         </form></section>
+      ${trendCard(t)}
       <section class="card c12"><h2>Tu diario de la semana</h2><div class="list">${journals || '<p class="empty">No escribiste el diario esta semana.</p>'}</div></section>
     </div>`;
+  }
+
+  // ───────────── trend chart (8 weeks): one row of bars per metric, goal line, current week highlighted
+  function trendCard(t) {
+    const tr = P.trend(S, t, 8), st = S.settings;
+    const row = (label, key, fmt, goal, better, max) => {
+      const vals = tr.map((w) => w[key]), have = vals.filter((v) => v != null);
+      if (!have.length) return `<div class="trend"><p class="trend-h">${label}</p><p class="faint">Sin datos todavía.</p></div>`;
+      const top = Math.max(max, ...have) * 1.05;
+      const cls = (v) => (v == null ? "" : (better === "up" ? v >= goal : v <= goal) ? "ok" : "bad");
+      const lastTwo = vals.slice(-2);
+      const delta = lastTwo[0] != null && lastTwo[1] != null ? lastTwo[1] - lastTwo[0] : null;
+      return `<div class="trend"><p class="trend-h">${label}<span>${fmt(have.at(-1))}${delta !== null && Math.abs(delta) > 0.0001 ? ` · ${delta > 0 ? "↑" : "↓"} ${fmt(Math.abs(delta))} vs. semana anterior` : ""}</span></p>
+        <div class="tbars" role="img" aria-label="${label}: ${tr.map((w) => `${w.week.slice(5)} ${w[key] == null ? "sin datos" : fmt(w[key])}`).join(", ")}">
+          <u style="bottom:calc(18px + ${((goal / top) * 78).toFixed(1)}px)" title="objetivo ${fmt(goal)}"></u>
+          ${tr.map((w) => `<div>${w[key] == null ? '<i class="none"></i>' : `<i class="${cls(w[key])}${w.current ? " cur" : ""}" style="height:${Math.max(4, (w[key] / top) * 100)}%"></i>`}<span>${w.week.slice(6)}</span></div>`).join("")}
+        </div></div>`;
+    };
+    return `<section class="card c12"><h2>Tendencia de 8 semanas <span class="right">la raya es tu objetivo · S = semana</span></h2><div class="trends">
+      ${row("Sueño medio", "sleepAvgMin", (v) => (v < 60 ? Math.round(v) + " min" : h(v)), st.sleepGoalMin, "up", st.sleepGoalMin)}
+      ${row("Energía media", "energyAvg", (v) => P.fmtDec(v) + " / 5", 3.5, "up", 5)}
+      ${row("Móvil", "screenAvg", (v) => Math.round(v) + " min", st.screenGoalMin, "down", st.screenGoalMin)}
+    </div></section>`;
   }
 
   // ───────────── AJUSTES
@@ -402,6 +427,7 @@
         <label class="field">Móvil máx. (min/día)<input name="screenGoalMin" type="number" min="5" max="600" step="5" value="${st.screenGoalMin}"></label>
         <label class="field">Páginas por semana<input name="pagesWeekGoal" type="number" min="5" max="2000" step="5" value="${st.pagesWeekGoal}"></label>
         <label class="field">Cursos (min/semana)<input name="learnWeekGoalMin" type="number" min="10" max="3000" step="10" value="${st.learnWeekGoalMin}"></label>
+        <label class="field" style="grid-column:1/-1">Cuenta atrás (una por línea: AAAA-MM-DD y nombre)<textarea name="countdowns" rows="4" placeholder="2027-01-06 Woxsen (India)">${esc(P.countdownsText(st.countdowns || []))}</textarea></label>
         <div class="actions" style="grid-column:1/-1;margin-top:0"><button class="btn primary">Guardar</button></div></form>
         <p class="faint" style="margin-top:10px">Sobre el sueño: las recomendaciones generales para adultos jóvenes están entre 7 y 9 horas. Es información general, no consejo médico; si duermes mal de forma continuada, consúltalo con tu médico.</p></section>
       <section class="card c6"><h2>Copia de seguridad de TODAS tus apps</h2>
@@ -519,7 +545,9 @@
       commit({ ...S, reviews: { ...S.reviews, [wk]: rv } }, "Revisión guardada · buena semana"); return;
     }
     if (f.id === "setForm") {
-      const s = P.migrate({ ...S, settings: { name: fd.get("name"), sleepGoalMin: Math.round(Number(fd.get("sleepH")) * 60), bedTarget: fd.get("bedTarget"), screenGoalMin: fd.get("screenGoalMin"), pagesWeekGoal: fd.get("pagesWeekGoal"), learnWeekGoalMin: fd.get("learnWeekGoalMin") } });
+      const cd = P.parseCountdowns(fd.get("countdowns"));
+      if (cd.errors.length) { alert(`Cuenta atrás: revisa la línea ${cd.errors.join(", ")}. Formato: 2027-01-06 Woxsen (India)`); return; }
+      const s = P.migrate({ ...S, settings: { countdowns: cd.list, name: fd.get("name"), sleepGoalMin: Math.round(Number(fd.get("sleepH")) * 60), bedTarget: fd.get("bedTarget"), screenGoalMin: fd.get("screenGoalMin"), pagesWeekGoal: fd.get("pagesWeekGoal"), learnWeekGoalMin: fd.get("learnWeekGoalMin") } });
       commit(s, "Ajustes guardados");
     }
   }

@@ -102,7 +102,22 @@ function check(c, msg) { if (!c) throw new Error("FALLO: " + msg); }
   st = JSON.parse(await page.evaluate(() => localStorage.getItem("panel.v1")));
   check(st.reviews["2026-W45"].score === 8 && st.reviews["2026-W45"].priorities[0] === "Francés antes de cenar" && st.reviews["2026-W45"].snapshot.sport >= 2, "revisión guardada con foto");
 
-  // 7 · backup of every app + restore
+  check((await page.textContent("#view")).includes("Tendencia de 8 semanas") && (await page.$$(".tbars")).length === 3, "tendencia de 8 semanas");
+
+  // 7 · settings: editable countdowns (bad line rejected, good list saved)
+  await page.click('a[data-nav="ajustes"]'); await page.waitForSelector("#backupAll");
+  await page.fill('#setForm [name="countdowns"]', "2027-06-20 DELF B2\nmal");
+  let alerted = ""; page.once("dialog", (d) => { alerted = d.message(); });
+  await page.click("#setForm button.primary");
+  check(/línea 2/.test(alerted), "cuenta atrás: línea mala rechazada");
+  await page.fill('#setForm [name="countdowns"]', "2027-06-20 DELF B2\n2027-01-06 Woxsen (India)");
+  await page.click("#setForm button.primary");
+  st = JSON.parse(await page.evaluate(() => localStorage.getItem("panel.v1")));
+  check(st.settings.countdowns.length === 2 && st.settings.countdowns[0].label === "DELF B2" && st.settings.sleepGoalMin === 480, "cuenta atrás guardada sin perder ajustes");
+  await page.click('.side-nav a[data-nav="panel"]'); await page.waitForSelector(".count");
+  check((await page.textContent(".count")).startsWith("63días · Woxsen"), "cuenta atrás en el panel, ordenada: " + (await page.textContent(".count")));
+
+  // 8 · backup of every app + restore
   await page.click('a[data-nav="ajustes"]'); await page.waitForSelector("#backupAll");
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#backupAll")]);
   const backup = JSON.parse(fs.readFileSync(await dl.path(), "utf8"));

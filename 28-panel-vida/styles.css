@@ -176,3 +176,15 @@ details.help summary { cursor: pointer; font-weight: 600; }
   .btn.primary, .energy button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #141216; }
   .check input { accent-color: var(--accent); }
 }
+/* trends */
+.trends { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 12px; }
+.trend-h { font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.trend-h span { font-weight: 500; color: var(--ink-2); }
+.tbars { position: relative; height: 96px; display: flex; align-items: flex-end; gap: 6px; margin-top: 8px; padding-bottom: 18px; }
+.tbars > div { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.tbars i { width: 100%; max-width: 28px; border-radius: 6px 6px 3px 3px; background: var(--ink-3); opacity: .55; }
+.tbars i.ok { background: var(--ok); } .tbars i.bad { background: var(--bad); }
+.tbars i.cur { opacity: 1; }
+.tbars i.none { height: 14px; background: transparent; border: 1.5px dashed var(--line); opacity: 1; }
+.tbars span { position: absolute; bottom: -18px; font-size: 11px; color: var(--ink-3); }
+.tbars > u { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed var(--ink-2); z-index: 1; pointer-events: none; }

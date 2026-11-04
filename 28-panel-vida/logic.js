@@ -47,7 +47,7 @@
     sportYear: "Sesiones de deporte (desde «Desde»)",
     habitsMean: "Media de hábitos del mes",
   };
-  const emptyState = () => ({ version: 1, settings: { ...DEFAULT_SETTINGS }, days: {}, books: [], readLog: [], goals: [], reviews: {} });
+  const emptyState = () => ({ version: 1, settings: { ...DEFAULT_SETTINGS, countdowns: COUNTDOWNS.map((c) => ({ ...c })) }, days: {}, books: [], readLog: [], goals: [], reviews: {} });
 
   /** Accepts anything; returns a valid state (drops what it cannot understand). */
   function migrate(any) {
@@ -59,6 +59,8 @@
       if (k === "bedTarget" && isHM(v)) s.settings[k] = v;
       if (k === "name" && typeof v === "string") s.settings[k] = v.slice(0, 40);
     }
+    if (isObj(any.settings) && Array.isArray(any.settings.countdowns))
+      s.settings.countdowns = any.settings.countdowns.filter((c) => isObj(c) && isISO(c.date) && typeof c.label === "string" && c.label.trim()).slice(0, 8).map((c) => ({ date: c.date, label: c.label.trim().slice(0, 40) }));
     if (isObj(any.days)) for (const [d, v] of Object.entries(any.days)) { if (isISO(d) && isObj(v)) { const e = normDay(v); if (e) s.days[d] = e; } }
     if (Array.isArray(any.books)) s.books = any.books.filter((b) => isObj(b) && typeof b.title === "string" && b.title.trim()).map(normBook);
     const ids = new Set(s.books.map((b) => b.id));
@@ -243,7 +245,31 @@
     { date: "2028-01-10", label: "Prácticas (ene 2028, aprox.)" },
     { date: "2032-09-01", label: "Ironman (2032, aprox.)" },
   ];
-  const countdowns = (today) => COUNTDOWNS.map((c) => ({ ...c, days: daysBetween(today, c.date) })).filter((c) => c.days >= 0);
+  /** settingsOrList: state.settings (uses .countdowns) or a list. Past dates are hidden; sorted by date. */
+  const countdowns = (today, src = COUNTDOWNS) => (Array.isArray(src) ? src : src && Array.isArray(src.countdowns) ? src.countdowns : COUNTDOWNS)
+    .map((c) => ({ ...c, days: daysBetween(today, c.date) })).filter((c) => c.days >= 0).sort((a, b) => a.days - b.days);
+  /** "2027-01-06 Woxsen (India)" per line → [{date,label}] (max 8). Returns { list, errors:[lineNo] }. */
+  function parseCountdowns(text) {
+    const list = [], errors = [];
+    String(text || "").split(/\r?\n/).forEach((line, i) => {
+      const s = line.trim(); if (!s) return;
+      const m = s.match(/^(\d{4}-\d{2}-\d{2})\s+(.{1,40})$/);
+      if (m && isISO(m[1])) list.push({ date: m[1], label: m[2].trim() }); else errors.push(i + 1);
+    });
+    return { list: list.slice(0, 8), errors };
+  }
+  const countdownsText = (list) => list.map((c) => `${c.date} ${c.label}`).join("\n");
+
+  // ───────────── trends (weekly averages, oldest first)
+  function trend(state, today, weeks = 8) {
+    const out = [];
+    for (let k = weeks - 1; k >= 0; k--) {
+      const ws = addDays(weekStart(today), -7 * k), days = weekDays(ws).filter((d) => d <= today);
+      const sl = sleepStats(state, days), sc = screenStats(state, days);
+      out.push({ week: isoWeek(ws), from: ws, sleepAvgMin: sl.avgMin, energyAvg: sl.energyAvg, screenAvg: sc.avg, current: k === 0 });
+    }
+    return out;
+  }
 
   // ───────────── weekly review
   /** Snapshot numbers for the week of `iso` (Mon–Sun, capped at today). ext comes from other apps. */
@@ -326,7 +352,7 @@
     KEY, isISO, isHM, isObj, esc, todayISO, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
     DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
-    goalProgress, starterGoals, COUNTDOWNS, countdowns, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
+    goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PanelLogic = api;

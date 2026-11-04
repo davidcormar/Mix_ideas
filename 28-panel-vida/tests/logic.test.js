@@ -126,3 +126,25 @@ test("datos de ejemplo válidos y marcados como ejemplo", () => {
   assert.ok(m.readLog.length > 0 && m.books.length === 3 && m.goals.length === 6);
   assert.equal(L.esc('<b>"x"</b>'), "&lt;b&gt;&quot;x&quot;&lt;/b&gt;");
 });
+
+test("cuenta atrás editable: parseo, validación, orden y fechas pasadas ocultas", () => {
+  const p = L.parseCountdowns("2027-10-17 Media maratón\n\nmal formato\n2027-13-01 Imposible\n2027-01-06 Woxsen (India)");
+  assert.deepEqual(p.errors, [3, 4]);
+  assert.deepEqual(L.countdowns(T, p.list).map((c) => c.label), ["Woxsen (India)", "Media maratón"]);
+  assert.deepEqual(L.countdowns("2027-02-01", p.list).map((c) => c.label), ["Media maratón"]);
+  const s = L.migrate({ settings: { countdowns: [...p.list, { date: "x", label: "y" }] } });
+  assert.equal(s.settings.countdowns.length, 2);
+  assert.equal(L.emptyState().settings.countdowns.length, 4);
+  assert.equal(L.parseCountdowns(L.countdownsText(p.list)).list.length, 2);
+});
+
+test("tendencia de 8 semanas: medias por semana, de la más antigua a la actual", () => {
+  let s = L.emptyState();
+  s = L.setDay(s, "2026-11-03", { bed: "23:00", wake: "07:00", energy: 4, screenMin: 50 });
+  s = L.setDay(s, "2026-10-27", { bed: "00:00", wake: "06:00", energy: 2, screenMin: 120 });
+  const tr = L.trend(s, T, 8);
+  assert.equal(tr.length, 8);
+  assert.equal(tr[7].week, "2026-W45"); assert.equal(tr[7].current, true);
+  assert.equal(tr[7].sleepAvgMin, 480); assert.equal(tr[6].sleepAvgMin, 360); assert.equal(tr[6].screenAvg, 120);
+  assert.equal(tr[0].sleepAvgMin, null);
+});
