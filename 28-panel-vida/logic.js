@@ -6,7 +6,8 @@
   const KEY = "panel.v1";
   const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
   const HM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
-  const isISO = (s) => typeof s === "string" && ISO_RE.test(s) && !isNaN(new Date(s + "T12:00:00").getTime());
+  // round trip: V8 turns "2027-02-30" into 2 March instead of rejecting it
+  const isISO = (s) => { if (typeof s !== "string" || !ISO_RE.test(s)) return false; const [y, m, d] = s.split("-").map(Number), t = new Date(y, m - 1, d, 12); return t.getFullYear() === y && t.getMonth() === m - 1 && t.getDate() === d; };
   const isHM = (s) => typeof s === "string" && HM_RE.test(s);
   const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
   const pad2 = (n) => String(n).padStart(2, "0");
@@ -34,12 +35,19 @@
   const fmtLong = (iso) => { const d = DAYS[dow(iso) - 1]; return `${d[0].toUpperCase()}${d.slice(1)}, ${fmtDay(iso)}`; };
   const fmtInt = (n) => { const s = String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, "."); return (n < 0 ? "−" : "") + s; };
   const fmtDec = (n, k = 1) => (Number.isFinite(n) ? n.toFixed(k).replace(".", ",") : "—");
-  const fmtHours = (min) => (min == null ? "—" : `${Math.floor(min / 60)} h ${pad2(Math.round(min % 60))}`);
+  /** Rounds first, so 479.6 min is "8 h 00" and never "7 h 60". */
+  const fmtHours = (min) => { if (min == null || !Number.isFinite(min)) return "—"; const m = Math.round(min); return `${Math.floor(m / 60)} h ${pad2(m % 60)}`; };
   const hm2min = (s) => (isHM(s) ? Number(s.slice(0, 2)) * 60 + Number(s.slice(3)) : null);
-  const min2hm = (m) => `${pad2(Math.floor(((m % 1440) + 1440) % 1440 / 60))}:${pad2(Math.round(((m % 60) + 60) % 60))}`;
+  const min2hm = (x) => { const m = ((Math.round(x) % 1440) + 1440) % 1440; return `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`; };
+  /** Local "AAAA-MM-DD HH:MM" for a Date you pass in (never toISOString, which is UTC). */
+  const stamp = (d) => `${todayISO(d)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  /** A real number (number or numeric string); booleans, null, "", [] and {} are not. */
+  const numLike = (x) => (typeof x === "number" || (typeof x === "string" && x.trim() !== "")) && Number.isFinite(Number(x));
 
   // ───────────── state
   const DEFAULT_SETTINGS = { name: "David", sleepGoalMin: 480, bedTarget: "23:30", screenGoalMin: 60, pagesWeekGoal: 100, learnWeekGoalMin: 180 };
+  /** Same limits as the Ajustes form; a huge or absurd number in a file is clamped, never shown as "Infinity". */
+  const SETTING_RANGE = { sleepGoalMin: [300, 660], screenGoalMin: [5, 600], pagesWeekGoal: [5, 2000], learnWeekGoalMin: [10, 3000] };
   const AREAS = { cuerpo: "Cuerpo", idiomas: "Idiomas", tecnico: "Técnico", finanzas: "Finanzas", aprendizaje: "Aprendizaje", vida: "Vida" };
   const AUTO = {
     frHours: "Horas de francés (app Idiomas)",
@@ -55,7 +63,7 @@
     if (!isObj(any)) return s;
     if (isObj(any.settings)) for (const k of Object.keys(DEFAULT_SETTINGS)) {
       const v = any.settings[k];
-      if (typeof DEFAULT_SETTINGS[k] === "number" && Number(v) > 0) s.settings[k] = Number(v);
+      if (SETTING_RANGE[k] && numLike(v) && Number(v) > 0) s.settings[k] = Math.round(clamp(Number(v), ...SETTING_RANGE[k]));
       if (k === "bedTarget" && isHM(v)) s.settings[k] = v;
       if (k === "name" && typeof v === "string") s.settings[k] = v.slice(0, 40);
     }
@@ -65,18 +73,22 @@
     if (Array.isArray(any.books)) s.books = any.books.filter((b) => isObj(b) && typeof b.title === "string" && b.title.trim()).map(normBook);
     const ids = new Set(s.books.map((b) => b.id));
     if (Array.isArray(any.readLog)) s.readLog = any.readLog.filter((r) => isObj(r) && isISO(r.date) && ids.has(r.bookId))
-      .map((r) => ({ date: r.date, bookId: r.bookId, amount: Math.max(0, num(r.amount)), minutes: Math.max(0, num(r.minutes)) }));
+      .map((r) => ({ date: r.date, bookId: r.bookId, amount: clamp(Math.round(num(r.amount)), 0, 100000), minutes: clamp(Math.round(num(r.minutes)), 0, 1440) }));
     if (Array.isArray(any.goals)) s.goals = any.goals.filter((g) => isObj(g) && typeof g.title === "string" && g.title.trim()).map(normGoal);
     if (isObj(any.reviews)) for (const [w, v] of Object.entries(any.reviews)) if (/^\d{4}-W\d{2}$/.test(w) && isObj(v)) s.reviews[w] = normReview(v);
-    if (any.demo === true) s.demo = true;
+    if (any.demo === true) {
+      s.demo = true;
+      // what the Panel held before loading the examples; «Quitar datos de ejemplo» brings it back
+      if (isObj(any.before) && any.before.demo !== true) s.before = migrate(any.before);
+    }
     return s;
   }
   function normDay(v) {
     const e = {};
     if (isHM(v.bed)) e.bed = v.bed;
     if (isHM(v.wake)) e.wake = v.wake;
-    if (Number(v.energy) >= 1 && Number(v.energy) <= 5) e.energy = Math.round(Number(v.energy));
-    if (Number(v.screenMin) >= 0 && v.screenMin !== null && v.screenMin !== "") e.screenMin = Math.min(1440, Math.round(Number(v.screenMin)));
+    if (numLike(v.energy) && Number(v.energy) >= 1 && Number(v.energy) <= 5) e.energy = Math.round(Number(v.energy));
+    if (numLike(v.screenMin) && Number(v.screenMin) >= 0) e.screenMin = Math.min(1440, Math.round(Number(v.screenMin)));
     if (typeof v.noSocialAM === "boolean") e.noSocialAM = v.noSocialAM;
     if (isObj(v.journal)) {
       const j = {};
@@ -88,8 +100,9 @@
   const makeId = (p) => p + Math.random().toString(36).slice(2, 9);
   function normBook(b) {
     const kind = ["libro", "curso"].includes(b.kind) ? b.kind : "libro";
+    const total = clamp(Math.round(num(b.total, 1)), 1, 100000);
     return { id: typeof b.id === "string" && b.id ? b.id : makeId("b"), title: b.title.trim().slice(0, 120), author: String(b.author || "").slice(0, 80), kind,
-      unit: kind === "curso" ? "lecciones" : "páginas", total: Math.max(1, Math.round(num(b.total, 1))), progress: Math.max(0, Math.round(num(b.progress))),
+      unit: kind === "curso" ? "lecciones" : "páginas", total, progress: clamp(Math.round(num(b.progress)), 0, total),
       status: ["leyendo", "pendiente", "terminado"].includes(b.status) ? b.status : "leyendo", finished: isISO(b.finished) ? b.finished : null };
   }
   function normGoal(g) {
@@ -97,12 +110,12 @@
     const steps = Array.isArray(g.steps) ? g.steps.filter((x) => isObj(x) && typeof x.text === "string" && x.text.trim()).map((x) => ({ text: x.text.slice(0, 120), done: !!x.done })) : [];
     return { id: typeof g.id === "string" && g.id ? g.id : makeId("g"), title: g.title.trim().slice(0, 120), area: AREAS[g.area] ? g.area : "vida", kind,
       start: isISO(g.start) ? g.start : null, deadline: isISO(g.deadline) ? g.deadline : null,
-      target: Math.max(0, num(g.target)), current: Math.max(0, num(g.current)), unit: String(g.unit || "").slice(0, 20),
+      target: clamp(num(g.target), 0, 1e9), current: clamp(num(g.current), 0, 1e9), unit: String(g.unit || "").slice(0, 20),
       auto: AUTO[g.auto] ? g.auto : null, steps, done: !!g.done };
   }
   function normReview(v) {
     const arr = (a, n) => (Array.isArray(a) ? a : []).slice(0, n).map((x) => String(x ?? "").slice(0, 300));
-    return { at: typeof v.at === "string" ? v.at : "", wins: arr(v.wins, 3), lesson: String(v.lesson || "").slice(0, 500), priorities: arr(v.priorities, 3),
+    return { at: typeof v.at === "string" ? v.at.slice(0, 25) : "", wins: arr(v.wins, 3), lesson: String(v.lesson || "").slice(0, 500), priorities: arr(v.priorities, 3),
       score: Number(v.score) >= 1 && Number(v.score) <= 10 ? Math.round(Number(v.score)) : null, snapshot: isObj(v.snapshot) ? v.snapshot : {} };
   }
   /** Update one day's entry; empty values delete the field, an empty day is removed. Returns a new state. */
@@ -172,11 +185,24 @@
     const b = s.books.find((x) => x.id === bookId);
     if (!b) return state;
     const p = clamp(Math.round(num(newProgress, b.progress)), 0, b.total), delta = p - b.progress;
-    if (delta === 0 && !(minutes > 0)) return state;
+    const mins = clamp(Math.round(num(minutes)), 0, 1440);
+    if (delta === 0 && !(mins > 0)) return state;
     b.progress = p;
     if (p >= b.total && b.status !== "terminado") { b.status = "terminado"; b.finished = iso; }
     if (p < b.total && b.status === "terminado") { b.status = "leyendo"; b.finished = null; }
-    s.readLog.push({ date: iso, bookId, amount: Math.max(0, delta), minutes: Math.max(0, Math.round(num(minutes))) });
+    if (delta < 0) {
+      // going back (a typo such as 300 instead of 30): take the pages back from the newest entries of this book,
+      // so the week's pages, the reading light and the ETA do not keep phantom pages
+      let left = -delta;
+      for (let i = s.readLog.length - 1; i >= 0 && left > 0; i--) {
+        const r = s.readLog[i];
+        if (r.bookId !== bookId || !(r.amount > 0)) continue;
+        const take = Math.min(r.amount, left);
+        s.readLog[i] = { ...r, amount: r.amount - take }; left -= take;
+      }
+      s.readLog = s.readLog.filter((r) => r.amount > 0 || r.minutes > 0);
+    }
+    if (delta > 0 || mins > 0) s.readLog.push({ date: iso, bookId, amount: Math.max(0, delta), minutes: mins });
     return s;
   }
   function readingStats(state, dates) {
@@ -188,14 +214,17 @@
     }
     return { pages, lessons, minutes, learnMin };
   }
-  /** Days left to finish a book at the pace of the last 14 days (null if no pace). */
+  /** Days left to finish a book at the pace of the last 14 days, or since its first entry if it is newer
+      (at least 7 days, so one good day does not promise the moon). null if there is no pace. */
   function bookEta(state, bookId, today) {
     const b = state.books.find((x) => x.id === bookId);
     if (!b || b.status === "terminado") return null;
-    const from = addDays(today, -13);
-    const done = state.readLog.filter((r) => r.bookId === bookId && r.date >= from && r.date <= today).reduce((a, r) => a + r.amount, 0);
+    const from = addDays(today, -13), logs = state.readLog.filter((r) => r.bookId === bookId && r.date <= today && r.amount > 0);
+    const done = logs.filter((r) => r.date >= from).reduce((a, r) => a + r.amount, 0);
     if (done <= 0) return null;
-    const perDay = done / 14, left = b.total - b.progress;
+    const first = logs.reduce((m, r) => (r.date < m ? r.date : m), today);
+    const span = clamp(daysBetween(first, today) + 1, 7, 14);
+    const perDay = done / span, left = b.total - b.progress;
     return { perDay, days: Math.ceil(left / perDay), date: addDays(today, Math.ceil(left / perDay)) };
   }
 
@@ -225,17 +254,20 @@
   }
   const STATUS_LABEL = { hecho: "Hecho", vencida: "Vencida", "en-ritmo": "En ritmo", atrasada: "Atrasada", "en-curso": "En curso", "sin-fecha": "Sin fecha" };
 
-  /** Starter goals taken from David's visions (all editable/deletable). */
+  const FR_B2_DATE = "2027-06-05"; // DELF B2, same date as 21-idiomas-plan (LANGS.fr.deadline)
+  const WOXSEN_DATE = "2027-01-06";
+  /** Starter goals taken from David's visions (all editable/deletable). Fixed dates stay fixed whatever year you start;
+      a goal whose date has passed is left out, and "end of year" moves to next year in the last 4 weeks. */
   function starterGoals(today) {
-    const y = today.slice(0, 4);
+    const y = Number(today.slice(0, 4)), endY = today > `${y}-12-03` ? y + 1 : y;
     return [
-      { title: "5 km en menos de 26:00", area: "cuerpo", kind: "hito", start: today, deadline: `${y}-12-28`, steps: [{ text: "Test de 3 km para recalibrar ritmos" }, { text: "8 semanas del plan de 02-running-tools" }, { text: "Carrera o contrarreloj < 26:00" }] },
-      { title: "No bajar del suelo: 3 sesiones por semana hasta fin de año", area: "cuerpo", kind: "numero", target: 3 * Math.ceil((daysBetween(today, `${y}-12-31`) + 1) / 7), unit: "sesiones", auto: "sportYear", start: today, deadline: `${y}-12-31` },
-      { title: "Horas de francés hacia el B2", area: "idiomas", kind: "numero", target: 600, unit: "h", auto: "frHours", start: today, deadline: `${Number(y) + 1}-06-15` },
+      { title: "5 km en menos de 26:00", area: "cuerpo", kind: "hito", start: today, deadline: `${endY}-12-28`, steps: [{ text: "Test de 3 km para recalibrar ritmos" }, { text: "8 semanas del plan de 02-running-tools" }, { text: "Carrera o contrarreloj < 26:00" }] },
+      { title: `No bajar del suelo: 3 sesiones por semana hasta fin de ${endY}`, area: "cuerpo", kind: "numero", target: 3 * Math.ceil((daysBetween(today, `${endY}-12-31`) + 1) / 7), unit: "sesiones", auto: "sportYear", start: today, deadline: `${endY}-12-31` },
+      today < FR_B2_DATE && { title: "Horas de francés hacia el B2", area: "idiomas", kind: "numero", target: 600, unit: "h", auto: "frHours", start: today, deadline: FR_B2_DATE },
       { title: "Media de hábitos ≥ 7,5 este mes", area: "vida", kind: "numero", target: 7.5, unit: "/10", auto: "habitsMean" },
       { title: "Leer 12 libros en un año", area: "aprendizaje", kind: "numero", target: 12, unit: "libros", auto: "booksDone", start: today, deadline: addDays(today, 365) },
-      { title: "Preparar Woxsen (India)", area: "vida", kind: "hito", start: today, deadline: `${Number(y) + 1}-01-06`, steps: [{ text: "Visado de estudiante" }, { text: "Vacunas (consulta en Sanidad Exterior)" }, { text: "Dinero, tarjeta y SIM" }, { text: "Maleta y documentos" }] },
-    ].map(normGoal);
+      today < WOXSEN_DATE && { title: "Preparar Woxsen (India)", area: "vida", kind: "hito", start: today, deadline: WOXSEN_DATE, steps: [{ text: "Visado de estudiante" }, { text: "Vacunas (consulta en Sanidad Exterior)" }, { text: "Dinero, tarjeta y SIM" }, { text: "Maleta y documentos" }] },
+    ].filter(Boolean).map(normGoal);
   }
 
   // ───────────── countdowns
@@ -253,8 +285,8 @@
     const list = [], errors = [];
     String(text || "").split(/\r?\n/).forEach((line, i) => {
       const s = line.trim(); if (!s) return;
-      const m = s.match(/^(\d{4}-\d{2}-\d{2})\s+(.{1,40})$/);
-      if (m && isISO(m[1])) list.push({ date: m[1], label: m[2].trim() }); else errors.push(i + 1);
+      const m = s.match(/^(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+      if (m && isISO(m[1])) list.push({ date: m[1], label: m[2].trim().slice(0, 40) }); else errors.push(i + 1);
     });
     return { list: list.slice(0, 8), errors };
   }
@@ -272,6 +304,12 @@
   }
 
   // ───────────── weekly review
+  /** Week the «Semana» screen opens on: on a Monday (also at 00:30, after a late Sunday) with last week not reviewed
+      and this one not started, last week — a week of 1 day is not worth reviewing. Otherwise today. */
+  function reviewDefault(state, today) {
+    const prev = addDays(today, -7);
+    return dow(today) === 1 && !state.reviews[isoWeek(today)] && !state.reviews[isoWeek(prev)] ? prev : today;
+  }
   /** Snapshot numbers for the week of `iso` (Mon–Sun, capped at today). ext comes from other apps. */
   function weekSnapshot(state, iso, today, ext = {}) {
     const days = weekDays(iso).filter((d) => d <= today);
@@ -289,11 +327,25 @@
     const t = (v, good, meh, higherBetter = true) => (v == null ? null : higherBetter ? (v >= good ? "ok" : v >= meh ? "meh" : "bad") : v <= good ? "ok" : v <= meh ? "meh" : "bad");
     L.sueno = t(snap.sleepAvgMin, settings.sleepGoalMin - 15, settings.sleepGoalMin - 60);
     L.movil = t(snap.screenAvg, settings.screenGoalMin, settings.screenGoalMin * 1.5, false);
-    L.deporte = snap.sport == null ? null : snap.sport >= 5 ? "ok" : snap.sport >= 3 ? "meh" : "bad";
+    // weekly totals: a week still in progress is judged on the days already finished (today still counts as open),
+    // so Monday is not red for 0 sessions or 0 pages
+    const part = snap.days >= 7 ? 1 : Math.max(0, (snap.days || 0) - 1) / 7;
+    L.deporte = t(snap.sport, 5 * part, 3 * part);
     L.habitos = t(snap.habitsMean, 7.5, 6);
     L.frances = snap.frOwed == null ? null : snap.frOwed === 0 ? "ok" : snap.frOwed <= 60 ? "meh" : "bad";
-    L.lectura = t(snap.pages, settings.pagesWeekGoal * (snap.days / 7), settings.pagesWeekGoal * (snap.days / 7) * 0.5);
+    L.lectura = t(snap.pages, settings.pagesWeekGoal * part, settings.pagesWeekGoal * part * 0.5);
     return L;
+  }
+
+  // ───────────── other apps
+  /** Makes RitmoLogic.readIdiomas() output safe for LangLogic.summary(): minutes as numbers ("40" would be
+      concatenated as text) and a finite base of hours ("abc" made the whole Panel fail to draw). */
+  function cleanLang(idi) {
+    if (!isObj(idi) || !Array.isArray(idi.log)) return null;
+    const log = idi.log.filter((e) => isObj(e) && typeof e.date === "string" && ISO_RE.test(e.date))
+      .map((e) => ({ ...e, minutes: clamp(num(e.minutes), 0, 1440) }));
+    const fr = isObj(idi.base) ? num(idi.base.fr) : 0;
+    return { log, base: { ...(isObj(idi.base) ? idi.base : {}), fr: fr >= 0 && fr <= 5000 ? fr : 0 } };
   }
 
   // ───────────── backup of every app in the repo
@@ -318,14 +370,16 @@
   function parseBackup(text) {
     let o; try { o = JSON.parse(text); } catch (e) { return { ok: false, error: "El fichero no es JSON válido." }; }
     if (!isObj(o) || o.format !== "mix-ideas-backup" || !isObj(o.data)) return { ok: false, error: "No es una copia de seguridad del Panel de vida." };
-    const entries = APP_KEYS.filter(({ key }) => key in o.data && o.data[key] !== null && typeof o.data[key] === "object")
+    // every app stores a JSON object; an array or a number would leave that app unreadable after restoring
+    const entries = APP_KEYS.filter(({ key }) => Object.prototype.hasOwnProperty.call(o.data, key) && isObj(o.data[key]))
       .map(({ key, app }) => ({ key, app, value: JSON.stringify(o.data[key]) }));
     if (!entries.length) return { ok: false, error: "La copia no contiene datos de ninguna app." };
     return { ok: true, exportedAt: typeof o.exportedAt === "string" ? o.exportedAt : "", entries };
   }
 
   // ───────────── demo (clearly fictional, only panel.v1)
-  function demoState(today) {
+  /** before: the current Panel state, kept inside the demo so «Quitar datos de ejemplo» restores it. */
+  function demoState(today, before) {
     let s = emptyState();
     s.goals = starterGoals(today);
     s.books = [
@@ -345,11 +399,12 @@
     }
     s.days[today] = { bed: "23:40", wake: "07:25", energy: 4, screenMin: 52, noSocialAM: true };
     s.demo = true;
+    if (isObj(before) && before.demo !== true) s.before = migrate(before);
     return s;
   }
 
   const api = {
-    KEY, isISO, isHM, isObj, esc, todayISO, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
+    KEY, isISO, isHM, isObj, esc, todayISO, stamp, numLike, SETTING_RANGE, reviewDefault, cleanLang, FR_B2_DATE, WOXSEN_DATE, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
     DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
     goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,

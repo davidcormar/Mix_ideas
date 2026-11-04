@@ -23,27 +23,45 @@
     catch (e) { corrupt = raw; S = P.emptyState(); }
   }
   function save() { if (corrupt !== null) return false; return store.set(P.KEY, JSON.stringify(S)); }
-  function commit(next, msg) { S = next; if (!save() && corrupt === null) toast("No se pudo guardar: el navegador bloquea el almacenamiento."); else if (msg) toast(msg); render(); }
+  /** While the stored Panel is damaged nothing is changed or saved: the banner asks first (download / start again). */
+  function blocked() {
+    if (corrupt === null) return false;
+    toast("No se ha guardado: antes decide qué hacer con los datos dañados (aviso de arriba).");
+    return true;
+  }
+  function persist(next, msg) {
+    if (blocked()) return false;
+    S = next;
+    if (!save()) { toast("No se pudo guardar: el navegador bloquea el almacenamiento o está lleno."); return false; }
+    if (msg) toast(msg);
+    return true;
+  }
+  function commit(next, msg) { persist(next, msg); render(); }
 
   // ───────────── other apps (read-only)
+  /** Another app's data can be anything (old versions, hand edits): one bad key hides that card, never the Panel. */
+  const safe = (f, fallback = null) => { try { const v = f(); return v === undefined ? fallback : v; } catch (e) { return fallback; } };
+  const parsed = (k) => safe(() => JSON.parse(store.get(k)));
   function readAll(t) {
-    const o = { have: {} };
+    const o = { have: {}, sportOf: () => ({ total: 0 }) };
     if (!R) return o;
-    const hr = R.readHabits(store.get("habitos.v1"));
-    o.habits = hr.status === "ok" ? hr.data : null;
-    o.gym = R.readGym(store.get("gymtracker.v1"), t);
-    o.paso = R.readPaso(store.get("paso.v1"), t);
-    o.fin = R.readFinanzas(store.get("finanzas.v1"), t);
-    o.idi = R.readIdiomas(store.get("idiomas.v1"));
-    const rraw = store.get("ritmo.v1");
-    if (rraw) { try { const x = JSON.parse(rraw); if (P.isObj(x)) o.ritmo = R.migrate(x, t, o.habits ? R.habitsOf(o.habits) : undefined); } catch (e) { /* ignore */ } }
-    try { const p = JSON.parse(store.get("paso.v1")); o.pasoDays = p && P.isObj(p.days) ? p.days : null; } catch (e) { o.pasoDays = null; }
-    try { const f = JSON.parse(store.get("finanzas.v1")); o.txs = f && Array.isArray(f.txs) ? f.txs.filter((x) => x && typeof x.date === "string" && Number.isFinite(Number(x.amount))) : null; } catch (e) { o.txs = null; }
-    const sportIdx = o.habits ? R.findHabit(R.habitsOf(o.habits), R.HABIT_RE.sport) : null;
+    const hr = safe(() => R.readHabits(store.get("habitos.v1")), {});
+    o.habits = hr.status === "ok" && R.habitCount(hr.data) > 0 ? hr.data : null;
+    o.gym = safe(() => R.readGym(store.get("gymtracker.v1"), t));
+    o.paso = safe(() => R.readPaso(store.get("paso.v1"), t));
+    o.fin = safe(() => R.readFinanzas(store.get("finanzas.v1"), t));
+    o.idi = safe(() => P.cleanLang(R.readIdiomas(store.get("idiomas.v1"))));
+    const rx = parsed("ritmo.v1");
+    if (P.isObj(rx)) o.ritmo = safe(() => R.migrate(rx, t, o.habits ? R.habitsOf(o.habits) : undefined));
+    const px = parsed("paso.v1"), fx = parsed("finanzas.v1");
+    o.pasoDays = P.isObj(px) && P.isObj(px.days) ? px.days : null;
+    o.txs = P.isObj(fx) && Array.isArray(fx.txs) ? fx.txs.filter((x) => P.isObj(x) && P.isISO(String(x.date).slice(0, 10)) && P.numLike(x.amount) && Math.abs(Number(x.amount)) < 1e9) : null;
+    const sportIdx = o.habits ? safe(() => R.findHabit(R.habitsOf(o.habits), R.HABIT_RE.sport)) : null;
     o.hasSport = !!((o.habits && sportIdx !== null) || o.gym || o.paso || o.ritmo);
-    o.sportOf = (dates) => R.sportByDay(dates, { habits: o.habits, sportIdx, gymSessions: o.gym ? o.gym.sessions : null, runs: o.paso ? o.paso.runs : null, ritmoDone: o.ritmo ? R.ritmoSportDone(o.ritmo) : null });
-    if (o.idi && LL) o.fr = LL.summary(o.idi.log, "fr", t, Number(o.idi.base.fr || 0));
-    else if (o.ritmo) o.frR = R.frenchStatus({ idiomas: null, tasks: o.ritmo.tasks }, t, o.ritmo.settings);
+    const ritmoDone = o.ritmo ? safe(() => R.ritmoSportDone(o.ritmo)) : null;
+    o.sportOf = (dates) => safe(() => R.sportByDay(dates, { habits: o.habits, sportIdx, gymSessions: o.gym ? o.gym.sessions : null, runs: o.paso ? o.paso.runs : null, ritmoDone }), { total: 0 });
+    if (o.idi && LL) o.fr = safe(() => LL.summary(o.idi.log, "fr", t, o.idi.base.fr));
+    else if (o.ritmo) o.frR = safe(() => R.frenchStatus({ idiomas: null, tasks: o.ritmo.tasks }, t, o.ritmo.settings));
     return o;
   }
   const spend = (txs, from, to) => (txs ? txs.filter((x) => x.date >= from && x.date <= to && Number(x.amount) < 0).reduce((a, x) => a - Number(x.amount), 0) : null);
@@ -54,20 +72,23 @@
       frHours: X.fr ? X.fr.hours : null,
       booksDone: S.books.filter((b) => b.status === "terminado" && b.finished && b.finished >= from && b.finished <= to).length,
       sportYear: X.hasSport && from <= to ? X.sportOf(P.range(from, to)).total : X.hasSport ? 0 : null,
-      habitsMean: X.habits ? Math.round(R.monthStats(X.habits, t.slice(0, 7), t).mean * 10) / 10 : null,
+      habitsMean: X.habits ? safe(() => Math.round(R.monthStats(X.habits, t.slice(0, 7), t).mean * 10) / 10) : null,
     };
   }
   function weekExt(iso, t, X) {
     const days = P.weekDays(iso).filter((d) => d <= t), to = days.at(-1) || iso, e = {};
     if (!days.length) return e;
     if (X.hasSport) e.sport = X.sportOf(days).total;
-    if (X.habits) e.habitsMean = P.mean(days.map((d) => R.dayScore(X.habits, d)));
+    if (X.habits) e.habitsMean = safe(() => P.mean(days.map((d) => R.dayScore(X.habits, d))));
     if (X.idi && LL) {
-      e.frOwed = LL.summary(X.idi.log, "fr", to, Number(X.idi.base.fr || 0)).owed;
-      e.frMin = X.idi.log.filter((x) => x.lang === "fr" && x.date >= days[0] && x.date <= to).reduce((a, x) => a + Number(x.minutes), 0);
+      const owed = safe(() => LL.summary(X.idi.log, "fr", to, X.idi.base.fr).owed);
+      if (Number.isFinite(owed)) {
+        e.frOwed = owed;
+        e.frMin = X.idi.log.filter((x) => x.lang === "fr" && x.type !== "extra" && x.date >= days[0] && x.date <= to).reduce((a, x) => a + x.minutes, 0);
+      }
     }
-    if (X.pasoDays) { const st = days.map((d) => X.pasoDays[d] && Number(X.pasoDays[d].steps)).filter((n) => n > 0); if (st.length) e.stepsAvg = P.mean(st); }
-    if (X.ritmo) e.tasksDone = X.ritmo.tasks.filter((k) => k.status === "done" && k.doneOn >= days[0] && k.doneOn <= to).length;
+    if (X.pasoDays) { const st = days.map((d) => P.isObj(X.pasoDays[d]) && Number(X.pasoDays[d].steps)).filter((n) => n > 0 && n < 1e6); if (st.length) e.stepsAvg = P.mean(st); }
+    if (X.ritmo) e.tasksDone = safe(() => X.ritmo.tasks.filter((k) => k && k.status === "done" && k.doneOn >= days[0] && k.doneOn <= to).length);
     if (X.txs) e.spend = spend(X.txs, days[0], to);
     return e;
   }
@@ -84,9 +105,9 @@
     const box = $("#toasts"); box.append(el); while (box.children.length > 3) box.firstElementChild.remove();
     setTimeout(() => el.remove(), 3500);
   }
-  function download(name, text) {
+  function download(name, text, type = "application/json") {
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: "application/json" })); a.download = name;
+    a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
     document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   const greeting = () => { const hr = new Date().getHours(); return hr < 6 ? "Buenas noches" : hr < 14 ? "Buenos días" : hr < 21 ? "Buenas tardes" : "Buenas noches"; };
@@ -106,8 +127,8 @@
     $("#sideNav").innerHTML = NAV.map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
     $("#tabbar").innerHTML = NAV.map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
     const aj = $(".side-link"); if (cur === "ajustes") aj.setAttribute("aria-current", "page"); else aj.removeAttribute("aria-current");
-    const t = today(), wk = P.isoWeek(t), done = !!S.reviews[wk];
-    $("#sideCard").innerHTML = `<span class="faint">Revisión semanal · ${wk.slice(5)}</span><b>${done ? "Hecha ✓" : P.dow(t) >= 5 ? "Te toca este finde" : "El domingo, 10 min"}</b><a class="btn small ${done ? "" : "primary"}" href="#/semana" style="text-decoration:none;display:inline-flex;align-items:center">${done ? "Ver" : "Hacer revisión"}</a>`;
+    const t = today(), ref = P.reviewDefault(S, t), late = ref !== t, wk = P.isoWeek(ref), done = !!S.reviews[wk];
+    $("#sideCard").innerHTML = `<span class="faint">Revisión semanal · semana ${Number(wk.slice(6))}</span><b>${done ? "Hecha ✓" : late ? "Te falta la de la semana pasada" : P.dow(t) >= 5 ? "Te toca este finde" : "El domingo, 10 min"}</b><a class="btn small ${done ? "" : "primary"}" href="${late ? `#/semana?d=${ref}` : "#/semana"}" style="text-decoration:none;display:inline-flex;align-items:center">${done ? "Ver" : "Hacer revisión"}</a>`;
   }
   function render() {
     const r = route();
@@ -120,8 +141,25 @@
     else b.hidden = true;
     const t = today(), X = readAll(t);
     const v = { panel: vPanel, hoy: vHoy, lectura: vLectura, metas: vMetas, semana: vSemana, ajustes: vAjustes }[r.name];
-    $("#view").innerHTML = v(t, X, r);
+    const fk = focusKey(document.activeElement);
+    let html;
+    try { html = v(t, X, r); } catch (e) {
+      console.warn(e);
+      html = `<div class="card"><h2>No se ha podido dibujar esta pantalla</h2><p class="empty">Algún dato no tiene el formato esperado. Tus datos no se han tocado. Prueba otra sección o descarga una copia en <a href="#/ajustes">Ajustes</a>.</p></div>`;
+    }
+    $("#view").innerHTML = html;
+    if (fk) { const n = $(fk); if (n) n.focus({ preventScroll: true }); else $("#main").focus({ preventScroll: true }); }
     document.title = `${{ panel: "Panel", hoy: "Hoy", lectura: "Lectura", metas: "Metas", semana: "Semana", ajustes: "Ajustes" }[r.name]} · Panel de vida`;
+  }
+
+  /** Selector for the focused control, to give focus back after a re-render (keyboard use of energy, score, steps…). */
+  function focusKey(el) {
+    if (!el || !$("#view").contains(el)) return null;
+    if (el.id) return "#" + CSS.escape(el.id);
+    for (const a of ["data-energy", "data-score", "data-gstep", "data-gcur", "data-gdone", "data-gedit", "data-bstatus", "data-f", "data-j"])
+      if (el.hasAttribute(a)) return `[${a}="${CSS.escape(el.getAttribute(a))}"]` + (a === "data-gstep" ? `[data-i="${CSS.escape(el.dataset.i)}"]` : "");
+    if (el.closest("form[data-read]")) return `form[data-read="${CSS.escape(el.closest("form[data-read]").dataset.read)}"] [name="${CSS.escape(el.name || "p")}"]`;
+    return "#main";
   }
 
   // ───────────── PANEL
@@ -139,7 +177,9 @@
     out.push(header(P.fmtLong(t), `${greeting()}, <b>${esc(S.settings.name)}</b>`, `<a class="btn primary" href="#/hoy" style="text-decoration:none;display:inline-flex;align-items:center">Registrar hoy</a>`));
     // review callout (weekend or Monday) + priorities of this week
     const pri = (S.reviews[prevWk] && S.reviews[prevWk].priorities.filter(Boolean)) || [];
-    if (!S.reviews[wk] && P.dow(t) >= 6) out.push(`<div class="callout"><p><b>Toca la revisión semanal.</b> 10 minutos: cómo fue la semana en todas tus áreas y 3 prioridades para la siguiente.</p><a class="btn primary" href="#/semana" style="text-decoration:none">Empezar</a></div>`);
+    const firstRun = !S.demo && !Object.keys(S.days).length && !S.books.length && !Object.keys(S.reviews).length;
+    if (firstRun) out.push(`<div class="callout"><p><b>Primer paso (1 minuto):</b> en <i>Hoy</i> apunta a qué hora te acostaste y te levantaste, tu energía y el móvil. Cada tarjeta se llena sola con lo que apuntes aquí y en tus otras apps. ¿Quieres verlo lleno antes? Carga los datos de ejemplo en <a href="#/ajustes">Ajustes</a>.</p><a class="btn primary" href="#/hoy" style="text-decoration:none">Empezar</a></div>`);
+    else if (!S.reviews[wk] && P.dow(t) >= 6) out.push(`<div class="callout"><p><b>Toca la revisión semanal.</b> 10 minutos: cómo fue la semana en todas tus áreas y 3 prioridades para la siguiente.</p><a class="btn primary" href="#/semana" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[prevWk] && P.dow(t) === 1) out.push(`<div class="callout"><p><b>No hiciste la revisión de la semana pasada.</b> Aún estás a tiempo.</p><a class="btn primary" href="#/semana?d=${P.addDays(t, -7)}" style="text-decoration:none">Hacerla ahora</a></div>`);
     out.push('<div class="grid">');
     // hero "tu día"
@@ -183,7 +223,7 @@
         <div class="kpi" style="margin-top:10px">${sp ?? "—"}<small>sesiones esta semana</small></div>${pctBar((sp || 0) / 5, L.deporte, 3 / 5)}
         <div class="rows"><div class="row"><span>Estado</span><b>${fsTxt || "—"}</b></div>
         ${X.paso ? `<div class="row"><span>Pasos hoy</span><b>${P.fmtInt(X.paso.stepsToday)} · ${X.paso.pct} %</b></div>` : ""}
-        ${X.gym && X.gym.last ? `<div class="row"><span>Último gimnasio</span><b>${esc(X.gym.last.name)} · ${P.fmtDay(X.gym.last.date)}</b></div>` : ""}</div>
+        ${X.gym && X.gym.last ? `<div class="row"><span>Último gimnasio</span><b>${esc(/^\[object |^$/.test(X.gym.last.name) ? "Sesión" : X.gym.last.name)} · ${P.fmtDay(X.gym.last.date)}</b></div>` : ""}</div>
         <a class="more" href="../27-paso/">Abrir Paso →</a></section>`);
     } else out.push(`<section class="card c4"><h2>${dot()}Cuerpo</h2><p class="empty">Apunta entrenos en <a href="../10-gym-tracker/">Gym</a> y pasos en <a href="../27-paso/">Paso</a>.</p></section>`);
     // sleep
@@ -193,7 +233,7 @@
       <div class="rows"><div class="row"><span>Deuda vs. ${h(S.settings.sleepGoalMin)}</span><b>${h(sl.debtMin)}</b></div>
       <div class="row"><span>Hora media de acostarte</span><b>${sl.bedAvg}${bedLate > 15 ? ` · ${bedLate} min tarde` : ""}</b></div>
       <div class="row"><span>Energía media</span><b>${sl.energyN ? P.fmtDec(sl.energyAvg) + " / 5" : "—"}</b></div>
-      ${slPrev.nights ? `<div class="row"><span>vs. semana anterior</span><b>${sl.avgMin >= slPrev.avgMin ? "+" : "−"}${Math.abs(Math.round(sl.avgMin - slPrev.avgMin))} min</b></div>` : ""}</div>
+      ${slPrev.nights ? `<div class="row"><span>vs. semana anterior</span><b>${Math.round(sl.avgMin - slPrev.avgMin) >= 0 ? "+" : "−"}${Math.abs(Math.round(sl.avgMin - slPrev.avgMin))} min</b></div>` : ""}</div>
       <a class="more" href="#/semana">Ver tendencia de 8 semanas →</a>`
       : `<p class="empty">Apunta a qué hora te acostaste y te levantaste en <a href="#/hoy">Hoy</a>.</p>`}</section>`);
     // phone
@@ -236,7 +276,8 @@
         <p class="faint" style="margin-top:4px">${esc(p.label)}${p.daysLeft !== null ? ` · ${p.daysLeft >= 0 ? `quedan ${p.daysLeft} días` : `venció hace ${-p.daysLeft} días`}` : ""}</p></div>`).join("") || '<p class="empty">Sin metas abiertas. <a href="#/metas">Añade una</a>.</p>'}</div>
       <a class="more" href="#/metas">Ver todas →</a></section>`);
     // countdowns
-    out.push(`<section class="card c4"><h2>Cuenta atrás <span class="right"><a href="#/ajustes" style="text-decoration:none">Editar</a></span></h2><div class="count">${P.countdowns(t, S.settings).map((c) => `<div><b>${P.fmtInt(c.days)}</b><span>días · ${esc(c.label)}</span></div>`).join("")}</div></section>`);
+    const cds = P.countdowns(t, S.settings);
+    out.push(`<section class="card c4"><h2>Cuenta atrás <span class="right"><a href="#/ajustes" style="text-decoration:none">Editar</a></span></h2>${cds.length ? `<div class="count">${cds.map((c) => `<div><b>${c.days ? P.fmtInt(c.days) : "¡Hoy!"}</b><span>${c.days === 1 ? "día" : c.days ? "días" : "es el día"} · ${esc(c.label)}</span></div>`).join("")}</div>` : '<p class="empty">No hay fechas próximas. <a href="#/ajustes">Añade una</a>.</p>'}</section>`);
     // apps
     out.push(`<section class="card c12"><h2>Tus apps</h2><div class="apps">${APPS.map(([href, em, n, s]) => `<a class="app" href="../${href}"><span class="em" aria-hidden="true">${em}</span><span>${n}<small>${s}</small></span></a>`).join("")}</div>
       ${R ? "" : '<p class="faint" style="margin-top:10px">No se encuentran los lectores de las otras apps (../26-ritmo/logic.js). Abre el panel desde la carpeta del repo.</p>'}</section>`);
@@ -262,7 +303,7 @@
         <label class="check" style="margin-top:12px"><input type="checkbox" data-f="noSocialAM" ${e.noSocialAM ? "checked" : ""}> 0 redes sociales antes de las 14:00</label>
         <details class="help"><summary>¿Dónde lo miro?</summary>iPhone: <i>Ajustes → Tiempo de uso → Ver toda la actividad</i>, pestaña <i>Día</i>. Apunta el total de ayer por la mañana si te resulta más fácil (cambia el día con ‹).</details>
       </section>
-      <section class="card c12"><h2>📓 Diario de 3 líneas <span class="right">${P.journalStreak(S, t)} días seguidos</span></h2><p class="sub">Se guarda solo. Te servirá en la revisión semanal.</p>
+      <section class="card c12"><h2>📓 Diario de 3 líneas <span class="right" id="jStreak">${P.journalStreak(S, t) === 1 ? "1 día seguido" : `${P.journalStreak(S, t)} días seguidos`}</span></h2><p class="sub">Se guarda solo. Te servirá en la revisión semanal.</p>
         <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
           <label class="field">Qué salió bien<textarea data-j="good" maxlength="500">${esc(j.good || "")}</textarea></label>
           <label class="field">Qué haría mejor<textarea data-j="better" maxlength="500">${esc(j.better || "")}</textarea></label>
@@ -274,7 +315,7 @@
           <label class="field" style="flex:1;min-width:100px">Minutos<input type="number" min="0" max="600" name="m" placeholder="30"></label><button class="btn primary" style="align-self:flex-end">Apuntar</button></div></form>`).join("")}</div>`
         : `<p class="empty">No tienes nada en curso. <a href="#/lectura">Añade un libro o curso</a>.</p>`}
       </section>
-      <section class="card c12"><h2>Últimos 7 días</h2><div class="table-wrap"><table class="t"><thead><tr><th>Día</th><th>Sueño</th><th>Energía</th><th>Móvil</th><th>Diario</th></tr></thead><tbody>
+      <section class="card c12"><h2>Últimos 7 días</h2><div class="table-wrap"><table class="t"><thead><tr><th>Día</th><th>Sueño</th><th>Energía</th><th>Móvil</th><th>Diario</th></tr></thead><tbody id="hoyWeek">
         ${week.map((x) => { const q = S.days[x] || {}, mm = P.sleepMinutes(q); return `<tr><td><a href="#/hoy?d=${x}">${P.fmtDay(x)}</a></td><td class="n">${mm !== null ? h(mm) : "—"}</td><td class="n">${q.energy || "—"}</td><td class="n">${q.screenMin ?? "—"}</td><td>${P.journalDone(q) ? "✓" : "—"}</td></tr>`; }).join("")}
       </tbody></table></div></section></div>`;
   }
@@ -353,7 +394,7 @@
 
   // ───────────── SEMANA (revisión)
   function vSemana(t, X, r) {
-    const ref = r.d && r.d <= t ? r.d : t, ws = P.weekStart(ref), wk = P.isoWeek(ref), days = P.weekDays(ref).filter((d) => d <= t);
+    const ref = r.d && r.d <= t ? r.d : P.reviewDefault(S, t), ws = P.weekStart(ref), wk = P.isoWeek(ref), days = P.weekDays(ref).filter((d) => d <= t);
     const snap = P.weekSnapshot(S, ref, t, weekExt(ref, t, X)), L = P.lights(snap, S.settings), rv = S.reviews[wk];
     const prevPri = (S.reviews[P.isoWeek(P.addDays(ws, -7))] || {}).priorities || [];
     const rowsA = [
@@ -371,7 +412,7 @@
     ];
     const journals = days.filter((d) => P.journalDone(S.days[d])).map((d) => { const j = S.days[d].journal; return `<div class="journal-entry"><b>${P.fmtLong(d)}</b>${j.good ? `✓ ${esc(j.good)}<br>` : ""}${j.better ? `↗ ${esc(j.better)}<br>` : ""}${j.grateful ? `♡ ${esc(j.grateful)}` : ""}</div>`; }).join("");
     const v = rv || { wins: ["", "", ""], lesson: "", priorities: ["", "", ""], score: null };
-    const nav = `<div class="seg" role="group" aria-label="Cambiar de semana"><button data-wgo="${P.addDays(ws, -7)}" aria-label="Semana anterior">‹</button>${ws !== P.weekStart(t) ? `<button data-wgo="${t}">Esta</button>` : ""}<button data-wgo="${P.addDays(ws, 7)}" aria-label="Semana siguiente" ${P.addDays(ws, 7) > t ? "disabled" : ""}>›</button></div>`;
+    const nav = `<div class="seg" role="group" aria-label="Cambiar de semana"><button data-wgo="${P.addDays(ws, -7)}" aria-label="Semana anterior">‹</button>${ws !== P.weekStart(t) ? `<button data-wgo="${t}">Esta semana</button>` : ""}<button data-wgo="${P.addDays(ws, 7)}" aria-label="Semana siguiente" ${P.addDays(ws, 7) > t ? "disabled" : ""}>›</button></div>`;
     return header(`Semana ${wk.slice(6)} · ${P.fmtDay(ws)} – ${P.fmtDay(P.addDays(ws, 6))}`, `<b>Revisión semanal</b>${rv ? ' <span class="chip ok">hecha</span>' : ""}`, nav) + `<div class="grid">
       <section class="card c5"><h2>Cómo fue la semana <span class="right">${snap.days} días</span></h2>
         <div class="table-wrap"><table class="t"><tbody>${rowsA.map(([k, val, l]) => `<tr><td>${l !== undefined ? dot(val == null ? null : l) : ""} ${k}</td><td class="n">${val == null ? '<span class="faint">sin datos</span>' : esc(val)}</td></tr>`).join("")}</tbody></table></div>
@@ -449,8 +490,13 @@
     if (!el) return;
     const t = today();
     if (el.dataset.go) { location.hash = el.dataset.go === t ? "#/hoy" : `#/hoy?d=${el.dataset.go}`; return; }
-    if (el.dataset.wgo) { location.hash = P.weekStart(el.dataset.wgo) === P.weekStart(t) ? "#/semana" : `#/semana?d=${el.dataset.wgo}`; return; }
-    if (el.dataset.energy) { const d = $("[data-day]").dataset.day, n = Number(el.dataset.energy); commit(P.setDay(S, d, { energy: (S.days[d] || {}).energy === n ? null : n })); return; }
+    // explicit ?d= even for this week: on a Monday «#/semana» alone opens last week's pending review
+    if (el.dataset.wgo) { location.hash = `#/semana?d=${el.dataset.wgo}`; return; }
+    if (el.dataset.energy) {
+      const d = $("[data-day]").dataset.day, n = Number(el.dataset.energy);
+      if (persist(P.setDay(S, d, { energy: (S.days[d] || {}).energy === n ? null : n }))) refreshHoy();
+      return;
+    }
     if (el.dataset.score) { ev.preventDefault(); el.parentElement.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === el && b.getAttribute("aria-pressed") !== "true"))); return; }
     if (el.dataset.bstatus) { const s = { ...S, books: S.books.map((b) => (b.id === el.dataset.bstatus ? { ...b, status: el.dataset.to } : b)) }; commit(s); return; }
     if (el.dataset.bdel) { const b = S.books.find((x) => x.id === el.dataset.bdel); if (b && confirm(`¿Borrar «${b.title}» y su registro de lectura?`)) commit({ ...S, books: S.books.filter((x) => x !== b), readLog: S.readLog.filter((x) => x.bookId !== b.id) }, "Borrado"); return; }
@@ -459,36 +505,66 @@
     if (el.dataset.gedit) { editGoal = el.dataset.gedit; render(); $("#goalForm input").focus(); window.scrollTo({ top: 0 }); return; }
     switch (el.id) {
       case "cancelGoal": editGoal = null; render(); return;
-      case "dlBad": download(`panel-danado-${today()}.json`, corrupt); return;
+      case "dlBad": download(`panel-danado-${today()}.txt`, corrupt, "text/plain;charset=utf-8"); return;
       case "resetBad": if (confirm("¿Descartar los datos dañados y empezar de cero? Descarga antes el texto si lo quieres conservar.")) { corrupt = null; S = P.emptyState(); S.goals = P.starterGoals(today()); save(); render(); } return;
-      case "backupAll": download(`copia-mix-ideas-${today()}.json`, JSON.stringify(P.buildBackup((k) => store.get(k), new Date().toISOString()), null, 1)); toast("Copia descargada"); return;
+      case "backupAll": {
+        const b = P.buildBackup((k) => store.get(k), P.stamp(new Date())), n = Object.keys(b.data).length;
+        const bad = P.APP_KEYS.filter(({ key }) => store.get(key) != null && !(key in b.data)).map((x) => x.app);
+        download(`copia-mix-ideas-${today()}.json`, JSON.stringify(b, null, 1));
+        toast(`Copia descargada (${n} ${n === 1 ? "app" : "apps"})${bad.length ? `. No se pudieron incluir, están dañados: ${bad.join(", ")}` : ""}`);
+        return;
+      }
       case "restoreAll": fileMode = "all"; $("#fileIn").click(); return;
       case "exportPanel": download(`panel-${today()}.json`, JSON.stringify(S, null, 1)); return;
       case "importPanel": fileMode = "panel"; $("#fileIn").click(); return;
-      case "loadDemo": if (confirm("Cargar datos de ejemplo en el Panel. Sustituyen lo que tengas en el Panel (tus otras apps no se tocan). ¿Seguir?")) commit(P.demoState(today()), "Datos de ejemplo cargados"); return;
-      case "clearDemo": { const s = P.emptyState(); s.settings = S.settings; s.goals = P.starterGoals(today()); commit(s, "Datos de ejemplo quitados"); return; }
+      case "loadDemo": if (!blocked() && confirm("Cargar datos de ejemplo (ficticios) en el Panel. Lo que tienes ahora en el Panel se guarda aparte y vuelve al pulsar «Quitar datos de ejemplo». Tus otras apps no se tocan. ¿Seguir?")) commit(P.demoState(today(), S), "Datos de ejemplo cargados"); return;
+      case "clearDemo": {
+        let s;
+        if (S.before) s = P.migrate(S.before);
+        else { s = P.emptyState(); s.settings = S.settings; s.goals = P.starterGoals(today()); }
+        commit(s, S.before ? "Datos de ejemplo quitados: vuelves a tener tu Panel" : "Datos de ejemplo quitados"); return;
+      }
       case "wipe": if (confirm("¿Borrar todos los datos del Panel? Tus otras apps no se tocan.")) { store.del(P.KEY); load(); render(); toast("Panel borrado"); } return;
     }
   }
-  let jTimer = null;
+  let jTimer = null, jPending = null, jWarned = false;
+  function flushJournal() { clearTimeout(jTimer); const f = jPending; jPending = null; if (f) f(); }
   function onInput(ev) {
     const el = ev.target;
     if (el.dataset.j) {
+      if (corrupt !== null) { if (!jWarned) { jWarned = true; blocked(); } return; }
       clearTimeout(jTimer);
       const d = $("[data-day]").dataset.day, k = el.dataset.j, v = el.value;
-      jTimer = setTimeout(() => { S = P.setDay(S, d, { journal: { [k]: v } }); save(); }, 400);
+      jPending = () => { S = P.setDay(S, d, { journal: { [k]: v } }); save(); };
+      jTimer = setTimeout(flushJournal, 400);
     }
+  }
+  /** Updates what Hoy computes (hours slept, 7-day table, streak, energy) without replacing the inputs: a re-render in the
+      middle of typing a time in Chrome (it fires "change" after "23:4") would drop focus and the last digit. */
+  function refreshHoy() {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = vHoy(today(), null, route());
+    for (const id of ["sleepCalc", "hoyWeek", "jStreak"]) { const a = document.getElementById(id), b = tmp.querySelector("#" + id); if (a && b) a.innerHTML = b.innerHTML; }
+    const d = ($("[data-day]") || {}).dataset;
+    if (d) document.querySelectorAll("[data-energy]").forEach((b) => b.setAttribute("aria-pressed", String((S.days[d.day] || {}).energy === Number(b.dataset.energy))));
   }
   function onChange(ev) {
     const el = ev.target;
     if (el.dataset.f) {
       const d = $("[data-day]").dataset.day, f = el.dataset.f;
       let v = el.type === "checkbox" ? el.checked : el.value;
-      if (f === "screenMin") v = el.value === "" ? null : Math.max(0, Math.min(1440, Math.round(Number(el.value))));
-      commit(P.setDay(S, d, { [f]: v === "" ? null : v }), f === "screenMin" && v !== null ? `Móvil: ${v} min` : null);
+      if (f === "screenMin") v = el.value === "" || !Number.isFinite(Number(el.value)) ? null : Math.max(0, Math.min(1440, Math.round(Number(el.value))));
+      if (persist(P.setDay(S, d, { [f]: v === "" ? null : v }), f === "screenMin" && v !== null ? `Móvil: ${v} min` : null)) refreshHoy();
+      else render(); // not saved (damaged data or full storage): show what is really stored
       return;
     }
-    if (el.dataset.j) { clearTimeout(jTimer); const d = $("[data-day]").dataset.day; S = P.setDay(S, d, { journal: { [el.dataset.j]: el.value } }); if (save()) toast("Diario guardado"); return; }
+    if (el.dataset.j) {
+      jPending = null; clearTimeout(jTimer);
+      if (corrupt !== null) return;
+      const d = $("[data-day]").dataset.day;
+      if (persist(P.setDay(S, d, { journal: { [el.dataset.j]: el.value } }), "Diario guardado")) refreshHoy();
+      return;
+    }
     if (el.dataset.gstep) {
       commit({ ...S, goals: S.goals.map((g) => (g.id === el.dataset.gstep ? { ...g, steps: g.steps.map((s, i) => (i === Number(el.dataset.i) ? { ...s, done: el.checked } : s)) } : g)) });
       return;
@@ -502,20 +578,30 @@
     if (fileMode === "panel") {
       let o; try { o = JSON.parse(text); } catch (e) { alert("El fichero no es JSON válido. No se ha cambiado nada."); return; }
       if (!P.isObj(o) || o.version !== 1 || !P.isObj(o.days)) { alert("No es una exportación del Panel de vida. No se ha cambiado nada."); return; }
-      if (confirm("Esto sustituye todos los datos del Panel por los del fichero. ¿Seguir?")) commit(P.migrate(o), "Panel importado");
+      // importing is an explicit decision, so it also replaces damaged data (the banner offered to download it first)
+      if (confirm(`Esto sustituye todos los datos del Panel por los del fichero.${corrupt !== null ? " Los datos dañados se descartarán." : ""} ¿Seguir?`)) { corrupt = null; commit(P.migrate(o), "Panel importado"); }
     } else if (fileMode === "all") {
       const p = P.parseBackup(text);
       if (!p.ok) { alert(p.error + " No se ha cambiado nada."); return; }
-      if (!confirm(`Copia del ${p.exportedAt.slice(0, 10) || "?"} con datos de: ${p.entries.map((e) => e.app).join(", ")}.\n\nSe SUSTITUIRÁN los datos actuales de esas apps en este navegador. ¿Restaurar?`)) return;
-      let ok = 0; for (const e of p.entries) if (store.set(e.key, e.value)) ok++;
-      load(); render(); toast(`Restauradas ${ok} de ${p.entries.length} apps`);
+      const when = P.isISO(p.exportedAt.slice(0, 10)) ? P.fmtDay(p.exportedAt.slice(0, 10)) + " de " + p.exportedAt.slice(0, 4) : "fecha desconocida";
+      if (!confirm(`Copia del ${when} con datos de: ${p.entries.map((e) => e.app).join(", ")}.\n\nSe SUSTITUIRÁN los datos actuales de esas apps en este navegador. ¿Restaurar?`)) return;
+      // all or nothing: if the browser runs out of space halfway, put back what was there
+      const prev = p.entries.map((e) => [e.key, store.get(e.key)]);
+      const failed = p.entries.find((e) => !store.set(e.key, e.value));
+      if (failed) {
+        for (const [k, v] of prev) { if (v == null) store.del(k); else store.set(k, v); }
+        store.ok = true;
+        alert("No se pudo restaurar la copia (el navegador no deja guardar más). Se ha dejado todo como estaba."); render(); return;
+      }
+      load(); render(); toast(`Restauradas ${p.entries.length} ${p.entries.length === 1 ? "app" : "apps"}`);
     }
   }
   function onSubmit(ev) {
     ev.preventDefault();
     const f = ev.target, fd = new FormData(f), t = today();
     if (f.dataset.read) {
-      const b = S.books.find((x) => x.id === f.dataset.read), p = Number(fd.get("p")), m = Number(fd.get("m")) || 0;
+      // "Voy por" left empty means "same page" (it used to reset the book to page 0)
+      const b = S.books.find((x) => x.id === f.dataset.read), pRaw = String(fd.get("p") ?? "").trim(), p = pRaw === "" ? b.progress : Number(pRaw), m = Math.max(0, Number(fd.get("m")) || 0);
       const d = ($("[data-day]") || {}).dataset ? $("[data-day]").dataset.day : t;
       const next = P.logReading(S, f.dataset.read, p, m, d);
       if (next === S) { toast("Nada que apuntar: cambia la página o los minutos"); return; }
@@ -541,13 +627,17 @@
     if (f.id === "reviewForm") {
       const wk = f.dataset.week, ref = f.dataset.ref, X = readAll(t), sc = f.querySelector('[data-score][aria-pressed="true"]');
       const snap = P.weekSnapshot(S, ref, t, weekExt(ref, t, X));
-      const rv = P.normReview({ at: new Date().toISOString().slice(0, 16), wins: [0, 1, 2].map((i) => fd.get("w" + i)), lesson: fd.get("lesson"), priorities: [0, 1, 2].map((i) => fd.get("p" + i)), score: sc ? Number(sc.dataset.score) : null, snapshot: snap });
+      const rv = P.normReview({ at: P.stamp(new Date()), wins: [0, 1, 2].map((i) => fd.get("w" + i)), lesson: fd.get("lesson"), priorities: [0, 1, 2].map((i) => fd.get("p" + i)), score: sc ? Number(sc.dataset.score) : null, snapshot: snap });
       commit({ ...S, reviews: { ...S.reviews, [wk]: rv } }, "Revisión guardada · buena semana"); return;
     }
     if (f.id === "setForm") {
       const cd = P.parseCountdowns(fd.get("countdowns"));
       if (cd.errors.length) { alert(`Cuenta atrás: revisa la línea ${cd.errors.join(", ")}. Formato: 2027-01-06 Woxsen (India)`); return; }
-      const s = P.migrate({ ...S, settings: { countdowns: cd.list, name: fd.get("name"), sleepGoalMin: Math.round(Number(fd.get("sleepH")) * 60), bedTarget: fd.get("bedTarget"), screenGoalMin: fd.get("screenGoalMin"), pagesWeekGoal: fd.get("pagesWeekGoal"), learnWeekGoalMin: fd.get("learnWeekGoalMin") } });
+      // an empty field keeps its current value instead of falling back to the default
+      const keep = (v, cur) => (String(v ?? "").trim() === "" ? cur : v);
+      const st = S.settings, sh = String(fd.get("sleepH") ?? "").trim();
+      const s = P.migrate({ ...S, settings: { countdowns: cd.list, name: keep(fd.get("name"), st.name), sleepGoalMin: sh === "" ? st.sleepGoalMin : Math.round(Number(sh) * 60), bedTarget: keep(fd.get("bedTarget"), st.bedTarget),
+        screenGoalMin: keep(fd.get("screenGoalMin"), st.screenGoalMin), pagesWeekGoal: keep(fd.get("pagesWeekGoal"), st.pagesWeekGoal), learnWeekGoalMin: keep(fd.get("learnWeekGoalMin"), st.learnWeekGoalMin) } });
       commit(s, "Ajustes guardados");
     }
   }
@@ -559,7 +649,10 @@
   document.addEventListener("change", onChange);
   document.addEventListener("submit", onSubmit);
   window.addEventListener("hashchange", () => { editGoal = null; render(); $("#main").focus({ preventScroll: true }); window.scrollTo(0, 0); });
-  window.addEventListener("storage", (ev) => { if (ev.key === P.KEY) load(); if (!document.activeElement || !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) render(); });
+  // another tab changed something: re-read the Panel (key null = storage cleared) and redraw unless you are typing
+  window.addEventListener("storage", (ev) => { if (ev.key === P.KEY || ev.key === null) { load(); flushJournal(); } if (!document.activeElement || !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) render(); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) flushJournal(); });
+  window.addEventListener("pagehide", flushJournal);
   let lastDay = today();
   setInterval(() => { if (today() !== lastDay && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "")) { lastDay = today(); render(); } }, 60000);
   render();
