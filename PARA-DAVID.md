@@ -40,3 +40,26 @@ Buenos días. Las **19 ideas** tienen su carpeta, más **una nueva (20 · efecto
 Todos los tests (~60, Python y Node) pasan con `./ejecutar_tests.sh` y se ejecutan en GitHub Actions en cada push.
 
 Bitácora detallada (horas, problemas): [`BITACORA.md`](BITACORA.md). Índice: [`README.md`](README.md).
+
+---
+
+## Segunda ronda (4 nov, mañana): revisión con tus visiones
+
+**Corregido en lo que ya había** (detalle en `BITACORA.md`):
+- **26:47 🎉** → plan y ritmos regenerados hacia **< 26:00** el 28-dic (02). Tus ritmos de entrenamiento suben un escalón; confirma con un test de 3 km.
+- **Francés:** ya no "de cero": comprensión A2+, producción A1-A2, **prioridad producción**, suelo de 30' con minutos acumulados, inscripción al DELF de junio **desde India** (en 2025: 1 mar – 11 abr, 184 €). Skills, banco de francés, India y sistema actualizados.
+- Skills alineadas con tus visiones (deporte híbrido, filosofía de gastos, formato real de tus notas con **Sube/Baja/Puentes**, guía de estilo provisional) + nueva skill `revision-carrera`.
+- **3 objetivos del mes** en la hoja de hábitos y en la app (15). B2 de Cambridge y alemán en LinkedIn/portfolio (14).
+
+**Nuevo, sacado de tus visiones:**
+| # | Qué | Para qué visión |
+|---|---|---|
+| 21 | App de **horas por idioma** (suelo acumulable, proyección al B2, % de producción) + **plan de alemán** (lo tenías pendiente) + inglés C1 | Idiomas |
+| 22 | **Escalera al Ironman** con VDOT por escalón, **aprender a nadar** en Woxsen, semana híbrida (estándar 5 / suelo 3), generador de plan de **media < 1:55** | Deporte |
+| 23 | **Simulador de tus 4 cuentas** desde el primer sueldo + calculadora para **leer resultados de empresas** | Finanzas, Habilidades |
+| 24 | **Mapa de empresas** (F1, ESA, IA, Galicia), calendario a las prácticas de ene-2028, CV, **32 preguntas de entrevista en inglés** | Profesional |
+| 25 | Plan de habilidades (retórica, estoicismo, móvil antidopamina, jazz) + **app de mecanografía y atajos** | Habilidades |
+
+**Dos números que conviene que mires:**
+- Francés: a 1 h/día y sin contar el colegio, llegar a ~600 h en junio exige ~165 min/día. Pon tus horas previas en la app (21): con 180 h, ~115 min/día. Tu "muy ambicioso" es literal.
+- Casa en 2036 (supuestos editables): la entrada del 30 % no llega sin ~490 €/mes extra, y hay tensión con aportar a la jubilación cada mes (23).
