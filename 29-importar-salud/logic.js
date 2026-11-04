@@ -153,7 +153,7 @@
   }
 
   // ───────────── Apple Health export.xml (streaming): steps, sleep and workouts
-  const STEP = "HKQuantityTypeIdentifierStepCount", SLEEP = "HKCategoryTypeIdentifierSleepAnalysis";
+  const STEP = "HKQuantityTypeIdentifierStepCount", SLEEP = "HKCategoryTypeIdentifierSleepAnalysis", MINDFUL = "HKCategoryTypeIdentifierMindfulSession";
   const MAX_TAG = 1 << 20;
   function attrs(tag) {
     const a = {}; const re = /([A-Za-z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)')/g; let m;
@@ -165,7 +165,7 @@
   function tagEnd(s, from) { let q = null; for (let i = from; i < s.length; i++) { const c = s[i]; if (q) { if (c === q) q = null; } else if (c === '"' || c === "'") q = c; else if (c === ">") return i; } return -1; }
   function createHealthParser() {
     let buf = "", cur = null; // cur = open <Workout> collecting <WorkoutStatistics>
-    const steps = {}, sleep = [], workouts = []; let skipped = 0;
+    const steps = {}, sleep = [], workouts = [], mindful = {}; let skipped = 0;
     function onTag(tag) {
       if (tag.startsWith("<Record")) {
         if (tag.indexOf(STEP) >= 0) {
@@ -173,6 +173,11 @@
           const d = healthDate(a.startDate), v = Number(a.value);
           if (!d || !(v >= 0)) { skipped++; return; }
           const src = (a.sourceName || "?").trim(); (steps[d.date] ||= {})[src] = (steps[d.date][src] || 0) + v;
+        } else if (tag.indexOf(MINDFUL) >= 0) {
+          const a = attrs(tag); if (a.type !== MINDFUL) return;
+          const s = healthDate(a.startDate), e = healthDate(a.endDate);
+          if (!s || !e) { skipped++; return; }
+          const src = (a.sourceName || "?").trim(); (mindful[s.date] ||= {})[src] = (mindful[s.date][src] || 0) + span(s, e);
         } else if (tag.indexOf(SLEEP) >= 0) {
           const a = attrs(tag); if (a.type !== SLEEP) return;
           const s = healthDate(a.startDate), e = healthDate(a.endDate);
@@ -210,7 +215,11 @@
         onTag(buf.slice(s, e + 1)); i = e + 1;
       }
     }
-    function finish() { return summarizeHealth(steps, sleep, workouts, skipped); }
+    function finish() {
+      const r = summarizeHealth(steps, sleep, workouts, skipped);
+      for (const [d, bySrc] of Object.entries(mindful)) { const m = Math.round(Math.max(...Object.values(bySrc))); if (m > 0) (r.days[d] ||= { date: d }).meditMin = Math.min(600, m); }
+      return r;
+    }
     return { push, finish };
   }
   /** Steps: max source per day (iPhone + Watch not added). Sleep: per night (= wake-up date), the source with most minutes;
@@ -243,8 +252,8 @@
   /** health = summarizeHealth(...) | null, shortcut = parseShortcut(...).days | null, strava = workouts | null. */
   function buildPreview({ health = null, shortcut = null, strava = null } = {}) {
     const days = {};
-    const put = (d) => (days[d] ||= { date: d, steps: null, bed: null, wake: null, asleepMin: null, workouts: [] });
-    if (health) for (const x of Object.values(health.days)) { const e = put(x.date); if (x.steps) e.steps = x.steps; if (x.bed) { e.bed = x.bed; e.wake = x.wake; e.asleepMin = x.asleepMin; } }
+    const put = (d) => (days[d] ||= { date: d, steps: null, bed: null, wake: null, asleepMin: null, meditMin: null, workouts: [] });
+    if (health) for (const x of Object.values(health.days)) { const e = put(x.date); if (x.steps) e.steps = x.steps; if (x.meditMin) e.meditMin = x.meditMin; if (x.bed) { e.bed = x.bed; e.wake = x.wake; e.asleepMin = x.asleepMin; } }
     if (shortcut) for (const x of shortcut) { const e = put(x.date); if (x.steps) e.steps = x.steps; if (x.bed) { e.bed = x.bed; e.wake = x.wake; } }
     const ws = dedupWorkouts([...(health ? health.workouts : []), ...(strava || [])].map((w) => ({ ...w, sources: undefined })));
     for (const w of ws) put(w.date).workouts.push({ ...w, pasoType: pasoType(w), on: DEFAULT_ON(w.kind) });

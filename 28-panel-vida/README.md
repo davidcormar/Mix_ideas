@@ -44,6 +44,10 @@ NODE_PATH=$(npm root -g) node tests/smoke.js     # recorrido completo en Chromiu
 - ✅ Revisión mensual con envío de objetivos a Hábitos, informe anual imprimible y recuperación/esfuerzo de **Bevel** en *Hoy* (media en la tarjeta de sueño y en el mes).
 - ✅ Acceso directo a [Importar salud](../29-importar-salud/) (Atajo del iPhone, `export.xml`, Strava).
 
+- ✅ **Aviso de copia de seguridad** en el Panel si la última tiene más de 7 días (o nunca hiciste una); se recuerda al descargarla.
+- ✅ **Meditación** en *Hoy* (minutos y racha), en la semana, el mes y el informe; las sesiones de «Mindfulness» de Salud llegan con Importar salud.
+- ✅ **Copiar resumen** en *Semana* y *Mes*: texto en Markdown con los números y tu revisión, listo para pegar en Obsidian o Notas.
+
 ## Qué falta / siguientes pasos
 - Gráficas de tendencia de varias semanas (sueño y móvil) y correlaciones más finas (p. ej. móvil ↔ sueño).
 - Importar el tiempo de pantalla y el sueño directamente de Apple Health (Paso ya sabe leer `export.xml`).

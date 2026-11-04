@@ -183,6 +183,7 @@
     if (firstRun) out.push(`<div class="callout"><p><b>Primer paso (1 minuto):</b> en <i>Hoy</i> apunta a qué hora te acostaste y te levantaste, tu energía y el móvil. Cada tarjeta se llena sola con lo que apuntes aquí y en tus otras apps. ¿Quieres verlo lleno antes? Carga los datos de ejemplo en <a href="#/ajustes">Ajustes</a>.</p><a class="btn primary" href="#/hoy" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[wk] && P.dow(t) >= 6) out.push(`<div class="callout"><p><b>Toca la revisión semanal.</b> 10 minutos: cómo fue la semana en todas tus áreas y 3 prioridades para la siguiente.</p><a class="btn primary" href="#/semana" style="text-decoration:none">Empezar</a></div>`);
     else if (!S.reviews[prevWk] && P.dow(t) === 1) out.push(`<div class="callout"><p><b>No hiciste la revisión de la semana pasada.</b> Aún estás a tiempo.</p><a class="btn primary" href="#/semana?d=${P.addDays(t, -7)}" style="text-decoration:none">Hacerla ahora</a></div>`);
+    { const bd = P.backupDue(S, t); if (bd !== null) out.push(`<div class="callout"><p><b>${bd === Infinity ? "Aún no has hecho ninguna copia de seguridad." : `Tu última copia de seguridad es de hace ${bd} días.`}</b> Tus datos solo viven en este navegador: descárgala y guárdala en iCloud o Drive.</p><button class="btn primary" id="backupAll">Descargar copia</button></div>`); }
     { const pm = P.prevYM(t.slice(0, 7)); if (Number(t.slice(8)) <= 7 && !S.monthReviews[pm]) out.push(`<div class="callout"><p><b>Tu día al mes:</b> revisa ${P.MONTHS[Number(pm.slice(5)) - 1]} y elige 3 objetivos para este mes.</p><a class="btn primary" href="#/mes" style="text-decoration:none">Revisar el mes</a></div>`); }
     out.push('<div class="grid">');
     // hero "tu día"
@@ -193,6 +194,7 @@
         <div class="row"><span>Energía</span><b>${e.energy ? "●".repeat(e.energy) + "○".repeat(5 - e.energy) : "sin apuntar"}</b></div>
         <div class="row"><span>Móvil hoy</span><b>${e.screenMin !== undefined ? `${e.screenMin} min · objetivo ${S.settings.screenGoalMin}` : "sin apuntar"}</b></div>
         <div class="row"><span>0 redes antes de las 14:00</span><b>${e.noSocialAM === true ? "Sí" : e.noSocialAM === false ? "No" : "—"}</b></div>
+        <div class="row"><span>Meditación</span><b>${e.meditMin ? `${e.meditMin} min` : "—"}${P.meditStreak(S, t) > 1 ? ` · racha ${P.meditStreak(S, t)}` : ""}</b></div>
       </div>
       ${pri.length ? `<p class="faint" style="margin-top:14px">Prioridades de la semana</p><ol style="margin:6px 0 0;padding-left:18px;font-size:14px">${pri.map((p) => `<li>${esc(p)}</li>`).join("")}</ol>` : ""}
     </section>`);
@@ -305,7 +307,9 @@
           <label class="field">Esfuerzo Bevel (%)<input type="number" inputmode="numeric" min="0" max="100" data-f="strain" value="${e.strain ?? ""}" placeholder="opcional"></label></div>
       </section>
       <section class="card c6"><h2>📵 Móvil</h2><p class="sub">Tu hábito: 0 redes antes de las 14:00 y máximo ${S.settings.screenGoalMin} min.</p>
-        <div class="fields"><label class="field">Tiempo de pantalla (min)<input type="number" inputmode="numeric" min="0" max="1440" step="5" data-f="screenMin" value="${e.screenMin ?? ""}" placeholder="p. ej. 55"></label></div>
+        <div class="fields"><label class="field">Tiempo de pantalla (min)<input type="number" inputmode="numeric" min="0" max="1440" step="5" data-f="screenMin" value="${e.screenMin ?? ""}" placeholder="p. ej. 55"></label>
+          <label class="field">🧘 Meditación (min)<input type="number" inputmode="numeric" min="0" max="600" step="1" data-f="meditMin" value="${e.meditMin ?? ""}" placeholder="p. ej. 10"></label></div>
+        <p class="faint" style="margin-top:6px">Meditación: ${P.meditStreak(S, t)} ${P.meditStreak(S, t) === 1 ? "día seguido" : "días seguidos"}. Las sesiones de «Mindfulness» de Salud llegan solas con Importar salud.</p>
         <label class="check" style="margin-top:12px"><input type="checkbox" data-f="noSocialAM" ${e.noSocialAM ? "checked" : ""}> 0 redes sociales antes de las 14:00</label>
         <details class="help"><summary>¿Dónde lo miro?</summary>iPhone: <i>Ajustes → Tiempo de uso → Ver toda la actividad</i>, pestaña <i>Día</i>. Apunta el total de ayer por la mañana si te resulta más fácil (cambia el día con ‹).</details>
       </section>
@@ -416,7 +420,9 @@
       ["Tareas hechas (Ritmo)", snap.tasksDone != null ? String(snap.tasksDone) : null, null],
       ["Gasto", snap.spend != null ? euros(snap.spend) : null, null],
       ["Diario", `${snap.journalDays} de ${snap.days} días`, null],
+      ["Meditación", snap.meditDays ? `${snap.meditDays} días · ${snap.meditMin} min` : null, undefined],
     ];
+    shareData = { title: `Semana ${Number(wk.slice(6))} · ${P.fmtDay(ws)} – ${P.fmtDay(P.addDays(ws, 6))} ${ws.slice(0, 4)}`, rows: rowsA.map(([k, val]) => [k, val]), review: rv || null };
     const journals = days.filter((d) => P.journalDone(S.days[d])).map((d) => { const j = S.days[d].journal; return `<div class="journal-entry"><b>${P.fmtLong(d)}</b>${j.good ? `✓ ${esc(j.good)}<br>` : ""}${j.better ? `↗ ${esc(j.better)}<br>` : ""}${j.grateful ? `♡ ${esc(j.grateful)}` : ""}</div>`; }).join("");
     const v = rv || { wins: ["", "", ""], lesson: "", priorities: ["", "", ""], score: null };
     const nav = `<div class="seg" role="group" aria-label="Cambiar de semana"><button data-wgo="${P.addDays(ws, -7)}" aria-label="Semana anterior">‹</button>${ws !== P.weekStart(t) ? `<button data-wgo="${t}">Esta semana</button>` : ""}<button data-wgo="${P.addDays(ws, 7)}" aria-label="Semana siguiente" ${P.addDays(ws, 7) > t ? "disabled" : ""}>›</button></div>`;
@@ -434,7 +440,7 @@
             <label class="field">Lo que aprendí / cambiaría<textarea name="lesson" maxlength="500">${esc(v.lesson)}</textarea></label>
             ${[0, 1, 2].map((i) => `<label class="field">Prioridad ${i + 1} para la semana que viene<input name="p${i}" maxlength="300" value="${esc(v.priorities[i] || "")}"></label>`).join("")}
           </div>
-          <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><span class="faint">Se guarda con la foto de los números de arriba.</span></div>
+          <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><button type="button" class="btn" id="shareWeek">Copiar resumen</button><span class="faint">Se guarda con la foto de los números de arriba. «Copiar resumen» lo deja listo para pegar en Obsidian o Notas.</span></div>
         </form></section>
       <section class="card c12 no-print"><h2>Más allá de la semana</h2><div class="actions"><a class="btn" href="#/mes" style="text-decoration:none">Revisión mensual</a><a class="btn" href="#/informe" style="text-decoration:none">Informe anual (PDF)</a><a class="btn" href="../29-importar-salud/" style="text-decoration:none">Importar salud</a></div></section>
       ${trendCard(t)}
@@ -465,6 +471,13 @@
     </div></section>`;
   }
 
+  let shareData = null;
+  async function share() {
+    if (!shareData) return;
+    const text = P.summaryText(shareData.title, shareData.rows, shareData.review);
+    try { await navigator.clipboard.writeText(text); toast("Resumen copiado: pégalo en Obsidian o Notas"); }
+    catch (e) { window.prompt("Copia el resumen:", text); }
+  }
   // ───────────── MES (revisión mensual) e INFORME ANUAL
   function rangeExt(days, X) {
     const e = {};
@@ -484,7 +497,7 @@
     ["Sueño medio", "sleepAvgMin", (v) => h(v)], ["Energía", "energyAvg", (v) => P.fmtDec(v) + " / 5"], ["Recuperación Bevel", "recoveryAvg", (v) => Math.round(v) + " %"],
     ["Móvil", "screenAvg", (v) => Math.round(v) + " min/día"], ["Sesiones de deporte", "sport", (v) => String(v)], ["Hábitos", "habitsMean", (v) => P.fmtDec(v) + " / día"],
     ["Francés", "frMin", (v) => `${P.fmtDec(v / 60)} h`], ["Pasos", "stepsAvg", (v) => P.fmtInt(v) + " /día"], ["Lectura", "pages", (v) => `${v} págs.`],
-    ["Cursos", "learnMin", (v) => `${v} min`], ["Diario", "journalDays", (v) => `${v} días`], ["Gasto", "spend", (v) => euros(v)],
+    ["Cursos", "learnMin", (v) => `${v} min`], ["Diario", "journalDays", (v) => `${v} días`], ["Meditación", "meditMin", (v) => `${v} min`], ["Gasto", "spend", (v) => euros(v)],
   ];
   function vMes(t, X, r) {
     const ym = r.m && `${r.m}-01` <= t ? r.m : P.monthDefault(S, t), days = P.monthDays(ym, t), prev = P.prevYM(ym);
@@ -492,6 +505,7 @@
     const rv = S.monthReviews[ym], v = rv || P.normMonthReview({}), nx = P.nextYM(ym);
     const delta = (k, fmt) => (snap[k] != null && before[k] != null && Math.abs(snap[k] - before[k]) > 0.0001 ? `<span class="faint"> ${snap[k] > before[k] ? "↑" : "↓"} ${fmt(Math.abs(snap[k] - before[k]))}</span>` : "");
     const nav = `<div class="seg" role="group" aria-label="Cambiar de mes"><button data-mgo="${prev}" aria-label="Mes anterior">‹</button><button data-mgo="${nx}" aria-label="Mes siguiente" ${`${nx}-01` > t ? "disabled" : ""}>›</button></div>`;
+    shareData = { title: cap(monthName(ym)), rows: MROWS.map(([label, k, fmt]) => [label, snap[k] == null ? null : fmt(snap[k])]), review: rv || null };
     const habObjs = X.habits ? safe(() => R.objectivesOf(X.habits, ym)) || [] : [];
     return header(`Revisión mensual · tu «día al mes»`, `<b>${cap(monthName(ym))}</b>${rv ? ' <span class="chip ok">hecha</span>' : ""}`, nav) + `<div class="grid">
       <section class="card c5"><h2>Cómo fue el mes <span class="right">${snap.days} días · vs. ${P.MONTHS[Number(prev.slice(5)) - 1]}</span></h2>
@@ -510,7 +524,7 @@
             ${[0, 1, 2].map((i) => `<label class="field">Objetivo ${i + 1} para ${P.MONTHS[Number(nx.slice(5)) - 1]}<input name="o${i}" maxlength="300" value="${esc(v.objectives[i])}"></label>`).join("")}
           </div>
           <label class="check" style="margin-top:12px"><input type="checkbox" name="toHab" ${R ? "checked" : "disabled"}> Poner estos 3 objetivos en Hábitos para ${P.MONTHS[Number(nx.slice(5)) - 1]} (los ves en Ritmo y en la hoja de 15)</label>
-          <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><span class="faint">Se guarda con la foto de los números.</span></div>
+          <div class="actions"><button class="btn primary">${rv ? "Actualizar revisión" : "Guardar revisión"}</button><button type="button" class="btn" id="shareMonth">Copiar resumen</button><span class="faint">Se guarda con la foto de los números.</span></div>
         </form>
         <details class="help"><summary>Ideas para tu día al mes</summary>Repasa tus visiones y metas, mira la tendencia de 8 semanas, ordena finanzas (importa el CSV del banco), planifica el mes en Ritmo y haz la copia de seguridad.</details>
       </section></div>`;
@@ -581,6 +595,7 @@
     if (el.dataset.mgo) { location.hash = `#/mes?m=${el.dataset.mgo}`; return; }
     if (el.dataset.ygo) { location.hash = `#/informe?y=${el.dataset.ygo}`; return; }
     if (el.id === "printBtn") { window.print(); return; }
+    if (el.id === "shareWeek" || el.id === "shareMonth") { share(); return; }
     if (el.dataset.score) { ev.preventDefault(); el.parentElement.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === el && b.getAttribute("aria-pressed") !== "true"))); return; }
     if (el.dataset.bstatus) { const s = { ...S, books: S.books.map((b) => (b.id === el.dataset.bstatus ? { ...b, status: el.dataset.to } : b)) }; commit(s); return; }
     if (el.dataset.bdel) { const b = S.books.find((x) => x.id === el.dataset.bdel); if (b && confirm(`¿Borrar «${b.title}» y su registro de lectura?`)) commit({ ...S, books: S.books.filter((x) => x !== b), readLog: S.readLog.filter((x) => x.bookId !== b.id) }, "Borrado"); return; }
@@ -595,6 +610,7 @@
         const b = P.buildBackup((k) => store.get(k), P.stamp(new Date())), n = Object.keys(b.data).length;
         const bad = P.APP_KEYS.filter(({ key }) => store.get(key) != null && !(key in b.data)).map((x) => x.app);
         download(`copia-mix-ideas-${today()}.json`, JSON.stringify(b, null, 1));
+        if (corrupt === null && !S.demo) persist({ ...S, lastBackup: today() });
         toast(`Copia descargada (${n} ${n === 1 ? "app" : "apps"})${bad.length ? `. No se pudieron incluir, están dañados: ${bad.join(", ")}` : ""}`);
         return;
       }
@@ -637,7 +653,7 @@
     if (el.dataset.f) {
       const d = $("[data-day]").dataset.day, f = el.dataset.f;
       let v = el.type === "checkbox" ? el.checked : el.value;
-      if (f === "screenMin" || f === "recovery" || f === "strain") v = el.value === "" || !Number.isFinite(Number(el.value)) ? null : Math.max(0, Math.min(f === "screenMin" ? 1440 : 100, Math.round(Number(el.value))));
+      if (f === "screenMin" || f === "recovery" || f === "strain" || f === "meditMin") v = el.value === "" || !Number.isFinite(Number(el.value)) ? null : Math.max(0, Math.min({ screenMin: 1440, meditMin: 600 }[f] || 100, Math.round(Number(el.value))));
       if (persist(P.setDay(S, d, { [f]: v === "" ? null : v }), f === "screenMin" && v !== null ? `Móvil: ${v} min` : null)) refreshHoy();
       else render(); // not saved (damaged data or full storage): show what is really stored
       return;

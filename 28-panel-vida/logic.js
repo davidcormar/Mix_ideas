@@ -77,6 +77,7 @@
     if (Array.isArray(any.goals)) s.goals = any.goals.filter((g) => isObj(g) && typeof g.title === "string" && g.title.trim()).map(normGoal);
     if (isObj(any.reviews)) for (const [w, v] of Object.entries(any.reviews)) if (/^\d{4}-W\d{2}$/.test(w) && isObj(v)) s.reviews[w] = normReview(v);
     if (isObj(any.monthReviews)) for (const [m, v] of Object.entries(any.monthReviews)) if (/^\d{4}-(0[1-9]|1[0-2])$/.test(m) && isObj(v)) s.monthReviews[m] = normMonthReview(v);
+    if (isISO(any.lastBackup)) s.lastBackup = any.lastBackup;
     if (any.demo === true) {
       s.demo = true;
       // what the Panel held before loading the examples; «Quitar datos de ejemplo» brings it back
@@ -91,6 +92,7 @@
     if (numLike(v.energy) && Number(v.energy) >= 1 && Number(v.energy) <= 5) e.energy = Math.round(Number(v.energy));
     if (numLike(v.screenMin) && Number(v.screenMin) >= 0) e.screenMin = Math.min(1440, Math.round(Number(v.screenMin)));
     if (typeof v.noSocialAM === "boolean") e.noSocialAM = v.noSocialAM;
+    if (numLike(v.meditMin) && Number(v.meditMin) >= 0) e.meditMin = Math.min(600, Math.round(Number(v.meditMin)));
     for (const k of ["recovery", "strain"]) if (numLike(v[k]) && Number(v[k]) >= 0 && Number(v[k]) <= 100) e[k] = Math.round(Number(v[k])); // Bevel, %
     if (isObj(v.journal)) {
       const j = {};
@@ -313,6 +315,39 @@
     return dow(today) === 1 && !state.reviews[isoWeek(today)] && !state.reviews[isoWeek(prev)] ? prev : today;
   }
   /** Snapshot numbers for the week of `iso` (Mon–Sun, capped at today). ext comes from other apps. */
+  // ───────────── meditation, backup reminder, shareable summary
+  function meditStats(state, dates) {
+    const v = dates.map((d) => state.days[d]).filter((e) => e && e.meditMin > 0).map((e) => e.meditMin);
+    return { meditDays: v.length, meditMin: v.reduce((a, b) => a + b, 0) };
+  }
+  function meditStreak(state, today) {
+    const on = (d) => !!(state.days[d] && state.days[d].meditMin > 0);
+    let d = on(today) ? today : addDays(today, -1), n = 0;
+    while (on(d)) { n++; d = addDays(d, -1); }
+    return n;
+  }
+  /** null = no reminder; otherwise days since the last full backup (Infinity = never) once there is something to lose. */
+  function backupDue(state, today, days = 7) {
+    const hasData = Object.keys(state.days).length > 0 || state.books.length > 0 || Object.keys(state.reviews).length > 0;
+    if (!hasData || state.demo) return null;
+    if (!state.lastBackup) return Infinity;
+    const n = daysBetween(state.lastBackup, today);
+    return n >= days ? n : null;
+  }
+  /** Markdown text of a week/month snapshot + review, to paste in Obsidian/Notes. rows = [[label, text|null]]. */
+  function summaryText(title, rows, review) {
+    const out = [`## ${title}`, ""];
+    for (const [k, v] of rows) if (v != null && v !== "") out.push(`- **${k}:** ${v}`);
+    if (review) {
+      if (review.score) out.push(`- **Nota:** ${review.score}/10`);
+      const list = (name, a) => { const x = (a || []).filter((s) => String(s).trim()); if (x.length) { out.push("", `**${name}**`); x.forEach((s) => out.push(`- ${s}`)); } };
+      list("Victorias", review.wins);
+      if (review.lesson) out.push("", `**Lección:** ${review.lesson}`);
+      list("Prioridades", review.priorities); list("Objetivos del mes siguiente", review.objectives);
+    }
+    return out.join("\n") + "\n";
+  }
+
   // ───────────── month & year
   const nextYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${pad2(m + 1)}`; };
   const prevYM = (ym) => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${pad2(m - 1)}`; };
@@ -331,7 +366,7 @@
     const weeks = [...new Set(days.map(isoWeek))], rv = weeks.map((w) => state.reviews[w]).filter(Boolean);
     const scores = rv.map((r) => r.score).filter((x) => x != null);
     return { ym, days: days.length, sleepAvgMin: sl.avgMin, debtMin: sl.debtMin, energyAvg: sl.energyAvg, recoveryAvg: mean(vals("recovery")), strainAvg: mean(vals("strain")),
-      screenAvg: sc.avg, screenOnGoal: sc.onGoal, screenN: sc.n, journalDays: days.filter((d) => journalDone(state.days[d])).length,
+      screenAvg: sc.avg, screenOnGoal: sc.onGoal, screenN: sc.n, journalDays: days.filter((d) => journalDone(state.days[d])).length, ...meditStats(state, days),
       pages: rd.pages, lessons: rd.lessons, learnMin: rd.learnMin,
       booksDone: state.books.filter((b) => b.finished && b.finished.slice(0, 7) === ym).map((b) => b.title),
       weekReviews: rv.length, weeks: weeks.length, scoreAvg: mean(scores), ...ext };
@@ -362,7 +397,7 @@
     return {
       week: isoWeek(iso), from: days[0] || weekStart(iso), to: days.at(-1) || weekStart(iso), days: days.length,
       sleepAvgMin: sl.avgMin, energyAvg: sl.energyAvg, screenAvg: sc.avg, journalDays: days.filter((d) => journalDone(state.days[d])).length,
-      pages: rd.pages, lessons: rd.lessons, learnMin: rd.learnMin,
+      pages: rd.pages, lessons: rd.lessons, learnMin: rd.learnMin, ...meditStats(state, days),
       ...ext,
     };
   }
@@ -450,7 +485,7 @@
 
   const api = {
     KEY, isISO, isHM, isObj, esc, todayISO, stamp, numLike, SETTING_RANGE, reviewDefault, cleanLang, FR_B2_DATE, WOXSEN_DATE, addDays, daysBetween, dow, weekStart, weekDays, range, isoWeek, fmtDay, fmtLong, fmtInt, fmtDec, fmtHours, hm2min, min2hm, MONTHS,
-    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport,
+    DEFAULT_SETTINGS, AREAS, AUTO, STATUS_LABEL, emptyState, migrate, setDay, makeId, normBook, normGoal, normReview, normMonthReview, nextYM, prevYM, monthDays, monthSnapshot, monthDefault, yearReport, meditStats, meditStreak, backupDue, summaryText,
     sleepMinutes, sleepStats, screenStats, pctChange, journalDone, journalStreak, logReading, readingStats, bookEta,
     goalProgress, starterGoals, COUNTDOWNS, countdowns, parseCountdowns, countdownsText, trend, weekSnapshot, lights, APP_KEYS, buildBackup, parseBackup, demoState, mean,
   };

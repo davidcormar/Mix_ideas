@@ -6,7 +6,7 @@
    - A file that cannot be downloaded during the install keeps its copy from the previous version.
    - Slow network and nothing cached: it keeps waiting for the network instead of failing at 4 s.
    - Folders: "app/" and "app/index.html" are the same page offline; "app" (no final slash) is sent to "app/". */
-const VERSION = "754d29937add";
+const VERSION = "812f712c23ee";
 const CACHE = "mix-ideas-" + VERSION;
 const TIMEOUT_MS = 4000;
 const FILES = [

@@ -67,3 +67,12 @@ test("Atajos: JSON, clave=valor y formatos de hora del iPhone", () => {
   assert.equal(S.normHM("2026-11-04 07:05:00"), "07:05");
   assert.equal(S.normHM("25:00"), null);
 });
+
+test("Salud: minutos de mindfulness por día (fuente mayor)", () => {
+  const xml = '<HealthData><Record type="HKCategoryTypeIdentifierMindfulSession" sourceName="Salud" startDate="2026-11-03 22:00:00 +0100" endDate="2026-11-03 22:10:00 +0100" value="HKCategoryValueNotApplicable"/>' +
+    '<Record type="HKCategoryTypeIdentifierMindfulSession" sourceName="Salud" startDate="2026-11-03 07:00:00 +0100" endDate="2026-11-03 07:05:00 +0100"/></HealthData>';
+  const p = S.createHealthParser(); p.push(xml);
+  const h = p.finish();
+  assert.equal(h.days["2026-11-03"].meditMin, 15);
+  assert.equal(S.buildPreview({ health: h })[0].meditMin, 15);
+});

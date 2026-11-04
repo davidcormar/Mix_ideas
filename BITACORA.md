@@ -180,3 +180,6 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 - **B:** *Mes* con foto del mes y 3 objetivos que pasan a Hábitos (protocolo de Ritmo, sin tocar ticks). **D:** *Informe anual* imprimible en PDF. **Bevel:** recuperación y esfuerzo en *Hoy*.
 - **Problemas:** el test del Atajo usaba una fecha futura (Paso las rechaza) y un cambio solo de `#hash` no recargaba la página → la página escucha `hashchange`. El informe contaba como cero los meses sin datos → se omiten.
 - Pendiente a petición tuya: sincronización en la nube con un servidor en casa (idea 18).
+
+## Extras finales — hasta 17:02
+- Aviso de copia de seguridad (> 7 días), meditación (Hoy, semana, mes, informe; importada de «Mindfulness» de Salud) y «Copiar resumen» en Markdown para Obsidian. +2 tests. Guía de inicio en `GUIA-INICIO.md`.

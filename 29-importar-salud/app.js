@@ -22,7 +22,7 @@
     const nW = preview.reduce((a, d) => a + d.workouts.length, 0);
     $("#pvCount").textContent = `${preview.length} días · ${nW} entrenos`;
     $("#pvBody").innerHTML = preview.slice(0, 120).map((d, i) => `<tr><td>${dayLabel(d.date)}</td><td class="n">${d.steps ? fmtInt(d.steps) : "—"}</td>
-      <td class="n">${d.bed ? `${d.bed} → ${d.wake}${d.asleepMin ? ` <span class="faint">(${Math.floor(d.asleepMin / 60)} h ${String(d.asleepMin % 60).padStart(2, "0")} dormido)</span>` : ""}` : "—"}</td>
+      <td class="n">${d.meditMin ? `🧘 ${d.meditMin} min<br>` : ""}${d.bed ? `${d.bed} → ${d.wake}${d.asleepMin ? ` <span class="faint">(${Math.floor(d.asleepMin / 60)} h ${String(d.asleepMin % 60).padStart(2, "0")} dormido)</span>` : ""}` : "—"}</td>
       <td>${d.workouts.map((w, j) => `<label class="wk"><input type="checkbox" data-d="${i}" data-w="${j}" ${w.on ? "checked" : ""}> ${esc(S.KIND_LABEL[w.kind])}${w.start ? " " + w.start : ""} · ${w.minutes} min${w.km ? ` · ${String(w.km).replace(".", ",")} km` : ""} <span class="faint">${esc(w.sources.join(" + "))}</span></label>`).join("") || "—"}</td></tr>`).join("");
     $("#pvNote").textContent = preview.length > 120 ? `Se muestran los 120 días más recientes; se importan los ${preview.length}.` : "";
   }
@@ -93,6 +93,7 @@
     try { if (rawP) { const o = JSON.parse(rawP); if (!o || typeof o !== "object" || Array.isArray(o)) throw new Error("x"); panel = PL.migrate(o); } else panel = Object.assign(PL.emptyState(), { goals: PL.starterGoals(t) }); } catch (e) { alert("Los datos del Panel están dañados: ábrelo y revísalo antes de importar. No se ha cambiado nada."); return; }
     let nights = 0, keptNights = 0;
     for (const d of preview) {
+      if (d.meditMin && (over || !(panel.days[d.date] && panel.days[d.date].meditMin))) panel = PL.setDay(panel, d.date, { meditMin: d.meditMin });
       if (!d.bed) continue;
       const cur = panel.days[d.date];
       if (cur && cur.bed && cur.wake && !over) { keptNights++; continue; }

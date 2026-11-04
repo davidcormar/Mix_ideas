@@ -369,3 +369,18 @@ test("informe anual: meses hasta hoy, totales y libros del año", () => {
   assert.equal(y.totals.sleepAvgMin, 480); assert.deepEqual(y.books.map((b) => b.title), ["Meditaciones"]);
   assert.equal(L.yearReport(s, 2027, T).months.length, 0);
 });
+
+test("meditación, aviso de copia y resumen para compartir", () => {
+  let s = L.emptyState();
+  assert.equal(L.backupDue(s, T), null); // nada que perder todavía
+  s = L.setDay(s, "2026-11-02", { meditMin: 10 }); s = L.setDay(s, "2026-11-03", { meditMin: 15 });
+  assert.equal(L.meditStreak(s, T), 2);
+  assert.deepEqual(L.meditStats(s, L.weekDays(T)), { meditDays: 2, meditMin: 25 });
+  assert.equal(L.weekSnapshot(s, T, T).meditMin, 25);
+  assert.equal(L.backupDue(s, T), Infinity);
+  assert.equal(L.backupDue(L.migrate({ ...s, lastBackup: "2026-11-01" }), T), null);
+  assert.equal(L.backupDue(L.migrate({ ...s, lastBackup: "2026-10-20" }), T), 15);
+  assert.equal(L.migrate({ days: { [T]: { meditMin: 9999 } } }).days[T].meditMin, 600);
+  const txt = L.summaryText("Semana 45", [["Sueño medio", "7 h 50"], ["Pasos", null]], { score: 8, wins: ["5K", ""], priorities: ["Francés"], lesson: "" });
+  assert.equal(txt, "## Semana 45\n\n- **Sueño medio:** 7 h 50\n- **Nota:** 8/10\n\n**Victorias**\n- 5K\n\n**Prioridades**\n- Francés\n");
+});
