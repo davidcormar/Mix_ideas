@@ -121,3 +121,7 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 
 ## 24 · carrera-practicas (de *Visión Profesional*) — 11:31 → 11:34
 - Mapa de organizaciones reales por sector y en Galicia, calendario hasta las prácticas, checklist de CV, banco de 32 preguntas de entrevista en inglés con respuestas aparte y test de opciones sutiles. Nueva skill `revision-carrera` (en 01).
+
+## 25 · habilidades (de la nota *Habilidades*) — 11:34 → 11:37
+- Plan en 5 bloques con primeros pasos y recursos gratuitos/dominio público + app de mecanografía (ES/EN/FR/código) y 25 atajos con repaso espaciado. 4 tests + smoke test.
+- **Problema:** un `mkdir` con llaves anidadas creó una carpeta `{mecanografia` → borrada y recreada. Los TikTok de la nota no se pueden abrir: listas propias, avisado.

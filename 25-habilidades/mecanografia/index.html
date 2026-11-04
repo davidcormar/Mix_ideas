@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mecanografía y atajos</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --mute:#6b7280; --line:#e5e7eb; --acc:#0891b2; --ok:#16a34a; --bad:#dc2626; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --ink:#e8eaed; --mute:#9aa0a6; --line:#2a2f37; --acc:#22d3ee; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:820px; margin:0 auto; padding:12px 16px 60px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  button, select, textarea { font:inherit; color:inherit; }
+  button { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 12px; cursor:pointer; }
+  button.on, button.primary { border-color:var(--acc); color:var(--acc); font-weight:600; }
+  select { padding:8px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  #target { font:18px/1.6 ui-monospace,Menlo,Consolas,monospace; white-space:pre-wrap; word-break:break-word; }
+  #target .ok { color:var(--ok); } #target .ko { background:var(--bad); color:#fff; border-radius:2px; } #target .cur { border-left:2px solid var(--acc); }
+  textarea { width:100%; min-height:90px; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); font:16px ui-monospace,Menlo,Consolas,monospace; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+  .kpi { font-size:22px; font-weight:700; } .muted { color:var(--mute); font-size:13px; }
+  .flex { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .hidden { display:none; }
+  .big { font-size:20px; font-weight:600; margin:8px 0; }
+  kbd { font:600 18px ui-monospace,monospace; background:var(--bg); border:1px solid var(--line); border-bottom-width:3px; border-radius:6px; padding:4px 10px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="flex" style="margin:6px 0 12px"><b style="font-size:18px">⌨️ Mecanografía y atajos</b><span style="flex:1"></span><button data-tab="type" class="on">Mecanografía</button><button data-tab="keys">Atajos</button></div>
+
+  <section id="type">
+    <div class="card">
+      <div class="flex"><select id="lang"><option value="es">Español</option><option value="en">English</option><option value="fr">Français</option><option value="code">Código Python</option></select><button id="new">Otro texto</button><span class="muted">Escribe sin mirar el teclado. El tiempo empieza con la primera tecla.</span></div>
+      <p id="target"></p>
+      <textarea id="input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Empieza a escribir aquí…"></textarea>
+    </div>
+    <div class="kpis">
+      <div class="card"><div class="muted">PPM netas (última)</div><div class="kpi" id="kWpm">—</div></div>
+      <div class="card"><div class="muted">Precisión</div><div class="kpi" id="kAcc">—</div></div>
+      <div class="card"><div class="muted">Media últimas 10</div><div class="kpi" id="kAvg">—</div></div>
+      <div class="card"><div class="muted">Mejor</div><div class="kpi" id="kBest">—</div></div>
+    </div>
+    <div class="card"><b>Teclas que más fallas:</b> <span id="weak" class="muted">—</span></div>
+  </section>
+
+  <section id="keys" class="hidden">
+    <div class="card" style="text-align:center">
+      <div class="muted" id="cApp"></div>
+      <div class="big" id="cAction"></div>
+      <div id="cKey" class="hidden" style="margin:14px 0"><kbd id="cKbd"></kbd></div>
+      <div class="flex" style="justify-content:center">
+        <button id="reveal" class="primary">Mostrar atajo</button>
+        <button id="ok" class="hidden">✅ Lo sabía</button><button id="ko" class="hidden">❌ No lo sabía</button>
+      </div>
+      <p class="muted" id="cStats"></p>
+    </div>
+    <p class="muted">Los que fallas vuelven antes. Lo que de verdad funciona: usar 2-3 atajos nuevos cada semana hasta que salgan solos.</p>
+  </section>
+</main>
+<script src="logic.js"></script>
+<script>
+(function () {
+  const T = window.TypeLogic, KEY = "mecanografia.v1", $ = (s) => document.querySelector(s);
+  let db; try { db = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { db = {}; }
+  db.history ||= []; db.cards ||= {};
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {} };
+  document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => {
+    document.querySelectorAll("[data-tab]").forEach((x) => x.classList.toggle("on", x === b));
+    $("#type").classList.toggle("hidden", b.dataset.tab !== "type"); $("#keys").classList.toggle("hidden", b.dataset.tab !== "keys");
+  });
+  let target = "", t0 = null, k = 0;
+  function newText() {
+    const arr = T.TEXTS[$("#lang").value]; k = (k + 1) % arr.length; target = arr[k];
+    $("#input").value = ""; t0 = null; paint(); $("#input").focus();
+  }
+  function paint() {
+    const typed = $("#input").value;
+    $("#target").innerHTML = [...target].map((ch, i) => {
+      const cls = i < typed.length ? (typed[i] === ch ? "ok" : "ko") : i === typed.length ? "cur" : "";
+      const shown = ch === "\n" ? "↵\n" : ch.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      return `<span class="${cls}">${shown}</span>`;
+    }).join("");
+  }
+  $("#input").addEventListener("keydown", (ev) => {
+    if (ev.key === "Tab") { ev.preventDefault(); document.execCommand("insertText", false, "    "); }
+  });
+  $("#input").addEventListener("input", () => {
+    if (t0 === null) t0 = performance.now();
+    paint();
+    const typed = $("#input").value;
+    if (typed.length >= target.length) {
+      const s = T.score(target, typed, performance.now() - t0);
+      db.history.push({ date: new Date().toISOString(), lang: $("#lang").value, netWpm: s.netWpm, accuracy: s.accuracy, errors: s.errors });
+      save(); stats(s); setTimeout(newText, 600);
+    }
+  });
+  function stats(last) {
+    const s = T.summary(db.history);
+    if (last) { $("#kWpm").textContent = Math.round(last.netWpm); $("#kAcc").textContent = Math.round(last.accuracy * 100) + " %"; }
+    $("#kAvg").textContent = s.sessions ? Math.round(s.avgWpm) : "—"; $("#kBest").textContent = s.sessions ? Math.round(s.bestWpm) : "—";
+    $("#weak").textContent = s.weakKeys.length ? s.weakKeys.map(([k, v]) => `${k} (${v})`).join(" · ") : "—";
+  }
+  $("#new").onclick = newText; $("#lang").onchange = () => { k = -1; newText(); };
+  // shortcuts
+  let card = 0;
+  function showCard() {
+    card = T.nextCard(db.cards); const c = T.SHORTCUTS[card];
+    $("#cApp").textContent = c.app; $("#cAction").textContent = c.action; $("#cKbd").textContent = c.key;
+    $("#cKey").classList.add("hidden"); $("#reveal").classList.remove("hidden"); $("#ok").classList.add("hidden"); $("#ko").classList.add("hidden");
+    const known = Object.values(db.cards).filter((s) => s.ok - 2 * s.ko >= 2).length;
+    $("#cStats").textContent = `${known} de ${T.SHORTCUTS.length} atajos dominados`;
+  }
+  $("#reveal").onclick = () => { $("#cKey").classList.remove("hidden"); $("#reveal").classList.add("hidden"); $("#ok").classList.remove("hidden"); $("#ko").classList.remove("hidden"); };
+  const mark = (good) => { const s = (db.cards[card] ||= { ok: 0, ko: 0 }); good ? s.ok++ : s.ko++; save(); showCard(); };
+  $("#ok").onclick = () => mark(true); $("#ko").onclick = () => mark(false);
+  k = -1; newText(); stats(); showCard();
+})();
+</script>
+</body>
+</html>

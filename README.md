@@ -33,6 +33,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 22 | [`22-escalera-ironman/`](22-escalera-ironman/) | Escalera media → Ironman con VDOT, aprender a nadar, semana híbrida (estándar 5 / suelo 3) y generador de plan de media | ✅ |
 | 23 | [`23-finanzas-sistema/`](23-finanzas-sistema/) | Simulador de tus 4 cuentas desde el primer sueldo + guía y calculadora para leer resultados de empresas | ✅ |
 | 24 | [`24-carrera-practicas/`](24-carrera-practicas/) | Mapa de empresas (F1, espacio, IA, Galicia), calendario a ene-2028, CV ML y 32 preguntas de entrevista en inglés | 💡 |
+| 25 | [`25-habilidades/`](25-habilidades/) | Plan de habilidades (retórica, estoicismo, móvil antidopamina…) + app de mecanografía y atajos | ✅ |
 
 ## Tests
 

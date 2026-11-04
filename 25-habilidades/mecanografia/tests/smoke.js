@@ -1,0 +1,21 @@
+const { chromium } = require("playwright");
+const path = require("path");
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 900, height: 800 } });
+  const errs = []; p.on("pageerror", (e) => errs.push(e.message));
+  await p.goto("file://" + path.resolve(__dirname, "../index.html"));
+  const target = await p.evaluate(() => [...document.querySelectorAll("#target span")].map((s) => s.textContent.replace("↵\n", "\n")).join(""));
+  await p.focus("#input");
+  await p.keyboard.type(target.slice(0, 10) + "X" + target.slice(11), { delay: 5 });
+  await p.waitForTimeout(800);
+  const h = await p.evaluate(() => JSON.parse(localStorage.getItem("mecanografia.v1")).history);
+  await p.screenshot({ path: path.resolve(__dirname, "../captura.png") });
+  await p.click('[data-tab="keys"]'); await p.click("#reveal"); await p.click("#ko");
+  const cards = await p.evaluate(() => JSON.parse(localStorage.getItem("mecanografia.v1")).cards);
+  await b.close();
+  if (errs.length) throw new Error(errs.join("\n"));
+  if (h.length !== 1 || !(h[0].accuracy < 1 && h[0].accuracy > 0.9)) throw new Error("history " + JSON.stringify(h));
+  if (!cards[0] || cards[0].ko !== 1) throw new Error("cards " + JSON.stringify(cards));
+  console.log("smoke OK", Math.round(h[0].netWpm), "wpm", h[0].accuracy.toFixed(3));
+})().catch((e) => { console.error(e); process.exit(1); });
