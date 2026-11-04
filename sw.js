@@ -6,7 +6,7 @@
    - A file that cannot be downloaded during the install keeps its copy from the previous version.
    - Slow network and nothing cached: it keeps waiting for the network instead of failing at 4 s.
    - Folders: "app/" and "app/index.html" are the same page offline; "app" (no final slash) is sent to "app/". */
-const VERSION = "b95b05441bfa";
+const VERSION = "3cac76f315ab";
 const CACHE = "mix-ideas-" + VERSION;
 const TIMEOUT_MS = 4000;
 const FILES = [
@@ -57,6 +57,10 @@ const FILES = [
  "25-habilidades/mecanografia/",
  "25-habilidades/mecanografia/index.html",
  "25-habilidades/mecanografia/logic.js",
+ "29-importar-salud/",
+ "29-importar-salud/app.js",
+ "29-importar-salud/index.html",
+ "29-importar-salud/logic.js",
  "icons/apple-touch-icon.png",
  "icons/icon-192.png",
  "icons/icon-512.png",

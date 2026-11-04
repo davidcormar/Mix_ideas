@@ -10,7 +10,7 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json", ".json": "application/json", ".md": "text/markdown; charset=utf-8" };
 const PREFIX = "/Mix_ideas"; // same path shape as GitHub Pages
-const APPS = ["28-panel-vida/", "26-ritmo/", "27-paso/", "15-habitos/app/", "10-gym-tracker/", "21-idiomas-plan/", "11-finanzas/", "12-mapa-viajes/", "25-habilidades/mecanografia/"];
+const APPS = ["28-panel-vida/", "26-ritmo/", "27-paso/", "15-habitos/app/", "10-gym-tracker/", "21-idiomas-plan/", "11-finanzas/", "12-mapa-viajes/", "25-habilidades/mecanografia/", "29-importar-salud/"];
 const SW_SRC = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
 const FILES = JSON.parse(SW_SRC.match(/const FILES = (\[[\s\S]*?\]);/)[1]);
 const VERSION = SW_SRC.match(/const VERSION = "(\w+)";/)[1];

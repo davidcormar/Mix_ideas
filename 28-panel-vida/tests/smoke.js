@@ -155,7 +155,93 @@ function check(c, msg) { if (!c) throw new Error("FALLO: " + msg); }
       check(over <= 0, `scroll horizontal a 360 px en ${r} (${scheme}): ${over}px`);
     }
   }
+
+  // 10 · regresiones de la revisión QA (contextos aparte: no tocan las capturas)
+  const SPY = () => {
+    const set = Storage.prototype.setItem, del = Storage.prototype.removeItem, clr = Storage.prototype.clear;
+    const log = (k) => { const a = JSON.parse(sessionStorage.getItem("__w") || "[]"); a.push(k); set.call(sessionStorage, "__w", JSON.stringify(a)); };
+    Storage.prototype.setItem = function (k, v) { if (this === localStorage) log(k); return set.call(this, k, v); };
+    Storage.prototype.removeItem = function (k) { if (this === localStorage) log("-" + k); return del.call(this, k); };
+    Storage.prototype.clear = function () { if (this === localStorage) log("CLEAR"); return clr.call(this); };
+  };
+  const writes = async (pg) => JSON.parse(await pg.evaluate(() => sessionStorage.getItem("__w") || "[]"));
+  const qa = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: "es-ES", timezoneId: "Europe/Madrid", acceptDownloads: true });
+  await qa.addInitScript((f) => { if (!sessionStorage.getItem("__seeded")) { sessionStorage.setItem("__seeded", "1"); for (const [k, v] of Object.entries(f)) localStorage.setItem(k, v); } }, foreign);
+  await qa.addInitScript(SPY);
+  const a = await qa.newPage(); a.on("pageerror", (e) => errors.push("qa: " + e.message)); a.on("dialog", (d) => d.accept());
+  await a.clock.install({ time: new Date("2026-11-04T19:10:00+01:00") });
+  await a.goto(URL + "#/hoy"); await a.waitForSelector("[data-day]");
+  // a) cambiar la hora no redibuja el campo (en Chrome «change» llega a mitad de escribir) y el cálculo se actualiza
+  await a.evaluate(() => { const i = document.querySelector('[data-f="bed"]'); i.__same = 1; i.focus(); i.value = "23:04"; i.dispatchEvent(new Event("change", { bubbles: true })); });
+  check(await a.evaluate(() => document.querySelector('[data-f="bed"]').__same === 1 && document.activeElement.dataset.f === "bed"), "el campo de hora sigue siendo el mismo y con el foco");
+  await a.evaluate(() => { const i = document.querySelector('[data-f="wake"]'); i.value = "07:04"; i.dispatchEvent(new Event("change", { bubbles: true })); });
+  check((await a.textContent("#sleepCalc")).includes("8 h 00") && (await a.textContent("#hoyWeek")).includes("8 h 00"), "horas dormidas y tabla al día sin redibujar");
+  // b) energía con teclado: el foco se queda en el botón
+  await a.focus('[data-energy="3"]'); await a.keyboard.press("Enter");
+  check(await a.evaluate(() => document.activeElement.dataset.energy === "3" && document.activeElement.getAttribute("aria-pressed") === "true"), "energía con Enter conserva el foco");
+  await a.keyboard.press("Tab"); await a.keyboard.press("Space");
+  check(JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1"))).days[T].energy === 4, "energía con Tab + Espacio");
+  // c) «Voy por» vacío no devuelve el libro a la página 0
+  await a.goto(URL + "#/lectura"); await a.fill('#bookForm [name="title"]', "Cartas a Lucilio"); await a.fill('#bookForm [name="total"]', "300"); await a.click("#bookForm button");
+  await a.goto(URL + "#/hoy"); await a.fill('form[data-read] [name="p"]', "40"); await a.click("form[data-read] button");
+  await a.fill('form[data-read] [name="p"]', ""); await a.fill('form[data-read] [name="m"]', "20"); await a.click("form[data-read] button");
+  st = JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1")));
+  check(st.books[0].progress === 40 && st.readLog.reduce((x, r) => x + r.amount, 0) === 40, "minutos sin página: el libro sigue en la 40");
+  // d) uso normal (revisión, metas, ajustes, ejemplo y quitarlo, exportar) solo escribe panel.v1
+  await a.goto(URL + "#/semana"); await a.click('[data-score="7"]'); await a.click("#reviewForm button.primary");
+  check(/^2026-11-04 19:10$/.test(JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1"))).reviews["2026-W45"].at), "hora de la revisión en hora local");
+  await a.goto(URL + "#/ajustes"); await a.fill('#setForm [name="pagesWeekGoal"]', ""); await a.click("#setForm button.primary");
+  check(JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1"))).settings.pagesWeekGoal === 100, "campo vacío conserva el valor");
+  await a.click("#loadDemo"); await a.waitForSelector("#clearDemo"); await a.click("#clearDemo"); await a.waitForSelector("#loadDemo");
+  st = JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1")));
+  check(!st.demo && st.books[0].title === "Cartas a Lucilio" && st.reviews["2026-W45"], "quitar los ejemplos devuelve tu Panel");
+  await Promise.all([a.waitForEvent("download"), a.click("#exportPanel")]);
+  for (const r of ["#/panel", "#/metas", "#/lectura"]) { await a.goto(URL + r); await a.waitForSelector(".card"); }
+  const w = await writes(a);
+  check(w.length > 5 && w.every((k) => k === "panel.v1"), "solo se escribe panel.v1: " + [...new Set(w)]);
+  for (const k of Object.keys(foreign)) check((await a.evaluate((x) => localStorage.getItem(x), k)) === foreign[k], "uso normal no toca " + k);
+  // e) dos pestañas: lo que apuntas en una aparece en la otra
+  const b2 = await qa.newPage(); b2.on("pageerror", (e) => errors.push("qa2: " + e.message));
+  await b2.clock.install({ time: new Date("2026-11-04T19:10:00+01:00") });
+  await b2.goto(URL + "#/hoy"); await b2.waitForSelector("[data-day]");
+  await a.goto(URL + "#/hoy"); await a.click('[data-energy="2"]');
+  await b2.waitForFunction(() => document.querySelector('[data-energy="2"]').getAttribute("aria-pressed") === "true");
+  await b2.fill('[data-j="good"]', "desde la otra pestaña"); await b2.locator('[data-j="good"]').dispatchEvent("change");
+  st = JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1")));
+  check(st.days[T].energy === 2 && st.days[T].journal.good === "desde la otra pestaña", "dos pestañas sin pisarse");
+  await b2.close();
+  // f) copia: claves desconocidas ignoradas, las 9 apps de ida y vuelta
+  const all = { ...foreign, "panel.v1": await a.evaluate(() => localStorage.getItem("panel.v1")), "mapaviajes.v1": '{"places":[]}', "mecanografia.v1": '{"best":40}', "gymtracker.v1": foreign["gymtracker.v1"] };
+  const bk = { format: "mix-ideas-backup", version: 1, exportedAt: "2026-11-01 10:00", data: Object.fromEntries(Object.entries(all).map(([k, v]) => [k, JSON.parse(v)])) };
+  bk.data["otra.app"] = { x: 1 }; bk.data["panel.v1"].settings.name = "Restaurado";
+  await a.goto(URL + "#/ajustes"); await a.click("#restoreAll");
+  await a.setInputFiles("#fileIn", { name: "c.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(bk)) });
+  await a.waitForFunction(() => /Restaurado/.test(localStorage.getItem("panel.v1") || ""));
+  check((await a.evaluate(() => localStorage.getItem("otra.app"))) === null && (await a.evaluate(() => localStorage.getItem("mecanografia.v1"))) === '{"best":40}', "restaura las 9 claves e ignora las desconocidas");
+  // g) datos dañados: aviso, nada se guarda, descarga del texto y «Empezar de cero»
+  await a.evaluate(() => localStorage.setItem("panel.v1", "{roto"));
+  await a.goto(URL + "#/hoy"); await a.reload(); await a.waitForSelector("#banner:not([hidden])");
+  await a.click('[data-energy="5"]');
+  check((await a.evaluate(() => localStorage.getItem("panel.v1"))) === "{roto", "con datos dañados no se guarda nada");
+  const [bad] = await Promise.all([a.waitForEvent("download"), a.click("#dlBad")]);
+  check(fs.readFileSync(await bad.path(), "utf8") === "{roto" && /\.txt$/.test(bad.suggestedFilename()), "descarga el texto dañado tal cual");
+  await a.click("#resetBad");
+  check(JSON.parse(await a.evaluate(() => localStorage.getItem("panel.v1"))).goals.length === 6 && (await a.isHidden("#banner")), "empezar de cero");
+  await qa.close();
+  // h) India, lunes a las 00:30: «Semana» abre la revisión pendiente de la semana pasada y la fecha es la local
+  const ind = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: "es-ES", timezoneId: "Asia/Kolkata" });
+  const k = await ind.newPage(); k.on("pageerror", (e) => errors.push("india: " + e.message));
+  await k.clock.install({ time: new Date("2026-11-09T00:30:00+05:30") }); // domingo 8 a las 20:00 en Madrid
+  await k.goto(URL + "#/semana"); await k.waitForSelector("#reviewForm");
+  check((await k.textContent(".head")).includes("Semana 45"), "a las 00:30 del lunes abre la semana 45: " + (await k.textContent(".head")));
+  await k.click('[data-score="8"]'); await k.click("#reviewForm button.primary");
+  st = JSON.parse(await k.evaluate(() => localStorage.getItem("panel.v1")));
+  check(st.reviews["2026-W45"] && !st.reviews["2026-W46"] && st.reviews["2026-W45"].at === "2026-11-09 00:30", "revisión guardada en la semana 45 con hora de la India");
+  await k.goto(URL + "#/hoy"); await k.waitForSelector("[data-day]");
+  check((await k.getAttribute("[data-day]", "data-day")) === "2026-11-09" && (await k.textContent(".head h1")).includes("Lunes, 9 de noviembre"), "fecha local en la India");
+  await ind.close();
+
   check(errors.length === 0, "errores: " + errors.join(" | "));
   await browser.close();
-  console.log("smoke OK · registro diario, lectura, metas, revisión semanal, copia de 7 apps, 8 rutas a 360 px en claro y oscuro");
+  console.log("smoke OK · registro diario, lectura, metas, revisión semanal, copia de 7 apps, 8 rutas a 360 px en claro y oscuro · solo escribe panel.v1, teclado, dos pestañas, copia de 9 apps, datos dañados, India a las 00:30 del lunes");
 })().catch((e) => { console.error(e); process.exit(1); });

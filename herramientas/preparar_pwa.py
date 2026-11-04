@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 APPS = [
     "28-panel-vida", "26-ritmo", "27-paso", "15-habitos/app", "10-gym-tracker",
-    "21-idiomas-plan", "11-finanzas", "12-mapa-viajes", "25-habilidades/mecanografia",
+    "21-idiomas-plan", "11-finanzas", "12-mapa-viajes", "25-habilidades/mecanografia", "29-importar-salud",
 ]
 MARK = "<!-- pwa -->"
 

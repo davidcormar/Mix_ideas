@@ -77,7 +77,8 @@
   $("#doImport").onclick = () => {
     const t = today(), over = $("#overwrite").checked;
     // Paso
-    let paso; try { paso = PA.migrate(JSON.parse(get("paso.v1") || "null"), t); } catch (e) { alert("Los datos de Paso están dañados: ábrelo y revísalo antes de importar. No se ha cambiado nada."); return; }
+    const rawPaso = get("paso.v1");
+    let paso; try { const o = rawPaso ? JSON.parse(rawPaso) : {}; if (!o || typeof o !== "object" || Array.isArray(o)) throw new Error("x"); paso = PA.migrate(o, t); } catch (e) { alert("Los datos de Paso están dañados: ábrelo y revísalo antes de importar. No se ha cambiado nada."); return; }
     const rows = preview.filter((d) => d.steps).map((d) => ({ date: d.date, steps: d.steps }));
     const ms = PA.mergeSteps(paso, rows, "health", { overwriteManual: over });
     paso = ms.data;
@@ -89,7 +90,7 @@
     }
     // Panel
     let panel; const rawP = get("panel.v1");
-    try { panel = rawP ? PL.migrate(JSON.parse(rawP)) : Object.assign(PL.emptyState(), { goals: PL.starterGoals(t) }); } catch (e) { alert("Los datos del Panel están dañados: ábrelo y revísalo antes de importar. No se ha cambiado nada."); return; }
+    try { if (rawP) { const o = JSON.parse(rawP); if (!o || typeof o !== "object" || Array.isArray(o)) throw new Error("x"); panel = PL.migrate(o); } else panel = Object.assign(PL.emptyState(), { goals: PL.starterGoals(t) }); } catch (e) { alert("Los datos del Panel están dañados: ábrelo y revísalo antes de importar. No se ha cambiado nada."); return; }
     let nights = 0, keptNights = 0;
     for (const d of preview) {
       if (!d.bed) continue;

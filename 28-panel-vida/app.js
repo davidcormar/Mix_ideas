@@ -128,7 +128,7 @@
     $("#tabbar").innerHTML = NAV.map(([k, label, ico]) => `<a href="#/${k}" data-nav="${k}" ${cur === k ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${ico}</span>${label}</a>`).join("");
     const aj = $(".side-link"); if (cur === "ajustes") aj.setAttribute("aria-current", "page"); else aj.removeAttribute("aria-current");
     const t = today(), ref = P.reviewDefault(S, t), late = ref !== t, wk = P.isoWeek(ref), done = !!S.reviews[wk];
-    $("#sideCard").innerHTML = `<span class="faint">Revisión semanal · semana ${Number(wk.slice(6))}</span><b>${done ? "Hecha ✓" : late ? "Te falta la de la semana pasada" : P.dow(t) >= 5 ? "Te toca este finde" : "El domingo, 10 min"}</b><a class="btn small ${done ? "" : "primary"}" href="${late ? `#/semana?d=${ref}` : "#/semana"}" style="text-decoration:none;display:inline-flex;align-items:center">${done ? "Ver" : "Hacer revisión"}</a>`;
+    $("#sideCard").innerHTML = `<span class="faint">Revisión · semana ${Number(wk.slice(6))}</span><b>${done ? "Hecha ✓" : late ? "Te falta la de la semana pasada" : P.dow(t) >= 5 ? "Te toca este finde" : "El domingo, 10 min"}</b><a class="btn small ${done ? "" : "primary"}" href="${late ? `#/semana?d=${ref}` : "#/semana"}" style="text-decoration:none;display:inline-flex;align-items:center">${done ? "Ver" : "Hacer revisión"}</a>`;
   }
   function render() {
     const r = route();
@@ -173,6 +173,7 @@
     const e = S.days[t] || {}, sl = P.sleepStats(S, last7), slPrev = P.sleepStats(S, prev7), sc = P.screenStats(S, last7), scPrev = P.screenStats(S, prev7);
     const night = P.sleepMinutes(e), wk = P.isoWeek(t), prevWk = P.isoWeek(P.addDays(t, -7));
     const snap = P.weekSnapshot(S, t, t, weekExt(t, t, X)), L = P.lights(snap, S.settings);
+    if (!S.books.length && !snap.pages) L.lectura = null; // nothing to read yet: grey, not red
     const out = [];
     out.push(header(P.fmtLong(t), `${greeting()}, <b>${esc(S.settings.name)}</b>`, `<a class="btn primary" href="#/hoy" style="text-decoration:none;display:inline-flex;align-items:center">Registrar hoy</a>`));
     // review callout (weekend or Monday) + priorities of this week
@@ -185,7 +186,7 @@
     // hero "tu día"
     const jd = P.journalDone(e);
     out.push(`<section class="card dark c4" aria-label="Tu día"><h2>Tu día <span class="right">${jd ? "Diario ✓" : "Diario pendiente"}</span></h2>
-      <div class="kpi" style="margin-top:10px">${night !== null ? h(night) : "—"}<small>de sueño</small></div>
+      ${night !== null ? `<div class="kpi" style="margin-top:10px">${h(night)}<small>de sueño</small></div>` : '<p class="kpi-empty">Sueño de anoche sin apuntar</p>'}
       <div class="rows">
         <div class="row"><span>Energía</span><b>${e.energy ? "●".repeat(e.energy) + "○".repeat(5 - e.energy) : "sin apuntar"}</b></div>
         <div class="row"><span>Móvil hoy</span><b>${e.screenMin !== undefined ? `${e.screenMin} min · objetivo ${S.settings.screenGoalMin}` : "sin apuntar"}</b></div>
@@ -361,7 +362,7 @@
       const ge = goalExt(t, X, g), p = P.goalProgress(g, t, ge), l = p.status === "en-ritmo" || p.status === "hecho" ? "ok" : p.status === "atrasada" || p.status === "vencida" ? "bad" : "";
       return `<div class="item"><div class="item-top"><span class="t">${esc(g.title)}</span>${chipL(l, P.STATUS_LABEL[p.status])}</div>
         ${pctBar(p.pct, l, p.expected)}
-        <div class="meta"><span>${esc(p.label)}</span>${g.deadline ? `<span>${p.daysLeft >= 0 ? `quedan ${p.daysLeft} días (${P.fmtDay(g.deadline)} ${g.deadline.slice(0, 4)})` : `venció el ${P.fmtDay(g.deadline)}`}</span>` : ""}${p.expected !== null && p.status !== "hecho" ? `<span>deberías ir por el ${Math.round(p.expected * 100)} %</span>` : ""}${g.auto ? `<span>auto: ${esc(P.AUTO[g.auto])}${ge[g.auto] == null ? " (sin datos)" : ""}</span>` : ""}</div>
+        <div class="meta"><span>${esc(p.label)}</span>${g.deadline ? `<span>${p.daysLeft >= 0 ? `quedan ${p.daysLeft} días (${P.fmtDay(g.deadline)} ${g.deadline.slice(0, 4)})` : `venció el ${P.fmtDay(g.deadline)}`}</span>` : ""}${p.expected !== null && p.expected >= 0.01 && p.status !== "hecho" ? `<span>deberías ir por el ${Math.round(p.expected * 100)} %</span>` : ""}${g.auto ? `<span>auto: ${esc(P.AUTO[g.auto])}${ge[g.auto] == null ? " (sin datos)" : ""}</span>` : ""}</div>
         ${g.kind === "hito" ? `<div class="steps">${g.steps.map((s, i) => `<label class="check"><input type="checkbox" data-gstep="${g.id}" data-i="${i}" ${s.done ? "checked" : ""}> ${esc(s.text)}</label>`).join("")}</div>` : ""}
         <div class="actions" style="margin-top:4px">${g.kind === "numero" && !g.auto ? `<label class="field" style="flex-direction:row;display:flex;align-items:center;gap:8px">Llevo<input class="inline" style="width:110px" type="number" step="any" min="0" data-gcur="${g.id}" value="${g.current}" aria-label="Valor actual de ${esc(g.title)}"></label>` : ""}
           ${g.kind === "hito" ? `<button class="btn small ${g.done ? "" : "primary"}" data-gdone="${g.id}">${g.done ? "Reabrir" : "Marcar hecha"}</button>` : ""}
@@ -396,6 +397,7 @@
   function vSemana(t, X, r) {
     const ref = r.d && r.d <= t ? r.d : P.reviewDefault(S, t), ws = P.weekStart(ref), wk = P.isoWeek(ref), days = P.weekDays(ref).filter((d) => d <= t);
     const snap = P.weekSnapshot(S, ref, t, weekExt(ref, t, X)), L = P.lights(snap, S.settings), rv = S.reviews[wk];
+    if (!S.books.length && !snap.pages) L.lectura = null;
     const prevPri = (S.reviews[P.isoWeek(P.addDays(ws, -7))] || {}).priorities || [];
     const rowsA = [
       ["Sueño medio", snap.sleepAvgMin != null ? h(snap.sleepAvgMin) : null, L.sueno],
@@ -458,6 +460,7 @@
   }
 
   // ───────────── AJUSTES
+  const standalone = () => { try { return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } };
   function vAjustes(t) {
     const st = S.settings, present = P.APP_KEYS.filter(({ key }) => store.get(key) != null);
     return header("Ajustes y datos", "<b>Ajustes</b>") + `<div class="grid">
@@ -474,7 +477,8 @@
       <section class="card c6"><h2>Copia de seguridad de TODAS tus apps</h2>
         <p class="sub">Un solo fichero con los datos de ${P.APP_KEYS.length} apps del repo. Hoy hay datos de: ${present.map((x) => esc(x.app)).join(", ") || "ninguna"}.</p>
         <div class="actions"><button class="btn primary" id="backupAll">Descargar copia completa</button><button class="btn" id="restoreAll">Restaurar copia…</button></div>
-        <p class="faint" style="margin-top:10px">Haz una copia cada semana (por ejemplo, al terminar la revisión) y guárdala en la nube. Todo vive en este navegador: si borras sus datos o cambias de móvil, se pierde.</p></section>
+        <p class="faint" style="margin-top:10px">Haz una copia cada semana (por ejemplo, al terminar la revisión) y guárdala en la nube. Todo vive en este navegador: si borras sus datos o cambias de móvil, se pierde.</p>
+        ${standalone() ? '<p class="callout" style="margin:12px 0 0">Estás en la app de la pantalla de inicio. En el iPhone guarda sus datos aparte de Safari: si antes usabas las apps en Safari, descarga allí la copia completa y restáurala aquí.</p>' : ""}</section>
       <section class="card c12"><h2>Datos del Panel</h2>
         <div class="actions"><button class="btn" id="exportPanel">Exportar solo el Panel (JSON)</button><button class="btn" id="importPanel">Importar Panel…</button>
         ${S.demo ? '<button class="btn" id="clearDemo">Quitar datos de ejemplo</button>' : '<button class="btn" id="loadDemo">Cargar datos de ejemplo</button>'}
