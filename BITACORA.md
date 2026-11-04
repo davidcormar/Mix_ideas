@@ -148,4 +148,7 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 - **Medios:** los datos de ejemplo de Ritmo dejaban ticks falsos en la hoja de 15-hábitos sin forma de quitarlos → ahora se registran y hay un botón «Quitar ticks de ejemplo de Hábitos»; contraste por debajo de AA en textos grises de ambas apps → tokens corregidos; el aviso tapaba el botón de revisión nocturna → abajo a la derecha; en el móvil la revisión nocturna solo era accesible desde «⋯» → tarjeta «Cada noche» de 20:00 a 04:00.
 - **Bajos:** recordatorios tras medianoche o tras suspender el portátil, clave temporal `ritmo.v1.probe`, descarga del texto dañado, foco tras guardar/borrar en Paso, pasos y agua en días futuros, «hoy» desfasado tras medianoche, anillo de foco en campos de fecha/hora.
 - Tests finales: Ritmo **58** (+3), Paso **35**; smoke tests en verde 3 veces seguidas cada uno. **Problema:** un smoke de Ritmo falló una vez mientras el revisor aún ejecutaba los suyos sobre los mismos ficheros; 9 ejecuciones posteriores, todas en verde.
-- **Sin arreglar (a propósito):** si 15-hábitos está abierta en otra pestaña puede pisar ticks escritos por Ritmo al guardar (solo se arregla en 15; documentado).
+- **Sin arreglar (a propósito):** si 15-hábitos estaba abierta en otra pestaña podía pisar ticks escritos por Ritmo al guardar → **arreglado después en 15** (ver «A2» abajo).
+
+## A2 · 15-hábitos ya no pisa a Ritmo — 13:40
+- 15-hábitos cargaba `habitos.v1` una vez y guardaba el objeto entero: con Ritmo abierto a la vez se perdían ticks. Ahora relee antes de cada cambio (casilla u objetivo) y se repinta con el evento `storage`. Verificado en Chromium con dos pestañas: el tick externo se conserva.

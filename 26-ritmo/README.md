@@ -85,9 +85,8 @@ archivos locales; Firefox aísla cada archivo, así que ahí Ritmo no verá Háb
   añade, borra ni reordena hábitos, ni borra meses ni toca otras claves; los campos desconocidos sobreviven intactos. Si
   la clave no es válida aparece un aviso, los botones se desactivan y no se escribe nada. La única «reparación» es
   añadir la lista de hábitos por defecto si falta, porque 15-hábitos se rompe sin ella.
-- **Aviso de pestaña antigua de 15-hábitos.** 15-hábitos guarda su objeto entero en cada cambio; si lo tienes abierto
-  en otra pestaña a la vez que Ritmo, puede sobrescribir los ticks que hizo Ritmo. Recarga 15-hábitos antes de usarlo
-  (o ciérralo mientras usas Ritmo). Ritmo sí escucha el evento `storage` y se actualiza solo.
+- **Pestañas abiertas a la vez con 15-hábitos.** Desde el 4-nov, 15-hábitos relee `habitos.v1` antes de cada cambio
+  y escucha el evento `storage`, igual que Ritmo: ya no pisa los ticks que haya escrito Ritmo aunque las dos estén abiertas.
 - **Semántica de idiomas reutilizada.** El francés usa la fórmula de `pending()` de 21-idiomas
   (`p = max(0, p + suelo − hecho)` desde el 15-10-2026, sin contar «extra»); un test la compara con el código real de
   21-idiomas. Si `idiomas.v1` no existe, se cuentan tus tareas de francés hechas en Ritmo desde el primer uso. El suelo

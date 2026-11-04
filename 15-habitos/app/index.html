@@ -49,8 +49,12 @@
   const H = window.HabitLogic, KEY = "habitos.v1", GOAL = 7.5;
   const $ = (s) => document.querySelector(s);
   const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
-  let data; try { data = H.validate(JSON.parse(localStorage.getItem(KEY))); } catch { data = { habits: H.HABITS, months: {} }; }
+  // Relee siempre antes de modificar: así no pisa los ticks que otra app (p. ej. 26-ritmo) haya escrito mientras esta pestaña estaba abierta.
+  const load = () => { try { const raw = localStorage.getItem(KEY); return raw ? H.validate(JSON.parse(raw)) : null; } catch { return null; } };
+  let data = load() || { habits: H.HABITS, months: {} };
+  const fresh = () => { const d = load(); if (d) data = d; };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {} };
+  window.addEventListener("storage", (ev) => { if (ev.key === KEY) { fresh(); render(); } });
   $("#month").value = today().slice(0, 7);
   const shift = (k) => { const [y, m] = $("#month").value.split("-").map(Number); const d = new Date(y, m - 1 + k, 1); $("#month").value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; render(); };
   $("#prev").onclick = () => shift(-1); $("#next").onclick = () => shift(1); $("#month").onchange = render;
@@ -81,10 +85,11 @@
   }
   $("#grid").addEventListener("click", (ev) => {
     const td = ev.target.closest("td.c"); if (!td) return;
+    fresh(); data.months[$("#month").value] ||= {};
     H.toggle(data.months[$("#month").value], Number(td.dataset.h), Number(td.dataset.d)); save(); render();
   });
   $("#objs").addEventListener("change", (ev) => {
-    const ob = H.objectives(data, $("#month").value), t = ev.target;
+    fresh(); const ob = H.objectives(data, $("#month").value), t = ev.target;
     if (t.dataset.od !== undefined) ob[t.dataset.od].done = t.checked;
     if (t.dataset.ot !== undefined) ob[t.dataset.ot].text = t.value;
     save(); render();
