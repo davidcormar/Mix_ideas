@@ -31,7 +31,7 @@ python -m pytest -q tests                            # 8 tests
 - Rellenar el JSON de una empresa real que te guste y repetirlo cada trimestre.
 
 ## Decisiones
-- **Orden de reparto**: fondo de emergencia → metas en la remunerada → inversión (70/30 o lo que digas: por defecto 80 % pasiva / 20 % activa).
+- **Orden de reparto**: fondo de emergencia → metas en la remunerada → inversión (por defecto 80 % pasiva / 20 % activa; cámbialo en `supuestos.yaml`).
 - **La casa empieza a ahorrarse en la remunerada 5 años antes** (tu principio 4); antes, el excedente se invierte.
 - **Semáforos de ratios orientativos** y avisados como tales: dependen del sector.
 - Sin bancos concretos ni productos: eso lo decides tú al montar el sistema.
