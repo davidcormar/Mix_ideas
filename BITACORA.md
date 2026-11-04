@@ -73,3 +73,6 @@ Horas en hora de Madrid (CET).
 
 ## 16 · nutricion — 01:00 → 01:01
 - Guía de raciones adaptada a corredor + gimnasio, 20 recetas con verdura escondida, pre/post entreno y lista de la compra. Información general con fuentes.
+
+## 17 · sistema-claude — 01:02 → 01:02
+- Documento de diseño (arquitectura, memoria en capas, conexiones, rutinas, qué automatizar, 5 fases, riesgos) + plantillas de instrucciones del Proyecto y TASKS.md.
