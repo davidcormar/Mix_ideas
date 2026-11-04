@@ -70,3 +70,6 @@ Horas en hora de Madrid (CET).
 ## 15 · habitos — 00:59 → 01:00
 - Generador de hojas A4 (matplotlib → PDF/PNG), hojas de nov y dic, app digital con estadísticas. 3 tests Python + 4 Node + smoke test.
 - **Problema:** emojis sin glifo en matplotlib → se eliminan en el papel (regex con rangos explícitos).
+
+## 16 · nutricion — 01:00 → 01:01
+- Guía de raciones adaptada a corredor + gimnasio, 20 recetas con verdura escondida, pre/post entreno y lista de la compra. Información general con fuentes.

@@ -22,7 +22,7 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 13 | [`13-india-woxsen/`](13-india-woxsen/) | Checklist hasta el 6-ene, visado, vacunas, dinero, SIM, guía de Hyderabad y presupuesto | 💡 |
 | 14 | [`14-portfolio-linkedin/`](14-portfolio-linkedin/) | README de perfil GitHub, portfolio HTML, LinkedIn ES/EN, plantilla de referentes | 💡 |
 | 15 | [`15-habitos/`](15-habitos/) | Hoja A4 en PDF por mes + app digital con media, rachas y hábito más flojo | ✅ |
-| 16 | `16-nutricion/` | Nutrición sin contar calorías | ⏳ |
+| 16 | [`16-nutricion/`](16-nutricion/) | Raciones con la mano, 20 recetas con verdura escondida, pre/post entreno, lista de la compra | 💡 |
 | 17 | `17-sistema-claude/` | Diseño del "agentic OS" | ⏳ |
 | 18 | `18-servidor-casa/` | Servidor en casa | ⏳ |
 | 19 | `19-londres/` | Viaje Birmingham + Londres | ⏳ |
