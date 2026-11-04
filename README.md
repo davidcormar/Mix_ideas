@@ -28,6 +28,8 @@ Cada carpeta tiene su propio `README.md` (qué es, cómo usarlo, qué está hech
 | 19 | [`19-londres/`](19-londres/) | Itinerario ~300 €, transporte, museos gratis y ruta GPX de 7 km por Hyde Park | ✅ |
 | **Extra** | | | |
 | 20 | [`20-efecto-suelo/`](20-efecto-suelo/) | Paneles multicuerpo + método de imágenes: alerón de F1 cerca del suelo + surrogate con h/c | ✅ |
+| **De tus visiones** | | | |
+| 21 | [`21-idiomas-plan/`](21-idiomas-plan/) | App de horas por idioma (suelo de 30' acumulable, proyección al B2, ciclo de 7) + plan de alemán + inglés C1 | ✅ |
 
 ## Tests
 

@@ -107,3 +107,6 @@ Leídas: *Visión Profesional*, *Visión Deporte*, *Visión Idiomas*, *Visión F
 - **13:** prueba B1 en marzo e inscripción al DELF desde India; vuelta ≤ 30 de mayo; piscina en Woxsen para aprender a nadar.
 - **12:** fin del intercambio 30 de mayo. **14:** 26:47, B2 Cambridge, alemán, híbrido, prácticas desde enero de 2028. **17:** instrucciones del Proyecto actualizadas.
 - **15:** **3 objetivos del mes** en la hoja A4 y en la app (+1 test Node, smoke test ampliado).
+
+## 21 · idiomas-plan (de *Visión Idiomas*) — 11:24 → 11:26
+- App de horas por idioma con tus reglas (suelo 30' con arrastre, extras no cuentan, ciclo de 7, % de producción, horas previas, proyección vs. fecha), plan de alemán (lo tenías pendiente) y plan de inglés C1 orientado a entrevistas. 8 tests + smoke test.
